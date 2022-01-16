@@ -12,4 +12,4 @@ jobs:
             - run:
                   name: Build Unit Tests
                   command: |
-                      cd tests && clang++ main_tests.cpp -fsanitize=address  -std=c++11 -o unit_tests && ./unit_tests
+                      cd tests && clang++ main_test.cpp -fsanitize=address  -std=c++11 -o unit_tests && ./unit_tests
