@@ -11,6 +11,6 @@ bool isTestPassed(int num) {
 }
 
 TEST_CASE("Initial test", "[test]") {
-	int num = 0;
+	int num = 1;
 	CHECK(isTestPassed(num) == true);
 }
