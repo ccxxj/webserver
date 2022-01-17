@@ -5,6 +5,7 @@
 - [Beej's Guide to Network Programming](http://beej.us/guide/bgnet/)
 - [Server/Location matching](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
 - [Configuration File](http://nginx.org/en/docs/dirindex.html)
+- [Building the Web: Sockets and Servers for Dummies](https://levelup.gitconnected.com/building-the-web-sockets-and-servers-for-dummies-886d1595a4f8)
 
 ### **Server setup**
 
@@ -119,6 +120,8 @@ A Beginner's Guide to WebSockets > [https://www.youtube.com/watch?v=8ARodQ4Wlf4&
 [http://dwise1.net/pgm/sockets/blocking.html](http://dwise1.net/pgm/sockets/blocking.html)
 
 [https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming](https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming)
+
+
 
 ## **Testers**
 
