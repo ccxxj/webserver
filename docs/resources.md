@@ -98,6 +98,7 @@
 **CGI Doc**
 
 - [RFC 3875: CGI](https://www.rfc-editor.org/rfc/rfc3875.pdf)
+- [What is a CGI?](https://www.oreilly.com/library/view/cgi-programming-on/9781565921689/04_chapter-01.html)
 - [Best CGI Exemple](https://www.fi.muni.cz/usr/jkucera/tic/tic0305.html): Programmation CGI in C++.
 - [CGI Environmnent Variables](https://fr.wikipedia.org/wiki/Variables_d%27environnement_CGI)
 - [Good CGI Howto (and cookies)](http://www.purplepixie.org/cgi/howto.php)
