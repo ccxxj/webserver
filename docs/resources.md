@@ -113,13 +113,15 @@
 - [Inside Nginx architecture](https://www.nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/)
 - [Understanding Nginx Server and Location Block Selection Algorithms](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
 
-Sockets
+**Sockets**
 
-A Beginner's Guide to WebSockets > [https://www.youtube.com/watch?v=8ARodQ4Wlf4&ab_channel=freeCodeCamp.org](https://www.youtube.com/watch?v=8ARodQ4Wlf4&ab_channel=freeCodeCamp.org)
+- A Beginner's Guide to WebSockets > [https://www.youtube.com/watch?v=8ARodQ4Wlf4&ab_channel=freeCodeCamp.org](https://www.youtube.com/watch?v=8ARodQ4Wlf4&ab_channel=freeCodeCamp.org)
 
-[http://dwise1.net/pgm/sockets/blocking.html](http://dwise1.net/pgm/sockets/blocking.html)
+- [Ports and Sockets](http://www.danzig.jct.ac.il/tcp-ip-lab/ibm-tutorial/3376c210.html)
+- [Difference between a socket and a port](https://softwareengineering.stackexchange.com/questions/171734/difference-between-a-socket-and-a-port)
+- [Dealing With and Getting Around Blocking Sockets](http://dwise1.net/pgm/sockets/blocking.html)
 
-[https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming](https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming)
+- [Socket programming](https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming)
 
 
 
