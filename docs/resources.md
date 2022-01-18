@@ -116,13 +116,14 @@
 
 **Sockets**
 
-- A Beginner's Guide to WebSockets > [https://www.youtube.com/watch?v=8ARodQ4Wlf4&ab_channel=freeCodeCamp.org](https://www.youtube.com/watch?v=8ARodQ4Wlf4&ab_channel=freeCodeCamp.org)
-
 - [Ports and Sockets](http://www.danzig.jct.ac.il/tcp-ip-lab/ibm-tutorial/3376c210.html)
 - [Difference between a socket and a port](https://softwareengineering.stackexchange.com/questions/171734/difference-between-a-socket-and-a-port)
 - [Dealing With and Getting Around Blocking Sockets](http://dwise1.net/pgm/sockets/blocking.html)
-
 - [Socket programming](https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming)
+- [Difference between socket and websocket](https://stackoverflow.com/questions/62483790/difference-between-the-socket-socketio-and-websockets), also [here](https://stackoverflow.com/questions/4973622/difference-between-socket-and-websocket) and [here](https://stackoverflow.com/questions/16945345/differences-between-tcp-sockets-and-web-sockets-one-more-time)
+- Regarding the previous we might not need info about websockets for this project but will leave the link anyway:
+[A Beginner's Guide to WebSockets](https://www.youtube.com/watch?v=8ARodQ4Wlf4&ab_channel=freeCodeCamp.org)
+
 
 
 
