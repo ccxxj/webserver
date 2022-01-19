@@ -49,25 +49,6 @@
 
 [HTTP Header Break Style](https://stackoverflow.com/questions/5757290/http-header-line-break-style)
 
-### **Select and non-blocking**
-
-[Select](https://www.lowtek.com/sockets/select.html)
-
-
-
-### **Why epoll() but not select()**
-- [epoll man page](https://man7.org/linux/man-pages/man7/epoll.7.html)
-- [Why is epoll faster than select?](https://stackoverflow.com/questions/17355593/why-is-epoll-faster-than-select/17355702#:~:text=The%20main%20difference%20between%20epoll,duration%20of%20a%20single%20call) and an article about  [differences between poll and select](https://stackoverflow.com/questions/970979/what-are-the-differences-between-poll-and-select)  and this source about  [why should select() be deprecated](https://beesbuzz.biz/code/5739-The-problem-with-select-vs-poll)
-- [Detailed explanation of epoll of linux high concurrency network programming](https://blog.csdn.net/mengzuchao/article/details/81294554) - use google translate 
-- **Examples of programming a socket with epoll:**
-  - [Single thread TCP server by using linux's epoll facility](http://swingseagull.github.io/2016/11/08/epoll-sample/)
-  - [socket programming and epoll model in Linux](https://www.fatalerrors.org/a/socket-programming-and-epoll-model-in-linux.html)
-
-### **CGI**
-
-[CGI : Getting Started](http://www.mnuwer.dbasedeveloper.co.uk/dlearn/web/session01.htm)
-
-[CGI 1.1 Documentation](http://www.wijata.com/cgi/cgispec.html#4.0)
 
 **Tutorials**
 
@@ -100,6 +81,28 @@
 - [poll](https://man7.org/linux/man-pages/man2/poll.2.html): waits for one of a set of file descriptors to become ready to perform I/O.
 - [accept](https://man7.org/linux/man-pages/man2/accept.2.html): accepts a connection on a socket.
 - [Select](https://www.lowtek.com/sockets/select.html): we're not using it but it might be helpful to read about it
+- 
+ **Why not select()**
+- [Why is epoll faster than select?](https://stackoverflow.com/questions/17355593/why-is-epoll-faster-than-select/17355702#:~:text=The%20main%20difference%20between%20epoll,duration%20of%20a%20single%20call)
+- [Differences between poll and select](https://stackoverflow.com/questions/970979/what-are-the-differences-between-poll-and-select)  
+- [Why should select() be deprecated](https://beesbuzz.biz/code/5739-The-problem-with-select-vs-poll)
+
+**Kqueue**
+- [Kqueue system call](https://man.openbsd.org/OpenBSD-5.1/kqueue.2)
+- [Writing a Simple TCP Server Using Kqueue](https://dev.to/frosnerd/writing-a-simple-tcp-server-using-kqueue-cah)
+- [A TCP server with kqueue](https://dev.to/frevib/a-tcp-server-with-kqueue-527)
+- [I/O Multiplexing (select vs. poll vs. epoll/kqueue)](https://nima101.github.io/io_multiplexing)
+
+**Sockets**
+- [Socket programming](https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming)
+- [Ports and Sockets](http://www.danzig.jct.ac.il/tcp-ip-lab/ibm-tutorial/3376c210.html)
+- [Difference between a socket and a port](https://softwareengineering.stackexchange.com/questions/171734/difference-between-a-socket-and-a-port)
+- [SO_REUSEADDR option in setsockopt()](https://stackoverflow.com/questions/14388706/how-do-so-reuseaddr-and-so-reuseport-differ)
+- [Difference between socket and websocket](https://stackoverflow.com/questions/62483790/difference-between-the-socket-socketio-and-websockets), also [here](https://stackoverflow.com/questions/4973622/difference-between-socket-and-websocket) and [here](https://stackoverflow.com/questions/16945345/differences-between-tcp-sockets-and-web-sockets-one-more-time)
+- **Nonblocking I/O**:
+- [Explain Non-Blocking I/O Like I'm Five](https://dev.to/frosnerd/explain-non-blocking-i-o-like-i-m-five-2a5f)
+- [Dealing With and Getting Around Blocking Sockets](http://dwise1.net/pgm/sockets/blocking.html) - good explanation but they are using select()
+- [Non-blocking I/O](https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_72/rzab6/xnonblock.htm) - more code but also with select()
 
 **CGI Doc**
 
@@ -108,7 +111,9 @@
 - [Best CGI Exemple](https://www.fi.muni.cz/usr/jkucera/tic/tic0305.html): Programmation CGI in C++.
 - [CGI Environmnent Variables](https://fr.wikipedia.org/wiki/Variables_d%27environnement_CGI)
 - [Good CGI Howto (and cookies)](http://www.purplepixie.org/cgi/howto.php)
-- [Some exemples](https://pub.phyks.me/sdz/sdz/ecrivez-votre-site-web-en-c-avec-la-cgi.html)
+- [Some examples](https://pub.phyks.me/sdz/sdz/ecrivez-votre-site-web-en-c-avec-la-cgi.html)
+- [CGI : Getting Started](http://www.mnuwer.dbasedeveloper.co.uk/dlearn/web/session01.htm)
+- [CGI 1.1 Documentation](http://www.wijata.com/cgi/cgispec.html#4.0)
 
 **Tools**
 
@@ -119,19 +124,6 @@
 
 - [Inside Nginx architecture](https://www.nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/)
 - [Understanding Nginx Server and Location Block Selection Algorithms](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
-
-**Sockets**
-- [SO_REUSEADDR option in setsockopt()](https://stackoverflow.com/questions/14388706/how-do-so-reuseaddr-and-so-reuseport-differ)
-- [Ports and Sockets](http://www.danzig.jct.ac.il/tcp-ip-lab/ibm-tutorial/3376c210.html)
-- [Difference between a socket and a port](https://softwareengineering.stackexchange.com/questions/171734/difference-between-a-socket-and-a-port)
-
-- [Socket programming](https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming)
-
-- [Difference between socket and websocket](https://stackoverflow.com/questions/62483790/difference-between-the-socket-socketio-and-websockets), also [here](https://stackoverflow.com/questions/4973622/difference-between-socket-and-websocket) and [here](https://stackoverflow.com/questions/16945345/differences-between-tcp-sockets-and-web-sockets-one-more-time)
-- **Nonblocking I/O**:
-- [Dealing With and Getting Around Blocking Sockets](http://dwise1.net/pgm/sockets/blocking.html) - good explanation but they are using select()
-- [Non-blocking I/O](https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_72/rzab6/xnonblock.htm) - more code but also with select()
-- [Blocking I/O, Nonblocking I/O, And Epoll](https://eklitzke.org/blocking-io-nonblocking-io-and-epoll) -more information about edge-triggered polling in the epoll system call
 
 
 
