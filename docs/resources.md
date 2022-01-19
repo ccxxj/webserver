@@ -66,10 +66,7 @@
 - [Building a simple web serveur in c++](https://ncona.com/2019/04/building-a-simple-server-with-cpp/)
 - [C++ Web Programming: CGI program](https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm)
 - [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP)
-- [Build a simple HTTP server from scratch](https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa)
-- [Manage a socket flow of events using poll()](https://www.ibm.com/docs/en/i/7.2?topic=designs-using-poll-instead-select)
-- [C++ programming applied to network](https://bousk.developpez.com/cours/reseau-c++/) (in French)
-- [Network programming](https://beej.us/guide/bgnet/)
+- [Manage a socket flow of events using poll()](https://www.ibm.com/docs/en/i/7.2?topic=designs-using-poll-instead-select)ch)
 
 **HTTP documentation**
 
