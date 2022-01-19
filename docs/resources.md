@@ -55,6 +55,14 @@
 
 [Non-blocking I/O](https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_72/rzab6/xnonblock.htm)
 
+### **Why epoll() but not select()**
+- [epoll man page](https://man7.org/linux/man-pages/man7/epoll.7.html)
+- [Why is epoll faster than select?](https://stackoverflow.com/questions/17355593/why-is-epoll-faster-than-select/17355702#:~:text=The%20main%20difference%20between%20epoll,duration%20of%20a%20single%20call) and an article about  [differences between poll and select](https://stackoverflow.com/questions/970979/what-are-the-differences-between-poll-and-select)  and this source about  [why should select() be deprecated](https://beesbuzz.biz/code/5739-The-problem-with-select-vs-poll)
+- [Detailed explanation of epoll of linux high concurrency network programming](https://blog.csdn.net/mengzuchao/article/details/81294554) - use google translate 
+- **Examples of programming a socket with epoll:**
+  - [Single thread TCP server by using linux's epoll facility](http://swingseagull.github.io/2016/11/08/epoll-sample/)
+  - [socket programming and epoll model in Linux](https://www.fatalerrors.org/a/socket-programming-and-epoll-model-in-linux.html)
+
 ### **CGI**
 
 [CGI : Getting Started](http://www.mnuwer.dbasedeveloper.co.uk/dlearn/web/session01.htm)
@@ -112,12 +120,14 @@
 - [Understanding Nginx Server and Location Block Selection Algorithms](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
 
 **Sockets**
-
+- [SO_REUSEADDR option in setsockopt()](https://stackoverflow.com/questions/14388706/how-do-so-reuseaddr-and-so-reuseport-differ)
 - [Ports and Sockets](http://www.danzig.jct.ac.il/tcp-ip-lab/ibm-tutorial/3376c210.html)
 - [Difference between a socket and a port](https://softwareengineering.stackexchange.com/questions/171734/difference-between-a-socket-and-a-port)
 - [Dealing With and Getting Around Blocking Sockets](http://dwise1.net/pgm/sockets/blocking.html)
 - [Socket programming](https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming)
 - [Difference between socket and websocket](https://stackoverflow.com/questions/62483790/difference-between-the-socket-socketio-and-websockets), also [here](https://stackoverflow.com/questions/4973622/difference-between-socket-and-websocket) and [here](https://stackoverflow.com/questions/16945345/differences-between-tcp-sockets-and-web-sockets-one-more-time)
+
+
 - Regarding the previous we might not need info about websockets for this project but will leave the link anyway:
 [A Beginner's Guide to WebSockets](https://www.youtube.com/watch?v=8ARodQ4Wlf4&ab_channel=freeCodeCamp.org)
 
