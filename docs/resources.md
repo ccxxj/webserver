@@ -1,19 +1,59 @@
 # Useful Sources?
 
-## **Sources**
+**Tutorials - Server setup**
 
+- [Building a simple web serveur in c++](https://ncona.com/2019/04/building-a-simple-server-with-cpp/)
+- [C++ Web Programming: CGI program](https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm)
 - [Beej's Guide to Network Programming](http://beej.us/guide/bgnet/)
 - [Server/Location matching](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
-- [Configuration File](http://nginx.org/en/docs/dirindex.html)
 - [Building the Web: Sockets and Servers for Dummies](https://levelup.gitconnected.com/building-the-web-sockets-and-servers-for-dummies-886d1595a4f8)
+- [How to build a server from stratch](https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa)
 
-### **Server setup**
+ **Why not select()**
+- [Why is epoll faster than select?](https://stackoverflow.com/questions/17355593/why-is-epoll-faster-than-select/17355702#:~:text=The%20main%20difference%20between%20epoll,duration%20of%20a%20single%20call)
+- [Differences between poll and select](https://stackoverflow.com/questions/970979/what-are-the-differences-between-poll-and-select)  
+- [Why should select() be deprecated](https://beesbuzz.biz/code/5739-The-problem-with-select-vs-poll)
 
-[How to build a simple HTTP server](https://medium.com/from-the-scratch/http-server-what-do-you-need-to-know-to-build-a-simple-http-server-from-scratch-d1ef8945e4fa)
+**Kqueue**
+- [Kqueue system call](https://man.openbsd.org/OpenBSD-5.1/kqueue.2)
+- [Writing a Simple TCP Server Using Kqueue](https://dev.to/frosnerd/writing-a-simple-tcp-server-using-kqueue-cah)
+- [A TCP server with kqueue](https://dev.to/frevib/a-tcp-server-with-kqueue-527)
+- [Interesting kqueue()-based server] http://www.acme.com/software/thttpd/
+- [I/O Multiplexing (select vs. poll vs. epoll/kqueue)](https://nima101.github.io/io_multiplexing)
 
-[Simple server with C++](https://ncona.com/2019/04/building-a-simple-server-with-cpp/)
+**Sockets**
+- [Socket programming](https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming)
+- [Ports and Sockets](http://www.danzig.jct.ac.il/tcp-ip-lab/ibm-tutorial/3376c210.html)
+- [Difference between a socket and a port](https://softwareengineering.stackexchange.com/questions/171734/difference-between-a-socket-and-a-port)
+- [SO_REUSEADDR option in setsockopt()](https://stackoverflow.com/questions/14388706/how-do-so-reuseaddr-and-so-reuseport-differ)
+- [Difference between socket and websocket](https://stackoverflow.com/questions/62483790/difference-between-the-socket-socketio-and-websockets), also [here](https://stackoverflow.com/questions/4973622/difference-between-socket-and-websocket) and [here](https://stackoverflow.com/questions/16945345/differences-between-tcp-sockets-and-web-sockets-one-more-time)
+- **Nonblocking I/O**:
+- [Explain Non-Blocking I/O Like I'm Five](https://dev.to/frosnerd/explain-non-blocking-i-o-like-i-m-five-2a5f)
+- [Dealing With and Getting Around Blocking Sockets](http://dwise1.net/pgm/sockets/blocking.html) - good explanation but they are using select()
+- [Non-blocking I/O](https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_72/rzab6/xnonblock.htm) - more code but also with select()
+- [Manage a socket flow of events using poll()](https://www.ibm.com/docs/en/i/7.2?topic=designs-using-poll-instead-select)ch)
 
-### **HTTP 1.1 (standard to follow) :**
+**CGI Doc**
+
+- [RFC 3875: CGI](https://www.rfc-editor.org/rfc/rfc3875.pdf)
+- [What is a CGI?](https://www.oreilly.com/library/view/cgi-programming-on/9781565921689/04_chapter-01.html)
+- [Best CGI Exemple](https://www.fi.muni.cz/usr/jkucera/tic/tic0305.html): Programmation CGI in C++.
+- [CGI Environmnent Variables](https://fr.wikipedia.org/wiki/Variables_d%27environnement_CGI)
+- [Good CGI Howto (and cookies)](http://www.purplepixie.org/cgi/howto.php)
+- [Some examples](https://pub.phyks.me/sdz/sdz/ecrivez-votre-site-web-en-c-avec-la-cgi.html)
+- [CGI : Getting Started](http://www.mnuwer.dbasedeveloper.co.uk/dlearn/web/session01.htm)
+- [CGI 1.1 Documentation](http://www.wijata.com/cgi/cgispec.html#4.0)
+
+**Tools**
+
+- [Super Mega Site pour tester les Headers !](https://reqbin.com/)
+- [cURL "--resolve"; curl -H "Host: ..."](https://sodocumentation.net/curl/topic/10565/name-resolve-curl-tricks) (for testing different server names).
+
+
+
+### Documentation :**
+
+## **HTTP 1.1 (standard to follow) :**
 
 [HTTP/1.1 (RFC 2616)](https://www.rfc-editor.org/rfc/rfc2616.html)
 
@@ -47,14 +87,6 @@
 
 [HTTP Header Break Style](https://stackoverflow.com/questions/5757290/http-header-line-break-style)
 
-
-**Tutorials**
-
-- [Building a simple web serveur in c++](https://ncona.com/2019/04/building-a-simple-server-with-cpp/)
-- [C++ Web Programming: CGI program](https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm)
-- [HTTP](https://developer.mozilla.org/en-US/docs/Web/HTTP)
-- [Manage a socket flow of events using poll()](https://www.ibm.com/docs/en/i/7.2?topic=designs-using-poll-instead-select)ch)
-
 **HTTP documentation**
 
 - [RFC 2616: HTTP 1.1 protocol](https://datatracker.ietf.org/doc/html/rfc2616)
@@ -79,52 +111,12 @@
 - [poll](https://man7.org/linux/man-pages/man2/poll.2.html): waits for one of a set of file descriptors to become ready to perform I/O.
 - [accept](https://man7.org/linux/man-pages/man2/accept.2.html): accepts a connection on a socket.
 - [Select](https://www.lowtek.com/sockets/select.html): we're not using it but it might be helpful to read about it
-- 
- **Why not select()**
-- [Why is epoll faster than select?](https://stackoverflow.com/questions/17355593/why-is-epoll-faster-than-select/17355702#:~:text=The%20main%20difference%20between%20epoll,duration%20of%20a%20single%20call)
-- [Differences between poll and select](https://stackoverflow.com/questions/970979/what-are-the-differences-between-poll-and-select)  
-- [Why should select() be deprecated](https://beesbuzz.biz/code/5739-The-problem-with-select-vs-poll)
-
-**Kqueue**
-- [Kqueue system call](https://man.openbsd.org/OpenBSD-5.1/kqueue.2)
-- [Writing a Simple TCP Server Using Kqueue](https://dev.to/frosnerd/writing-a-simple-tcp-server-using-kqueue-cah)
-- [A TCP server with kqueue](https://dev.to/frevib/a-tcp-server-with-kqueue-527)
-- [Interesting kqueue()-based server] http://www.acme.com/software/thttpd/
-- [I/O Multiplexing (select vs. poll vs. epoll/kqueue)](https://nima101.github.io/io_multiplexing)
-
-**Sockets**
-- [Socket programming](https://www.ibm.com/docs/en/i/7.1?topic=communications-socket-programming)
-- [Ports and Sockets](http://www.danzig.jct.ac.il/tcp-ip-lab/ibm-tutorial/3376c210.html)
-- [Difference between a socket and a port](https://softwareengineering.stackexchange.com/questions/171734/difference-between-a-socket-and-a-port)
-- [SO_REUSEADDR option in setsockopt()](https://stackoverflow.com/questions/14388706/how-do-so-reuseaddr-and-so-reuseport-differ)
-- [Difference between socket and websocket](https://stackoverflow.com/questions/62483790/difference-between-the-socket-socketio-and-websockets), also [here](https://stackoverflow.com/questions/4973622/difference-between-socket-and-websocket) and [here](https://stackoverflow.com/questions/16945345/differences-between-tcp-sockets-and-web-sockets-one-more-time)
-- **Nonblocking I/O**:
-- [Explain Non-Blocking I/O Like I'm Five](https://dev.to/frosnerd/explain-non-blocking-i-o-like-i-m-five-2a5f)
-- [Dealing With and Getting Around Blocking Sockets](http://dwise1.net/pgm/sockets/blocking.html) - good explanation but they are using select()
-- [Non-blocking I/O](https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_72/rzab6/xnonblock.htm) - more code but also with select()
-
-**CGI Doc**
-
-- [RFC 3875: CGI](https://www.rfc-editor.org/rfc/rfc3875.pdf)
-- [What is a CGI?](https://www.oreilly.com/library/view/cgi-programming-on/9781565921689/04_chapter-01.html)
-- [Best CGI Exemple](https://www.fi.muni.cz/usr/jkucera/tic/tic0305.html): Programmation CGI in C++.
-- [CGI Environmnent Variables](https://fr.wikipedia.org/wiki/Variables_d%27environnement_CGI)
-- [Good CGI Howto (and cookies)](http://www.purplepixie.org/cgi/howto.php)
-- [Some examples](https://pub.phyks.me/sdz/sdz/ecrivez-votre-site-web-en-c-avec-la-cgi.html)
-- [CGI : Getting Started](http://www.mnuwer.dbasedeveloper.co.uk/dlearn/web/session01.htm)
-- [CGI 1.1 Documentation](http://www.wijata.com/cgi/cgispec.html#4.0)
-
-**Tools**
-
-- [Super Mega Site pour tester les Headers !](https://reqbin.com/)
-- [cURL "--resolve"; curl -H "Host: ..."](https://sodocumentation.net/curl/topic/10565/name-resolve-curl-tricks) (for testing different server names).
 
 **Server model: nginx documentation**
 
 - [Inside Nginx architecture](https://www.nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/)
 - [Understanding Nginx Server and Location Block Selection Algorithms](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
-
-
+- [NGINX Configuration File](http://nginx.org/en/docs/dirindex.html)
 
 ## **Testers**
 
