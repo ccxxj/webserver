@@ -13,8 +13,6 @@
 
 [Simple server with C++](https://ncona.com/2019/04/building-a-simple-server-with-cpp/)
 
-[C++ Web Programming](https://www.tutorialspoint.com/cplusplus/cpp_web_programming.htm)
-
 ### **HTTP 1.1 (standard to follow) :**
 
 [HTTP/1.1 (RFC 2616)](https://www.rfc-editor.org/rfc/rfc2616.html)
@@ -91,6 +89,7 @@
 - [Kqueue system call](https://man.openbsd.org/OpenBSD-5.1/kqueue.2)
 - [Writing a Simple TCP Server Using Kqueue](https://dev.to/frosnerd/writing-a-simple-tcp-server-using-kqueue-cah)
 - [A TCP server with kqueue](https://dev.to/frevib/a-tcp-server-with-kqueue-527)
+- [Interesting kqueue()-based server] http://www.acme.com/software/thttpd/
 - [I/O Multiplexing (select vs. poll vs. epoll/kqueue)](https://nima101.github.io/io_multiplexing)
 
 **Sockets**
