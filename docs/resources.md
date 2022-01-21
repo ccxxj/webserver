@@ -16,8 +16,11 @@
 
 **Kqueue**
 - [Kqueue system call](https://man.openbsd.org/OpenBSD-5.1/kqueue.2)
-- [Writing a Simple TCP Server Using Kqueue](https://dev.to/frosnerd/writing-a-simple-tcp-server-using-kqueue-cah)
+- [Kqueue: A generic and scalable event notification facility by Jonathan Lemon](https://people.freebsd.org/~jlemon/papers/kqueue.pdf)
+- [Kqueue : Generic Event notification](https://www.slideshare.net/mahendram/kqueue-generic-event-notification) Some slides about kqueue
+- [Writing a Simple TCP Server Using Kqueue](https://dev.to/frosnerd/writing-a-simple-tcp-server-using-kqueue-cah) - nice diagrams, the code is in Go
 - [A TCP server with kqueue](https://dev.to/frevib/a-tcp-server-with-kqueue-527)
+- [Streaming Server Using Kqueue](https://nima101.github.io/kqueue_server)
 - [Interesting kqueue()-based server] http://www.acme.com/software/thttpd/
 - [I/O Multiplexing (select vs. poll vs. epoll/kqueue)](https://nima101.github.io/io_multiplexing)
 
@@ -28,10 +31,10 @@
 - [SO_REUSEADDR option in setsockopt()](https://stackoverflow.com/questions/14388706/how-do-so-reuseaddr-and-so-reuseport-differ)
 - [Difference between socket and websocket](https://stackoverflow.com/questions/62483790/difference-between-the-socket-socketio-and-websockets), also [here](https://stackoverflow.com/questions/4973622/difference-between-socket-and-websocket) and [here](https://stackoverflow.com/questions/16945345/differences-between-tcp-sockets-and-web-sockets-one-more-time)
 - **Nonblocking I/O**:
-- [Explain Non-Blocking I/O Like I'm Five](https://dev.to/frosnerd/explain-non-blocking-i-o-like-i-m-five-2a5f)
-- [Dealing With and Getting Around Blocking Sockets](http://dwise1.net/pgm/sockets/blocking.html) - good explanation but they are using select()
-- [Non-blocking I/O](https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_72/rzab6/xnonblock.htm) - more code but also with select()
-- [Manage a socket flow of events using poll()](https://www.ibm.com/docs/en/i/7.2?topic=designs-using-poll-instead-select)ch)
+  - [Explain Non-Blocking I/O Like I'm Five](https://dev.to/frosnerd/explain-non-blocking-i-o-like-i-m-five-2a5f)
+  - [Dealing With and Getting Around Blocking Sockets](http://dwise1.net/pgm/sockets/blocking.html) - good explanation but they are using select()
+  - [Non-blocking I/O](https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_72/rzab6/xnonblock.htm) - more code but also with select()
+  - [Manage a socket flow of events using poll()](https://www.ibm.com/docs/en/i/7.2?topic=designs-using-poll-instead-select)ch)
 
 **CGI Doc**
 
@@ -110,6 +113,7 @@
 - [listen](https://man7.org/linux/man-pages/man2/listen.2.html): listens for connections on a socket.
 - [poll](https://man7.org/linux/man-pages/man2/poll.2.html): waits for one of a set of file descriptors to become ready to perform I/O.
 - [accept](https://man7.org/linux/man-pages/man2/accept.2.html): accepts a connection on a socket.
+- [Linux System Calls](https://cloudchef.medium.com/linux-system-calls-c2867c7c30c1) - nice diagram about how communication system calls work
 - [Select](https://www.lowtek.com/sockets/select.html): we're not using it but it might be helpful to read about it
 
 **Server model: nginx documentation**
