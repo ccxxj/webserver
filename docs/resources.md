@@ -1,4 +1,8 @@
-# Useful Sources?
+# Useful Sources
+
+**How it all works**
+
+- [What happens when you type a URL in the browser and press enter?](https://medium.com/@maneesha.wijesinghe1/what-happens-when-you-type-an-url-in-the-browser-and-press-enter-bb0aa2449c1a)
 
 **Tutorials - Server setup**
 
@@ -35,6 +39,8 @@
   - [Dealing With and Getting Around Blocking Sockets](http://dwise1.net/pgm/sockets/blocking.html) - good explanation but they are using select()
   - [Non-blocking I/O](https://www.ibm.com/support/knowledgecenter/ssw_ibm_i_72/rzab6/xnonblock.htm) - more code but also with select()
   - [Manage a socket flow of events using poll()](https://www.ibm.com/docs/en/i/7.2?topic=designs-using-poll-instead-select)ch)
+
+
 
 **CGI Doc**
 
@@ -121,6 +127,8 @@
 - [Inside Nginx architecture](https://www.nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/)
 - [Understanding Nginx Server and Location Block Selection Algorithms](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
 - [NGINX Configuration File](http://nginx.org/en/docs/dirindex.html)
+- [Detailed nginx request body reading process](https://programmer.help/blogs/detailed-nginx-request-body-reading-process.html)
+- [Beginner’s Guide to NGINX](http://nginx.org/en/docs/beginners_guide.html)
 
 ## **Testers**
 
