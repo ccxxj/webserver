@@ -41,7 +41,16 @@
   - [Manage a socket flow of events using poll()](https://www.ibm.com/docs/en/i/7.2?topic=designs-using-poll-instead-select)ch)
 
 
+**Server model: nginx articles**
 
+- [Inside Nginx architecture](https://www.nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/)
+- [Nginx Core Architecture](https://devopspoints.com/nginx-nginx-core-architecture.html): with analogies and diagrams
+- [Open Source - NGINX Architecture](https://www.aosabook.org/en/nginx.html): cofounder of NGINX explains it in detail
+- [Understanding Nginx Server and Location Block Selection Algorithms](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
+- [NGINX Configuration File](http://nginx.org/en/docs/dirindex.html)
+- [Detailed nginx request body reading process](https://programmer.help/blogs/detailed-nginx-request-body-reading-process.html)
+- [Beginner’s Guide to NGINX](http://nginx.org/en/docs/beginners_guide.html)
+- 
 **CGI Doc**
 
 - [RFC 3875: CGI](https://www.rfc-editor.org/rfc/rfc3875.pdf)
@@ -122,13 +131,7 @@
 - [Linux System Calls](https://cloudchef.medium.com/linux-system-calls-c2867c7c30c1) - nice diagram about how communication system calls work
 - [Select](https://www.lowtek.com/sockets/select.html): we're not using it but it might be helpful to read about it
 
-**Server model: nginx documentation**
-
-- [Inside Nginx architecture](https://www.nginx.com/blog/inside-nginx-how-we-designed-for-performance-scale/)
-- [Understanding Nginx Server and Location Block Selection Algorithms](https://www.digitalocean.com/community/tutorials/understanding-nginx-server-and-location-block-selection-algorithms)
-- [NGINX Configuration File](http://nginx.org/en/docs/dirindex.html)
-- [Detailed nginx request body reading process](https://programmer.help/blogs/detailed-nginx-request-body-reading-process.html)
-- [Beginner’s Guide to NGINX](http://nginx.org/en/docs/beginners_guide.html)
+**nginx documentation**
 
 ## **Testers**
 
