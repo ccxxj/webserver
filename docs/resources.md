@@ -69,9 +69,9 @@
 
 
 
-### Documentation :**
+### Documentation :
 
-## **HTTP 1.1 (standard to follow) :**
+**HTTP 1.1 (standard to follow) :**
 
 [HTTP/1.1 (RFC 2616)](https://www.rfc-editor.org/rfc/rfc2616.html)
 
@@ -87,7 +87,7 @@
 
 [HTTP/1.1 : Authentication (RFC 7235)](https://www.rfc-editor.org/rfc/rfc7235.html)
 
-### **Other HTTP (legacy / future) :**
+**Other HTTP (legacy / future) :**
 
 [HTTP/1.0 (RFC 1945)](https://www.rfc-editor.org/rfc/rfc1945.html)
 
@@ -97,7 +97,7 @@
 
 [FTP (RFC 959)](https://www.rfc-editor.org/rfc/rfc959.html)
 
-### **HTTP Header Syntax**
+ **HTTP Header Syntax**
 
 [HTTP Request Methods](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods)
 
@@ -131,7 +131,13 @@
 - [Linux System Calls](https://cloudchef.medium.com/linux-system-calls-c2867c7c30c1) - nice diagram about how communication system calls work
 - [Select](https://www.lowtek.com/sockets/select.html): we're not using it but it might be helpful to read about it
 
-**nginx documentation**
+
+### Additional resources:
+
+**Parsers & State Machines**
+- [PARSERS AND STATE MACHINES](https://www.pearsonhighered.com/assets/samplechapter/0/3/2/1/0321112547.pdf)
+- [High Performance Text Parsing Using Finite State Machines (FSM)](https://hackernoon.com/high-performance-text-parsing-using-finite-state-machines-fsm-6d3m33j9)
+- [Finite State Machine Parsing for Internet Protocols](https://ieeexplore.ieee.org/document/6957302)
 
 ## **Testers**
 
