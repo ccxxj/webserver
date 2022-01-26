@@ -1,3 +1,5 @@
 unit_tests
 .vscode
 a.out
+.idea
+.DS_Store
