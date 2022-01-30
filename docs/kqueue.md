@@ -21,18 +21,11 @@ The process is as follows:
 1. **Create a kernel event queue using the system call kqueue this returns a file descriptor. We can access our kernel queue using that file descriptor.**
 ```
     int sock_kqueue = kqueue(); //creates a new kernel event queue and returns a descriptor.
-    if (sock_kqueue < 0) {
-        std::cout << "Error creating kqueue. errno: " << errno << std::endl;
-        exit(EXIT_FAILURE);
-    }
 ```
-2. **We set up our kqueue to register our interest in specific events by using the system call kevent.
- kevent() is used to register events with the queue, and return any	pending events	to the user.**
+2. **We set up our kqueue to register our interest in specific events by using the system call kevent. 
+    kevent() returns any pending events	to the user.**
 ```
-    if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
-        perror("kevent");
-        exit(1);
-    }
+    kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0)
 ```
 But before doing it we will be using the macro EV_SET to initialize our kev structure:
 ```
@@ -75,12 +68,15 @@ Then we start the loop again and call kevent that will block and wait for anothe
     
    ***eventlist*** is a pointer to an array of kevent structures.
    
-   ***nevents***	determines the size of eventlist.  If timeout is	
-    a non-NULL pointer, it specifies a maximum interval to wait
-    for an event, which will be interpreted as	a struct timespec.  If timeout
-    is	a NULL pointer,	kevent() waits indefinitely.  To effect	a poll,	the
-    timeout argument should be	non-NULL, pointing to a	zero-valued timespec
-    structure.	 The same array	may be used for	the changelist and eventlist.
+   ***nevents***	determines the size of eventlist.
+   
+   If ***timeout*** is	a non-NULL pointer, it specifies a maximum interval to wait
+    for an event, which will be interpreted as	a struct timespec.  
+    If timeout is	a NULL pointer,	kevent() waits indefinitely.  
+    To effect	a poll,	the timeout argument should be	non-NULL,
+    pointing to a	zero-valued timespec structure.
+    
+    The same array	may be used for	the changelist and eventlist.
 
 ### THE STRUCTURE KEVENT
 ```
@@ -128,6 +124,7 @@ For example, if the filter is EVFILT_SIGNAL , the ident property will point to a
     - NOTE_WRITE - triggers when there was a write event on the file descriptor.
 
 ***data:*** filter-specific data. This field can be written by kevent when the event is triggered.
+
 ***udata:*** Opaque user-defined value passed through the kernel unchanged.                     
 
 The sources used:
