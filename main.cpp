@@ -78,19 +78,6 @@
                 }
             }
             else if (event[i].filter & EVFILT_READ) {
-                
-
-
-
-                // ! added:
-                std::string result = "";
-                ParseRequest parse_request;
-
-
-
-
-
-
                 char buf[1024];
                 size_t bytes_read = recv(event_fd, buf, sizeof(buf), 0);
                 if (bytes_read > 0) {
@@ -99,10 +86,8 @@
                      parse_request.read_HTTP_request(buf, result);
 
                     printf("read %zu bytes\n", bytes_read);
-
-
-
-
+                    std::cout << "The message was:\n" << buf << std::endl;
+                    std::cout.write(buf, bytes_read);
                 }
 
                 // Send a message to the connection
