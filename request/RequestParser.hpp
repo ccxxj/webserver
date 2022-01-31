@@ -1,17 +1,18 @@
+#ifndef REQUESTPARSER_HPP
+#define REQUESTPARSER_HPP
 #include <string>
 #include <set>
 #include <vector>
 #include <iostream> // TODO: remove
 
-class ParseRequest {
+class RequestParser {
 
 public:
-    ParseRequest();
-    ParseRequest(const ParseRequest& other);
-    ~ParseRequest();
-    const ParseRequest& operator=(const ParseRequest& other);
+    RequestParser();
+    RequestParser(const RequestParser& other);
+    ~RequestParser();
+    const RequestParser& operator=(const RequestParser& other);
 
-    std::string& read_HTTP_request(char* buffer, std::string& result);
 
     static std::string& parse_method(const std::string& message_buffer);
     static std::string& parse_request_uri(const std::string& message_buffer);
@@ -21,10 +22,7 @@ public:
 private:
     const std::string _request_line;
 
-    bool _is_end_of_request_line(char* current_string);
-    bool _is_end_of_header_fields(char* current_string, std::string& accumulating_string, size_t acc_length);
 
-    char* _read_request_line(char* buffer, std::string& result, size_t* result_length);
 private:
     enum State {
         METHOD = 0,
@@ -35,14 +33,22 @@ private:
         NUM_STATES
     };
 
-    struct Dispatcher {
+    enum TriggerEvent {
+        SPACE_FOUND = 0,
+        NEWLINE_FOUND,
+        EMPTY_LINE_FOUND,
+        NUM_EVENTS
+    };
+
+    struct StateDispatcher {
         enum State state;
         std::string& (*ptr)(const std::string& value);
     };
 
-    static Dispatcher dispatch_table[];
-
-    const std::set<std::string> _request_methods;
+    static StateDispatcher state_dispatch_table[];
 
     const std::string& _parse_request_line(char* buffer);
 };
+
+
+#endif
