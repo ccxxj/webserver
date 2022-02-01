@@ -1,15 +1,15 @@
-#ifndef HTTPREQUEST_HPP
-#define HTTPREQUEST_HPP
+#ifndef HTTPREQUESTMESSAGE_HPP
+#define HTTPREQUESTMESSAGE_HPP
 #include <string>
 #include <map>
 
-class HTTPRequest {
+class HTTPRequestMessage {
 
 public:
-    HTTPRequest();
-    HTTPRequest(const HTTPRequest& other);
-    ~HTTPRequest();
-    const HTTPRequest& operator=(const HTTPRequest& other);
+    HTTPRequestMessage();
+    HTTPRequestMessage(const HTTPRequestMessage& other);
+    ~HTTPRequestMessage();
+    const HTTPRequestMessage& operator=(const HTTPRequestMessage& other);
 
     const std::string& get_method() const;
     void set_method(std::string& method);
