@@ -28,7 +28,7 @@ std::string& RequestParser::_get_substring(size_t* start, const std::string& str
     if (match == std::string::npos) {
         return; //TODO: fill response error
     }
-    std::string substring = string.substr(0, match);
+    std::string substring = string.substr(*start, match);
     *start = match;
     return substring;
 }
@@ -38,6 +38,7 @@ void RequestParser::_parse_request_line(const std::string& accumulating_string) 
     std::string& method = _get_substring(&start, accumulating_string);
     http_request_message.set_method(method);
     std::string& request_uri = _get_substring(&start, accumulating_string);
-    http_request_message.set_request_uri(request_uri); //TODO: why am I unable to swap?
-    request_reader.get_accumulator().swap(http_request_message.get_HTTP_version());
+    http_request_message.set_request_uri(request_uri);
+    std::string HTTPversion = accumulating_string.substr(start, accumulating_string.size());
+    http_request_message.set_HTTP_version(HTTPversion);
 }
