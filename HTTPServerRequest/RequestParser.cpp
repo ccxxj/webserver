@@ -18,15 +18,16 @@ RequestParser::~RequestParser(){}
 void RequestParser::parse_HTTP_request(char* buffer) {
     buffer = request_reader.read_line(buffer);
     _parse_request_line(request_reader.get_accumulator());
-    buffer = request_reader.read_line(buffer);
-    _parse_headers(request_reader.get_accumulator());
+    // buffer = request_reader.read_line(buffer);
+    // _parse_headers(request_reader.get_accumulator());
 }
 
-std::string& RequestParser::_get_substring(size_t* start, const std::string& string) {
+
+std::string RequestParser::_get_substring(size_t* start, const std::string& string) {
     const std::string delimiter = " ";
     size_t match = string.find(delimiter);
     if (match == std::string::npos) {
-        return; //TODO: fill response error
+        return NULL; //TODO: fill response error
     }
     std::string substring = string.substr(*start, match);
     *start = match;
@@ -35,9 +36,9 @@ std::string& RequestParser::_get_substring(size_t* start, const std::string& str
 
 void RequestParser::_parse_request_line(const std::string& accumulating_string) {
     size_t start  = 0;
-    std::string& method = _get_substring(&start, accumulating_string);
+    std::string method = _get_substring(&start, accumulating_string);
     http_request_message.set_method(method);
-    std::string& request_uri = _get_substring(&start, accumulating_string);
+    std::string request_uri = _get_substring(&start, accumulating_string);
     http_request_message.set_request_uri(request_uri);
     std::string HTTPversion = accumulating_string.substr(start, accumulating_string.size());
     http_request_message.set_HTTP_version(HTTPversion);

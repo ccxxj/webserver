@@ -32,7 +32,7 @@ private:
     std::string& parse_HTTP_version(const std::string& message_buffer);
     std::string& parse_message_body(const std::string& message_buffer);
 
-   std::string& _get_substring(size_t* start, const std::string& string);
+   std::string _get_substring(size_t* start, const std::string& string);
 
 private:
     enum State {
