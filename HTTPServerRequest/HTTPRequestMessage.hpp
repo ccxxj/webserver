@@ -14,9 +14,9 @@ public:
     const std::string& get_method() const;
     void set_method(std::string& method);
     const std::string& get_request_uri() const;
-    void set_request_uri(std::string& method);
+    void set_request_uri(std::string& request_uri);
     const std::string& get_HTTP_version() const;
-    void set_HTTP_version(std::string& method);
+    void set_HTTP_version(std::string& version);
 
 private:
     std::string _method;
@@ -25,6 +25,5 @@ private:
     std::map<std::string, std::string> _request_headers;
     std::string _message_body;
 };
-
 
 #endif
