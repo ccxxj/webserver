@@ -14,9 +14,7 @@ private:
 	bool _is_end_of_line(char *current_string);
 	bool _is_end_of_header_fields(char *current_string, std::string &accumulating_string);
 
-    std::string& read_HTTP_request(char* buffer, std::string& result);
-
-	static size_t length_counter;
+	static size_t _length_counter;
 	std::string _accumulator;
 
 public:
