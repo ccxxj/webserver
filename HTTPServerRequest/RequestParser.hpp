@@ -18,11 +18,11 @@ public:
     const RequestParser& operator=(const RequestParser& other);
 
     void parse_HTTP_request(char* buffer);
+    HTTPRequestMessage http_request_message;
 
 // TODO: check the smaller fucntionality:
 private:
     RequestReader request_reader;
-    HTTPRequestMessage http_request_message;
 
     void _parse_request_line(const std::string& accumulating_string);
     void _parse_headers(const std::string& accumulaing_string);
