@@ -10,20 +10,16 @@
 class RequestReader
 {
 private:
-	bool _is_whitespace(char *current_string);
-	bool _is_end_of_line(char *current_string);
-	bool _is_end_of_header_fields(char *current_string, std::string &accumulating_string);
+	bool _is_end_of_line(char *current_string, char* message_end);
 
 	static size_t _length_counter;
-	std::string _accumulator;
 
 public:
 	RequestReader();
 	~RequestReader();
-
-	std::string& get_accumulator();
 	
-	char* read_line(char* buffer);
+	bool _is_end_of_header_fields(char* current_string, char* message_end);
+	std::string read_line(char** buffer, char* message_end) ;
 
 };
 
