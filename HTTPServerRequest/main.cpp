@@ -87,14 +87,16 @@
                 if (bytes_read > 0) {
 
                     RequestParser parser;
-                    parser.parse_HTTP_request(buf);
+                    parser.parse_HTTP_request(buf, bytes_read);
 
                     printf("read %zu bytes\n", bytes_read);
                     std::cout << "The message was:\n"<< std::endl;
                     std::cout.write(buf, bytes_read);
 
                     
-                    std::cout<< " request_message method is : " << parser.http_request_message.get_method() << std::endl;
+                    std::cout<< "\n\nrequest_message method is : " << parser.http_request_message.get_method() << std::endl;
+                    std::cout<< " request_message uri is : " << parser.http_request_message.get_request_uri() << std::endl;
+                    std::cout<< " request_message HTTP version is : " << parser.http_request_message.get_HTTP_version() << std::endl;
 
 
                 }
