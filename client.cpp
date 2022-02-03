@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <netinet/in.h>
-#include <string.h>
+#include <string>
 #include <arpa/inet.h>
 
 #include <string>
@@ -15,8 +15,17 @@ int main(int argc, char const *argv[])
 {
     int sock = 0; long valread;
     struct sockaddr_in serv_addr;
-    char hello[] = "Hello from client!\r\n";
-    char buffer[1024] = {0};
+    std::string http_request_mes = "POST /cgi-bin/process.cgi HTTP/1.1\r\n"
+                            "User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\r\n"
+                            "Host: www.tutorialspoint.com\r\n"
+                            "Content-Type: application/x-www-form-urlencoded\r\n"
+                            "Content-Length: length\r\n"
+                            "Accept-Language: en-us\r\n"
+                            "Accept-Encoding: gzip, deflate\r\n"
+                            "Connection: Keep-Alive\r\n\r\n"
+
+                            "licenseID=string&content=string&/paramsXML=string";
+                char buffer[1024] = {0};
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("\n Socket creation error \n");
@@ -40,8 +49,8 @@ int main(int argc, char const *argv[])
         printf("\nConnection Failed \n");
         return -1;
     }
-    send(sock , hello , strlen(hello) , 0 );
-    printf("Hello message sent\n");
+    send(sock , http_request_mes.c_str() , http_request_mes.size() , 0 );
+    printf("http_request_mes sent\n");
     valread = read( sock , buffer, 1024);
     printf("%s\n",buffer );
     return 0;
