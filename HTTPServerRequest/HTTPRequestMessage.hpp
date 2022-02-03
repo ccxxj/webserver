@@ -17,6 +17,8 @@ public:
     void set_request_uri(std::string& request_uri);
     const std::string& get_HTTP_version() const;
     void set_HTTP_version(std::string& version);
+    const std::string& get_header_value(const std::string& header_name) const;
+    void set_header_field(std::pair<std::string, std::string>& header_field);
 
 private:
     std::string _method;

@@ -27,3 +27,11 @@ HTTPRequestMessage::HTTPRequestMessage() : _method(""), _request_uri(""), _HTTP_
     void HTTPRequestMessage::set_HTTP_version(std::string& version) {
         _HTTP_version = version;
     }
+
+    const std::string& HTTPRequestMessage::get_header_value(const std::string& header_name) const {
+        return (*_request_headers.find(header_name)).second;
+    }
+
+    void HTTPRequestMessage::set_header_field(std::pair<std::string, std::string>& header_field){
+        _request_headers.insert(header_field); //TODO: or use operator[] ?
+    }
