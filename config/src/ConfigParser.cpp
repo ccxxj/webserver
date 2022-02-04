@@ -6,9 +6,7 @@ ConfigParser::ConfigParser(std::string file_path): file_path(file_path)
 	file_stream.open(this->file_path);
 	if (!file_stream.is_open())
 		throw ConfigParser::FailedToOpenException();
-	tokenize_server_blocks();
-	// std::cout << file_content << std::endl;
-	file_stream.close();
+
 }
 
 ConfigParser::~ConfigParser()
@@ -32,7 +30,6 @@ void	ConfigParser::tokenize_server_blocks( void )
 		else
 			single_server_block.append("\n");
 	}
-	print_server_blocks();
 }
 
 void	ConfigParser::print_server_blocks( void )
@@ -48,4 +45,12 @@ void	ConfigParser::print_server_blocks( void )
 void	ConfigParser::parse( void )
 {
 	// std::cout << "in parse" << std::endl;
+	tokenize_server_blocks();
+	file_stream.close();
+	print_server_blocks();
+
+	// for (size_t i = 0; i < server_tokens.size(); i++)
+	// {
+	// 	config->_server_blocks.push(_parse_server_blocks(server_tokens[i]));
+	// }
 }

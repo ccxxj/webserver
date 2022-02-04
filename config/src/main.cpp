@@ -8,7 +8,6 @@
 
 int main(int argc, char **argv)
 {
-	// ConfigData	config;
 	std::string	file_path;
 
 	if (argc > 2)
@@ -23,6 +22,7 @@ int main(int argc, char **argv)
 
 	try
 	{
+		//ConfigData config;
 		ConfigParser	parser(file_path);
 		parser.parse();
 	}
