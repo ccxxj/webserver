@@ -11,7 +11,6 @@ class ConfigParser
 private:
 	/* data */
 	std::string		file_path;
-	std::string		file_content;
 	std::ifstream	file_stream;
 
 	std::vector<std::string> server_tokens;
