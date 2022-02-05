@@ -11,7 +11,12 @@ namespace HTTP {
 
 	Server::Server(){}
 
-	Server::~Server(){}
+	Server::~Server(){
+		std::vector<int>::iterator it = _listening_sockfds.begin();
+		for (; it != _listening_sockfds.end(); ++it) {
+			close(*it); //closing listening sockets
+		}
+	}
 
 	void Server::_setup_listening_sockets() {
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
@@ -71,6 +76,7 @@ namespace HTTP {
 			}
 		}
 		while (true) {
+			//TODO: addding timeout as the last parameter?
 			int new_events = kevent(sock_kqueue, NULL, 0, event, 1, NULL);//look out for events and register to event list; one event per time
 			if(new_events == -1) {
 				perror("kevent");
