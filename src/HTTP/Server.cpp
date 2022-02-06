@@ -61,6 +61,17 @@ namespace HTTP {
 		return false;
 	}
 
+	void Server::_remove_closed_connection(int fd) {
+		std::vector<Connection>::iterator iter = _connections.begin();
+		while (iter != _connections.end()) {
+			if (iter->_socket_fd == fd) {
+				_connections.erase(iter);
+				break;
+			}
+			iter++;
+		}
+	}
+
 	void Server::_handle_events() {
 		int sock_kqueue = kqueue(); //creates a new kernel event queue and returns a descriptor.
 		if (sock_kqueue < 0) {
@@ -91,7 +102,8 @@ namespace HTTP {
 				else if (event_fds[i].flags & EV_EOF) {
 					std::cout << "The client has disconnected." << std::endl;
 					close(current_event_fd);
-					std::cout << "FD " << current_event_fd << " is closed." << std::endl;
+					_remove_closed_connection(current_event_fd);
+					std::cout << "FD " << current_event_fd << " is closed and removed from _connections." << std::endl;
 				}
 				else if(_is_in_listen_sockfd_list(current_event_fd)) {
 					Connection connection(current_event_fd);
