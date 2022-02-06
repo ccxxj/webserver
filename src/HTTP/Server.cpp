@@ -67,7 +67,7 @@ namespace HTTP {
 			std::cout << "Error creating kqueue. errno: " << errno << std::endl;
 			exit(EXIT_FAILURE);
 		}
-		struct kevent kev[10], event[10]; // kernel event
+		struct kevent kev[10], event_fds[10]; // kernel event
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
 			EV_SET(kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure. 
 			if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
@@ -77,24 +77,24 @@ namespace HTTP {
 		}
 		while (true) {
 			//TODO: addding timeout as the last parameter?
-			int new_events = kevent(sock_kqueue, NULL, 0, event, 1, NULL);//look out for events and register to event list; one event per time
+			int new_events = kevent(sock_kqueue, NULL, 0, event_fds, 1, NULL);//look out for events and register to event list; one event per time
 			if(new_events == -1) {
 				perror("kevent");
 				exit(1);
 			}
 			for(int i = 0; i < new_events; i++) {
-				int event_fd = event[i].ident;
-				if (event[i].flags & EV_ERROR) {
-					std::cout << "Event error: %s", strerror(event[i].data);
+				int current_event_fd = event_fds[i].ident;
+				if (event_fds[i].flags & EV_ERROR) {
+					std::cout << "Event error: %s", strerror(event_fds[i].data);
 					exit(EXIT_FAILURE);
 				}
-				else if (event[i].flags & EV_EOF) {
+				else if (event_fds[i].flags & EV_EOF) {
 					std::cout << "The client has disconnected." << std::endl;
-					close(event_fd);
-					std::cout << "FD " << event_fd << " is closed." << std::endl;
+					close(current_event_fd);
+					std::cout << "FD " << current_event_fd << " is closed." << std::endl;
 				}
-				else if(_is_in_listen_sockfd_list(event_fd)) {
-					Connection connection(event_fd);
+				else if(_is_in_listen_sockfd_list(current_event_fd)) {
+					Connection connection(current_event_fd);
 					connection._socket_fd = accept(connection._listening_socket_fd, (struct sockaddr *)&(connection._client_addr), (socklen_t *)&(connection._client_addr_len));
 					if (connection._socket_fd == -1)
 					{
@@ -106,11 +106,11 @@ namespace HTTP {
 						perror("kevent error");
 					}
 				}
-				else if (event[i].filter & EVFILT_READ) {
+				else if (event_fds[i].filter & EVFILT_READ) {
 					Connection active_connection;
 					for (size_t j = 0; j < _connections.size(); ++j)
 					{
-						if (_connections[j]._socket_fd == event_fd) {
+						if (_connections[j]._socket_fd == current_event_fd) {
 							active_connection = _connections[j];
 							active_connection.handle_http_request(); //TODO: to be replaced by a proper handler
 						}
