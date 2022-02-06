@@ -1,12 +1,12 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         ::::::::             #
-#    nginx-conf                                         :+:    :+:             #
+#    default-conf                                       :+:    :+:             #
 #                                                      +:+                     #
 #    By: icikrikc <icikrikc@student.codam.nl>         +#+                      #
 #                                                    +#+                       #
 #    Created: 2021/01/15 18:59:47 by icikrikc      #+#    #+#                  #
-#    Updated: 2022/02/01 14:44:47 by mverbrug      ########   odam.nl          #
+#    Updated: 2022/02/06 20:18:29 by icikrikc      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,7 +19,7 @@ server {
 
 server{
 	listen 443 ssl ;
-	listen [::]:443 ssl ;
+	listen [::]:443 ssl ; #asjhdsagfdhhasgjf
 
 	# server_name irem;
 
@@ -37,7 +37,7 @@ server{
 	# limit_except GET {
 	# 		deny all;
 	# }
-	
+
 	location /wordpress/ {
 		limit_except POST {
 			deny all;
@@ -47,7 +47,7 @@ server{
 	# location /wordpress/ {
 	# 	return 301 https://localhost;
 	# }
-	
+
 	# location / {
 	# 	autoindex on;
 	# 	try_files $uri $uri/ =505;

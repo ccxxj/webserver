@@ -3,37 +3,47 @@
 
 # include <string>
 # include <fstream>
+# include <sstream>
 # include <iostream>
 # include <vector>
-// TODO do we parse # hashtags and ignore them? (remove comments)
-class ConfigParser
-{
-private:
-	/* data */
-	std::string		file_path;
-	std::ifstream	file_stream;
+#include "ServerBlock.hpp"
+// class ConfigData;
+// class ServerBlock;
+//TODO should we have a ConfigValidator?
+namespace Config {
 
-	std::vector<std::string> server_tokens;
-	/* methods */
-	void	tokenize_server_blocks( void );
-	void	print_server_blocks( void );
+	class ConfigParser {
+	private:
+		/* data */
+		// ConfigData *config_data;
+		std::string file_path;
+		std::string file_content;
+		std::vector<std::string> server_tokens;
 
-public:
-	ConfigParser(std::string file_path);
-	~ConfigParser();
+		/* methods */
+		void open_and_read_file(void);
+		void remove_comments(void);
+		void tokenize_server_blocks(void);
+		void print_server_blocks(void);
+		// ServerBlock *parse_server_blocks(std::string server_token);
+		//ConfigParser(); do we need default constructor?
 
-	void	parse( void );
-
-	class FailedToOpenException : public std::exception
-	{
 	public:
-		const char *what() const throw()
-		{
-			return "Configuration file failed to open";
-		}
-	};
-};
+		ConfigParser(std::string file_path);
+		~ConfigParser();
 
+		void parse(void);
+
+		class FailedToOpenException : public std::exception
+		{
+		public:
+			const char *what() const throw()
+			{
+				return "Configuration file failed to open";
+			}
+		};
+	};
+}
 #endif
 
 
