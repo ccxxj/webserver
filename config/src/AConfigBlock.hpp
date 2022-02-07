@@ -1,3 +1,6 @@
+#ifndef _ACONFIG_HPP_
+# define _ACONFIG_HPP_
+
 #include <iostream>
 
 class AConfigBlock
@@ -14,3 +17,4 @@ public:
 	/* getters & setters */
 };
 
+#endif

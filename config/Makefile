@@ -5,6 +5,7 @@ OBJ_DIR = obj
 # Files
 SRCS	=	main.cpp \
 			ConfigParser.cpp \
+			ConfigData.cpp \
 
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 

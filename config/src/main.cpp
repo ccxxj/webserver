@@ -1,7 +1,6 @@
 // #include "AConfigBlock.hpp"
 // #include "LocationBlock.hpp"
-// #include "ConfigData.hpp"
-
+#include "ConfigData.hpp"
 #include "ConfigParser.hpp"
 #include <iostream>
 #define DEFAULT_CONFIG "./example_config_files/default-conf"
@@ -22,8 +21,8 @@ int main(int argc, char **argv)
 
 	try
 	{
-		//ConfigData config;
-		ConfigParser	parser(file_path);
+		Config::ConfigData		config;
+		Config::ConfigParser	parser(&config, file_path);
 		parser.parse();
 	}
 	catch(const std::exception& e)
