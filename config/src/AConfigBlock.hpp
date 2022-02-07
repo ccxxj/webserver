@@ -1,16 +1,24 @@
 #include <iostream>
+#include <string>
+#include <vector>
 
 class AConfigBlock
 {
 protected:
 	/* data */
-	std::string	_return;
-	std::string	_root;
-	std::string	_error_page;
-	std::string	_limit_except;
+	std::vector<std::string> 	_return;
+	std::vector<std::string>	_root;
+	std::vector<std::string>	_error_page;
 public:
-	AConfigBlock(/* args */);
+	//TODO check if additional cononibal form need to apply, also if additional actions need to taken for constructor and destructor
+	AConfigBlock();
 	virtual ~AConfigBlock();
 	/* getters & setters */
+	void set_return_value(std::string str);
+	void set_root_value(std::string str);
+	void set_error_page_value(std::string str);
+	std::vector<std::string> get_return(void) const;
+	std::vector<std::string> get_root(void) const;
+	std::vector<std::string> get_error_page(void) const;
 };
 
