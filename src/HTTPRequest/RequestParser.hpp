@@ -7,23 +7,25 @@
 #include <iostream> // TODO: remove
 
 #include "RequestReader.hpp"
-#include "HTTPRequestMessage.hpp"
+#include "RequestMessage.hpp"
+#include "../HTTPResponse/ResponseMessage.hpp"
+#include "../HTTPResponse/StatusCodes.hpp"
 
 namespace HTTPRequest {
 
     class RequestParser {
 
     public:
-        RequestParser();
+        RequestParser(HTTPRequest::RequestMessage* http_request, HTTPResponse::ResponseMessage* http_response);
         RequestParser(const RequestParser& other);
         ~RequestParser();
         const RequestParser& operator=(const RequestParser& other);
 
         void parse_HTTP_request(char* buffer, size_t bytes_read);
-        HTTPRequestMessage http_request_message;
-
-
+        HTTPRequest::RequestMessage* _http_request_message;
+        HTTPResponse::ResponseMessage* _http_response_message;
     private:
+        RequestParser();
         RequestReader request_reader;
 
         void _parse_request_line(const std::string& accumulating_string);

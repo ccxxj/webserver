@@ -3,7 +3,9 @@
 // TODO: add check on the bytes read == -1 or == 0(if the client stopped the connection)
 namespace HTTPRequest {
 
-    RequestParser::RequestParser() {}
+    RequestParser::RequestParser(HTTPRequest::RequestMessage* http_request, HTTPResponse::ResponseMessage* http_response)
+    : _http_request_message(http_request)
+    , _http_response_message(http_response) {}
 
     RequestParser::~RequestParser(){}
 
@@ -49,12 +51,12 @@ namespace HTTPRequest {
         if (accumulating_string == "")
             return; //TODO: fill error response
         std::vector<std::string> segments = split_line(accumulating_string, ' ');
-        http_request_message.set_method(segments[0]);
+        _http_request_message->set_method(segments[0]);
         if (segments[1].size() > 2000) {
             return; //TODO: respond with 414 (URI Too Long) status code
         }
-        http_request_message.set_request_uri(segments[1]);
-        http_request_message.set_HTTP_version(segments[2]);
+        _http_request_message->set_request_uri(segments[1]);
+        _http_request_message->set_HTTP_version(segments[2]);
     }
 
     void RequestParser::_parse_header(const std::string& accumulating_string) {
@@ -62,8 +64,6 @@ namespace HTTPRequest {
             return; //TODO: fill error response
         std::vector<std::string> segments = split_line(accumulating_string, ':');
         std::pair<std::string, std::string> header_field(segments[0], segments[1]); //TODO: No whitespace is allowed between the header field-name and colon.
-        http_request_message.set_header_field(header_field); //TODO: what if the header name exists?
-        // std::cout << "header name: " << segments[0] 
-        //           << "      header value: " << segments[1] << std::endl;
+        _http_request_message->set_header_field(header_field); //TODO: what if the header name exists?
     }
 }
