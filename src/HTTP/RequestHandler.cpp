@@ -5,9 +5,7 @@
 namespace HTTP {
 	RequestHandler::RequestHandler(const Connection& active_connection):  _connection(active_connection){}
 
-	RequestHandler::~RequestHandler()
-	{
-	}
+	RequestHandler::~RequestHandler(){}
 
 	void RequestHandler::handle_http_request() {
 		char buf[1024];
