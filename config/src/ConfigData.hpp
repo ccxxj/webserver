@@ -1,6 +1,6 @@
-#include "ServerBlock.hpp"
+// #include "ServerBlock.hpp"
 #include <vector>
-
+class ServerBlock;
 class ConfigData
 {
 private:

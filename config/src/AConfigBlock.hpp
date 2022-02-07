@@ -1,3 +1,6 @@
+#ifndef _ACONFIG_HPP_
+# define _ACONFIG_HPP_
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -22,3 +25,4 @@ public:
 	std::vector<std::string> get_error_page(void) const;
 };
 
+#endif

@@ -1,14 +1,12 @@
 // #include "AConfigBlock.hpp"
 // #include "LocationBlock.hpp"
 // #include "ConfigData.hpp"
-
 #include "ConfigParser.hpp"
 #include <iostream>
 #define DEFAULT_CONFIG "./example_config_files/default-conf"
 
 int main(int argc, char **argv)
 {
-	// ConfigData	config;
 	std::string	file_path;
 
 	if (argc > 2)
@@ -23,7 +21,9 @@ int main(int argc, char **argv)
 
 	try
 	{
-		ConfigParser	parser(file_path);
+		// ConfigData config;
+		//TODO changed  way of passing config based on compiler errors but does this create a copy?
+		Config::ConfigParser	parser(file_path);
 		parser.parse();
 	}
 	catch(const std::exception& e)

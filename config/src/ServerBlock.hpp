@@ -1,7 +1,9 @@
-// #include "AConfigBlock.hpp"
-#include "LocationBlock.hpp"
-
-class AConfigBlock;
+#include "AConfigBlock.hpp"
+// #include "LocationBlock.hpp"
+# include <vector>
+# include <string>
+// class AConfigBlock;
+class LocationBlock;
 class ServerBlock: public AConfigBlock
 {
 private:
