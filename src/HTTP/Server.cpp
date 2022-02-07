@@ -7,6 +7,9 @@
 #include <iostream>
 #include <string>
 
+#include "RequestHandler.hpp"
+
+
 namespace HTTP {
 
 	Server::Server(){}
@@ -64,7 +67,7 @@ namespace HTTP {
 	void Server::_remove_closed_connection(int fd) {
 		std::vector<Connection>::iterator iter = _connections.begin();
 		while (iter != _connections.end()) {
-			if (iter->_socket_fd == fd) {
+			if (iter->get_socket_fd() == fd) {
 				_connections.erase(iter);
 				break;
 			}
@@ -106,29 +109,30 @@ namespace HTTP {
 					std::cout << "FD " << current_event_fd << " is closed and removed from _connections." << std::endl;
 				}
 				else if(_is_in_listen_sockfd_list(current_event_fd)) {
-					Connection connection(current_event_fd);
-					connection._socket_fd = accept(connection._listening_socket_fd, (struct sockaddr *)&(connection._client_addr), (socklen_t *)&(connection._client_addr_len));
-					if (connection._socket_fd == -1)
+					sockaddr_in connection_addr;
+					int connection_addr_len = sizeof(connection_addr);
+					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
+					if (connection_socket_fd == -1)
 					{
 						perror("accept socket error");
 					}
+					Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
 					_connections.push_back(connection);
-					EV_SET(kev, connection._socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
+					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
 						perror("kevent error");
 					}
 				}
 				else if (event_fds[i].filter & EVFILT_READ) {
-					Connection active_connection;
 					for (size_t j = 0; j < _connections.size(); ++j)
 					{
-						if (_connections[j]._socket_fd == current_event_fd) {
-							active_connection = _connections[j];
-							active_connection.handle_http_request(); //TODO: to be replaced by a proper handler
+						if (_connections[j].get_socket_fd() == current_event_fd) {
+							RequestHandler request_handler(_connections[j]);
+							request_handler.handle_http_request();
+							break;
 						}
 					}
-					std::string response = "I do exist!\n";
-					send(active_connection._socket_fd, response.c_str(), response.size(), 0);
+
 				}
 			}
 		}
