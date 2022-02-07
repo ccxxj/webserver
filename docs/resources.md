@@ -128,6 +128,7 @@
 - [listen](https://man7.org/linux/man-pages/man2/listen.2.html): listens for connections on a socket.
 - [poll](https://man7.org/linux/man-pages/man2/poll.2.html): waits for one of a set of file descriptors to become ready to perform I/O.
 - [accept](https://man7.org/linux/man-pages/man2/accept.2.html): accepts a connection on a socket.
+- [recv() return values ](https://stackoverflow.com/questions/17824865/non-blocking-recv-returns-0-when-disconnected/17831323): discussion on when recv() returns 0 when disconnected 
 - [Linux System Calls](https://cloudchef.medium.com/linux-system-calls-c2867c7c30c1) - nice diagram about how communication system calls work
 - [Select](https://www.lowtek.com/sockets/select.html): we're not using it but it might be helpful to read about it
 
