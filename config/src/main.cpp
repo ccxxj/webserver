@@ -21,8 +21,8 @@ int main(int argc, char **argv)
 
 	try
 	{
-		Config::ConfigData		config;
-		Config::ConfigParser	parser(&config, file_path);
+		ConfigData		config;
+		ConfigParser	parser(&config, file_path);
 		parser.parse();
 	}
 	catch(const std::exception& e)

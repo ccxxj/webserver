@@ -4,7 +4,7 @@
 #include "ServerBlock.hpp"
 #include <vector>
 
-namespace Config {
+// namespace Config {
 	class ConfigData
 	{
 	private:
@@ -15,7 +15,11 @@ namespace Config {
 		~ConfigData();
 
 		std::vector<ServerBlock> &get_servers(void);
+
 	};
-}
+// }
 #endif
  
+
+
+

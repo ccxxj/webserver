@@ -6,6 +6,10 @@ OBJ_DIR = obj
 SRCS	=	main.cpp \
 			ConfigParser.cpp \
 			ConfigData.cpp \
+			Utils.cpp \
+			AConfigBlock.cpp \
+			ServerBlock.cpp \
+			LocationBlock.cpp \
 
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 

@@ -1,5 +1,5 @@
 #include "ConfigData.hpp"
-namespace Config {
+// namespace Config {
     
 ConfigData::ConfigData(/* args */)
 {
@@ -14,4 +14,5 @@ std::vector<ServerBlock> &ConfigData::get_servers(void)
     return (_servers);
 }
 
-}
+// }
+

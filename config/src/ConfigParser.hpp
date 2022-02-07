@@ -8,8 +8,9 @@
 # include <vector>
 #include "ServerBlock.hpp"
 #include "ConfigData.hpp"
+#include "Utils.hpp"
 //TODO should we have a ConfigValidator?
-namespace Config {
+// namespace Config {
 
 	class ConfigParser {
 	private:
@@ -24,7 +25,10 @@ namespace Config {
 		void remove_comments(void);
 		void tokenize_server_blocks(void);
 		void print_server_blocks(void);
-		ServerBlock &parse_server_block(std::string server_token);
+		ServerBlock parse_server_block(std::string server_token);
+		bool find_location(std::string line);
+		bool find_directive(std::string line);
+		void parse_location_block(std::string line, std::istringstream &stream);
 		//ConfigParser(); do we need default constructor?
 
 	public:
@@ -42,7 +46,7 @@ namespace Config {
 			}
 		};
 	};
-}
+// }
 #endif
 
 

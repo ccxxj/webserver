@@ -1,9 +1,11 @@
+#pragma once
 #include "AConfigBlock.hpp"
-// #include "LocationBlock.hpp"
+#include "LocationBlock.hpp"
 # include <vector>
 # include <string>
 // class AConfigBlock;
-class LocationBlock;
+// class LocationBlock;
+
 class ServerBlock: public AConfigBlock
 {
 private:
