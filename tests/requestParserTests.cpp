@@ -25,27 +25,35 @@ char http_request_mes[] = "POST /cgi-bin/process.cgi HTTP/1.1\r\n"
 
                             "licenseID=string&content=string&/paramsXML=string";
 
-TEST_CASE ("Simple generator use") {
-    std::vector<char*> http_requests;
-    std::string buffer;
-    std::ifstream file("requestParserMessages.txt");
-    if (file.is_open()) {
-        std::string line;
-        for( std::string line; getline(file, line); ) {
-            while (line != "---end---") {
+    TEST_CASE ("Simple generator use") {
+        std::vector<char*> http_requests;
+        std::string buffer = "";
+        std::ifstream file("/Users/osamara/codam_core/webserver/tests/requestParserMessages.txt");
+        if (file.is_open()) {
+            std::string line;
+            while( file) {
+                getline(file, line);
+                if (line == "---end---") {
+                    char* buf = &buffer[0];
+                    http_requests.push_back(buf);
+                    getline(file, line); // skipping the newline after the end
+                }
                 buffer.append(line);
                 buffer.append("\r\n");
+            
             }
-            char* buf = &buffer[0];
-            http_requests.push_back(buf);
-            getline(file, line); // skipping the newline after the end
+            file.close();
+
         }
-        file.close();
-    }
-        auto request = GENERATE(http_request_mes);
+        using IteratorType = std::vector<char*>::iterator;
+        std::vector<char*>::iterator it = http_requests.begin();
+        std::vector<char*>::iterator ite = http_requests.end();
+        // auto request = GENERATE_REF(from_range(it, ite - 1));
+         auto request = GENERATE_COPY(from_range(http_requests));
+        // auto request = GENERATE(http_request_mes);
         parser.parse_HTTP_request(http_request_mes, strlen(http_request_mes));
-        CHECK(_http_request_message.get_method() == "POST");
-        CHECK(_http_request_message.get_request_uri() == "/cgi-bin/process.cgi");
-        CHECK(_http_request_message.get_HTTP_version() == "HTTP/1.1");
+        CHECK(_http_request_message.get_method() != "POST");
+        // CHECK(_http_request_message.get_request_uri() == "/cgi-bin/process.cgi");
+        // CHECK(_http_request_message.get_HTTP_version() == "HTTP/1.1");
     }
 }
