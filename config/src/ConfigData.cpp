@@ -11,7 +11,7 @@ ConfigData::~ConfigData()
 
 std::vector<ServerBlock> &ConfigData::get_servers(void)
 {
-    std::cout << "in get_servers" << std::endl;
+    // std::cout << "in get_servers" << std::endl;
     return (_servers);
 }
 

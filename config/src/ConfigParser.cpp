@@ -90,38 +90,90 @@ bool ConfigParser::find_location(std::string line)
 	return Utils::check_first_keyword(line, "location");
 }
 
-bool ConfigParser::find_directive(std::string line)
+int ConfigParser::find_directive(std::string line)
 {
 	const char *directive_list[8] = {"listen", "server_name", "client_max_body_size", "error_page", "return", "root", "limit_except", NULL};
 	//auto index and directory listing?
 	for (size_t i = 0; i < 7; i++)
 	{
 		if(Utils::check_first_keyword(line, directive_list[i]))
-			return true;
+			return i;
 	}
-	return false;
+	return -1;
 }
 
-void ConfigParser::parse_location_block(std::string line, std::istringstream &stream)
+void parse_limit_except(std::string line, LocationBlock &location, std::istringstream &stream)
+{
+	location.set_limit_except(line);
+	while(std::getline(stream, line))
+	{
+		std::string temp = line;
+		Utils::remove_white_space(temp);
+		if(temp.compare("}") == 0)
+			break;
+		else
+			continue;		
+	}
+}
+
+void ConfigParser::parse_location_block(std::string line, std::istringstream &stream, ServerBlock &server)
 {
 	LocationBlock location;
+	int	e_num = -4;
 	//call set_route on the line (but first get rid of location {})
 	// std::cout << "in parse location" << std::endl;
 	while (std::getline(stream, line))
 	{
-		// std::cout << line << std::endl;
-		//when you hav limit except you need to skip oher lines?
-	//IGNORE THE LAST LINE
-	//STOP AT THE END OF BRACKET
+		std::string temp = line;
+		Utils::remove_white_space(temp);
+		if(temp.compare("}") == 0)
+			break;
+		if(Utils::check_first_keyword(line, "limit_except"))
+			parse_limit_except(line, location, stream);
+		if((e_num = find_directive(line)) >= 0)
+			parse_location_directive(line, location, e_num);
 	}
-
+	server.get_location().push_back(location);
 }
-//TODO very shitty parameters, check if reference should be passed!
+
+void ConfigParser::parse_server_directive(std::string line, ServerBlock &server, int e_num)
+{
+	//identify the keyword, remove keyword and use the right set functoion
+	(void)server;
+	// std::cout << "directive parsinngggg: " << line << std::endl;
+	if(e_num == LISTEN)
+		server.set_listen(line);
+	else if(e_num == SERVER_NAME)
+		server.set_server_name(line);
+	//body size?
+	else if(e_num == ERROR_PAGE)
+		server.set_error_page_value(line);
+	else if(e_num == RETURN)
+		server.set_return_value(line);
+	else if(e_num == ROOT)
+		server.set_root_value(line);
+	//remove_keyword("listen", line);
+}
+
+void ConfigParser::parse_location_directive(std::string line, LocationBlock &location, int e_num)
+{
+	//identify the keyword, remove keyword and use the right set functoion
+	// std::cout << "directive parsinngggg: " << line << std::endl;
+	// if(e_num = ROOT)
+	// 	location.set_root_value(line);
+	//AUTO INDEX?
+	if(e_num == ERROR_PAGE)
+		location.set_error_page_value(line);
+	else if(e_num == RETURN)
+		location.set_return_value(line);
+	else if(e_num == LIMIT_EXCEPT)
+		location.set_limit_except(line);
+	//remove_keyword("listen", line);
+}
+
 void ConfigParser::parse_server_block(std::string server_token, ServerBlock &server)
 {
-	std::cout << "in parse server" << std::endl;
-	// ServerBlock server;
-	
+	// std::cout << "in parse server" << std::endl;
 	// loop inside string find key value pairs & location values
 	// saves them inside the variables of ServerBlock and LocationBlocks!
 	//read line by line? call ServerBlocks functions based on the line?
@@ -129,31 +181,30 @@ void ConfigParser::parse_server_block(std::string server_token, ServerBlock &ser
 
 	std::string line;
 	std::istringstream stream(server_token);
-	// int x = rand();
-	// server.set_server_name(std::to_string(x) + " ;");
-	server.set_server_name(" blablabla ;");
-	// server.get_server_name();
+	int e_num = -4;
 	while (std::getline(stream, line))
 	{
 		// std::cout << line << std::endl;
-		// std::cout << "X: " << Utils::check_first_keyword(line, "listen") << std::endl;
-		// std::cout << "/* message */" << std::endl;
 		//create the location + push back into to the server.getLocation().push_back();
 		if(ConfigParser::find_location(line))
-			parse_location_block(line, stream); //record the route, limit_except? root,
-		else if(ConfigParser::find_directive(line))
-			parse_directive(); //identify the keyword, remove keyword and use the right set functoion
-		//	
+			parse_location_block(line, stream, server); //record the route, limit_except? root,
+		else
+		{
+			e_num = ConfigParser::find_directive(line);
+			if(e_num >= 0)
+				parse_server_directive(line, server, e_num); 
+		}
+		
+	
 		// else
-		// 	throw std::exception;//TODO handle exception
+		// 	throw ConfigParser::InvalidConfigDirectiveException();
 	}
-	// return(server);
-	std::cout << "end of parse server" << std::endl;
+	// std::cout << "end of parse server" << std::endl;
 }
 
 void	ConfigParser::parse( void )
 {
-	std::cout << "IN PARSE" << std::endl;
+	// std::cout << "IN PARSE" << std::endl;
 	(void)config_data;
 	open_and_read_file();
 	remove_comments();
@@ -168,9 +219,10 @@ void	ConfigParser::parse( void )
 		ServerBlock server;
 		parse_server_block(server_tokens[i], server);
 		config_data->get_servers().push_back(server);
+		std::cout << "FUCK" << server.number << "LISTEEN: " << server.get_listen()[0] << std::endl;
 		
 	}
-	std::cout << "last line off parse" << std::endl;
+	// std::cout << "last line off parse" << std::endl;
 	// std::cout << "size of servers vector in ConfigData " << _servers.size() << std::endl;		
 }
 

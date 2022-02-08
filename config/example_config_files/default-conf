@@ -6,7 +6,7 @@
 #    By: icikrikc <icikrikc@student.codam.nl>         +#+                      #
 #                                                    +#+                       #
 #    Created: 2021/01/15 18:59:47 by icikrikc      #+#    #+#                  #
-#    Updated: 2022/02/08 14:56:36 by icikrikc      ########   odam.nl          #
+#    Updated: 2022/02/08 16:01:08 by icikrikc      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,12 +27,7 @@ server{
 
 	# client_max_body_size 2;
 
-	ssl_certificate /etc/nginx/ssl/localhost.pem;
-	ssl_certificate_key /etc/nginx/ssl/localhost.key;
-
 	root /var/www/localhost;
-
-	index index.html index.htm index.nginx-debian.html index.php;
 
 	error_page 404 /custom-404.html; #put them in the root!
 	# ABCBCBCBCB ; #invalid config file elements
@@ -54,8 +49,7 @@ server{
 	# 	try_files $uri $uri/ =505;
 	# }
 
-	location ~ \.php$ {
-		include snippets/fastcgi-php.conf;
-		fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+	location \.php {
+		return 505 https://$server_name$request_uri;
 	}
 }

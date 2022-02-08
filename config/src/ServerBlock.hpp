@@ -11,6 +11,7 @@ class ServerBlock: public AConfigBlock
 private:
 	/* data */
 	bool		_is_default; //TODO define the default server ??
+	//TODO client body size
 	std::vector<std::string>	_listen;
 	std::vector<std::string>	_server_name;
 	std::vector<LocationBlock> _locations; //TODO get location
@@ -24,4 +25,5 @@ public:
 	void set_server_name(std::string str);
 	std::vector<std::string> get_listen(void) const;
 	std::vector<std::string> get_server_name(void) const;
+	std::vector<LocationBlock> &get_location(void); //TODO have it with const?
 };

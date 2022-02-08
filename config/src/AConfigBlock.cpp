@@ -8,16 +8,19 @@ AConfigBlock::~AConfigBlock(){}
 /* getters & setters */
 void AConfigBlock::set_return_value(std::string str)
 {
+    Utils::remove_first_keyword(str);
 	Utils::split_value(str, _return);	
 }
 
 void AConfigBlock::set_root_value(std::string str)
 {
+    Utils::remove_first_keyword(str);
 	Utils::split_value(str, _root);	
 }
 
 void AConfigBlock::set_error_page_value(std::string str)
 {
+    Utils::remove_first_keyword(str);
 	Utils::split_value(str, _error_page);	
 }
 

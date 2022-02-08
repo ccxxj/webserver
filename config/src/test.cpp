@@ -36,23 +36,56 @@
 #include "AConfigBlock.hpp"
 #include "Utils.hpp"
 
-void print_vectors(std::vector<std::string> a)
-{
-    std::cout << "vector is: \n";
-    int size = a.size();
-    for(int i = 0; i < size; i++)
-    {
-        std::cout << a[i] << std::endl;
-    }
-}
+// void print_vectors(std::vector<std::string> a)
+// {
+//     std::cout << "vector is: \n";
+//     int size = a.size();
+//     for(int i = 0; i < size; i++)
+//     {
+//         std::cout << a[i] << std::endl;
+//     }
+// }
+
+// int main()
+// {
+//     AConfigBlock a;
+//     a.set_error_page_value("sdfasf asdfsf ds    ;");
+//     print_vectors(a.get_error_page());
+//     a.set_return_value("return /sf/sd/dsasff/ 444;");
+//     print_vectors(a.get_return());
+//     a.set_root_value("root /sf/sd/dsasff/ 444;");
+//     print_vectors(a.get_root());
+// }
+
+// void Utils::split_value(std::string str, std::vector<std::string> &a)
+// {
+//     int found = str.find_first_of(" 	;");
+//     int len = str.length();
+//     int i = 0;
+//     while(found < len && found != -1)
+//     {
+//         a.push_back(str.substr(i, found - i));
+//         i = str.find_first_not_of(" 	;", found + 1);
+//         found = str.find_first_of(" 	;", i);
+//         if (str[found] == ';')
+//         {
+//             std::string sub = str.substr(i, found - i);
+//             std::cout << "sub: " << sub << std::endl;
+//             a.push_back(sub);
+//             std::cout << "inside loop in a: " << a[0] << std::endl;
+//                 // a.push_back(str.substr(i, found - i));
+//             break;
+//         }
+//     }
+//     std::cout << "in a: " << a[0] << std::endl;
+// }
 
 int main()
 {
-    AConfigBlock a;
-    a.set_error_page_value("sdfasf asdfsf ds    ;");
-    print_vectors(a.get_error_page());
-    a.set_return_value("return /sf/sd/dsasff/ 444;");
-    print_vectors(a.get_return());
-    a.set_root_value("root /sf/sd/dsasff/ 444;");
-    print_vectors(a.get_root());
+    std::vector<std::string> a;
+    std::string line;
+    getline(std::cin, line);
+    a.push_back(line);
+    std::cout << "fucking line is " << a[0] << std::endl;
+    // Utils::split_value(line, a);
 }

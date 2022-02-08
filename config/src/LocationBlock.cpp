@@ -16,6 +16,7 @@ LocationBlock::~LocationBlock()
 
 void LocationBlock::set_route(std::string str)
 {
+    Utils::remove_first_keyword(str);
 	int first = str.find_first_not_of("     ");
     int last = str.find_first_of("  {", first);
     str = str.substr(first, last - first);
@@ -24,6 +25,7 @@ void LocationBlock::set_route(std::string str)
 //TODO do we want to validate the Method keywords
 void LocationBlock::set_limit_except(std::string str)
 {
+    Utils::remove_first_keyword(str);
 	Utils::split_value(str, _limit_except);
     int size = _limit_except.size();
     (void)size; //TODO unused varibale do we need the int size?
@@ -33,6 +35,7 @@ void LocationBlock::set_limit_except(std::string str)
 //TODO add exception handling on the key word other than on or off??
 void LocationBlock::set_autoindex(std::string str)
 {
+    Utils::remove_first_keyword(str);
     int first = str.find_first_not_of("     ");
     int last = str.find_first_of("  ;", first + 1);
     std::string keyword = str.substr(first, last - first);

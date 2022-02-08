@@ -15,6 +15,15 @@
 	class ConfigParser {
 	private:
 		/* data */
+		enum Directives {
+			LISTEN,
+			SERVER_NAME,
+			BODY_SIZE,
+			ERROR_PAGE,
+			RETURN,
+			ROOT,
+			LIMIT_EXCEPT
+		};
 		ConfigData *config_data;
 		std::string file_path;
 		std::string file_content;
@@ -27,8 +36,10 @@
 		void print_server_blocks(void);
 		void parse_server_block(std::string server_token, ServerBlock &server);
 		bool find_location(std::string line);
-		bool find_directive(std::string line);
-		void parse_location_block(std::string line, std::istringstream &stream);
+		int find_directive(std::string line);
+		void parse_location_block(std::string line, std::istringstream &stream, ServerBlock &server);
+		void parse_server_directive(std::string line, ServerBlock &server, int e_num);
+		void parse_location_directive(std::string line, LocationBlock &location, int e_num);
 		//ConfigParser(); do we need default constructor?
 
 	public:
@@ -43,6 +54,15 @@
 			const char *what() const throw()
 			{
 				return "Configuration file failed to open";
+			}
+		};
+
+		class InvalidConfigDirectiveException : public std::exception
+		{
+		public:
+			const char *what() const throw()
+			{
+				return "Invalid directive in config";
 			}
 		};
 	};
