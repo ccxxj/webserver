@@ -1,5 +1,5 @@
 #include "ConfigParser.hpp"
-
+#include <stdlib.h> 
 // namespace Config {
 
 ConfigParser::ConfigParser(ConfigData *config_data, std::string file_path):
@@ -93,7 +93,7 @@ bool ConfigParser::find_location(std::string line)
 bool ConfigParser::find_directive(std::string line)
 {
 	const char *directive_list[8] = {"listen", "server_name", "client_max_body_size", "error_page", "return", "root", "limit_except", NULL};
-	
+	//auto index and directory listing?
 	for (size_t i = 0; i < 7; i++)
 	{
 		if(Utils::check_first_keyword(line, directive_list[i]))
@@ -104,17 +104,21 @@ bool ConfigParser::find_directive(std::string line)
 
 void ConfigParser::parse_location_block(std::string line, std::istringstream &stream)
 {
+	LocationBlock location;
+	//call set_route on the line (but first get rid of location {})
 	// std::cout << "in parse location" << std::endl;
 	while (std::getline(stream, line))
 	{
 		std::cout << line << std::endl;
-	
+		//when you hav limit except you need to skip oher lines?
+	//IGNORE THE LAST LINE
 	}
 
 }
 //TODO very shitty parameters, check if reference should be passed!
 ServerBlock ConfigParser::parse_server_block(std::string server_token)
 {
+	std::cout << "in parse server" << std::endl;
 	ServerBlock server;
 	
 	// loop inside string find key value pairs & location values
@@ -124,7 +128,10 @@ ServerBlock ConfigParser::parse_server_block(std::string server_token)
 
 	std::string line;
 	std::istringstream stream(server_token);
-
+	// int x = rand();
+	// server.set_server_name(std::to_string(x) + " ;");
+	server.set_server_name(" blablabla ;");
+	// server.get_server_name();
 	while (std::getline(stream, line))
 	{
 		// std::cout << line << std::endl;
@@ -138,11 +145,13 @@ ServerBlock ConfigParser::parse_server_block(std::string server_token)
 		// else
 		// 	throw std::exception;//TODO handle exception
 	}
+	std::cout << "end of parse server" << std::endl;
 	return(server);
 }
 
 void	ConfigParser::parse( void )
 {
+	std::cout << "IN PARSE" << std::endl;
 	(void)config_data;
 	open_and_read_file();
 	remove_comments();
@@ -156,6 +165,8 @@ void	ConfigParser::parse( void )
 		std::cout << "i: " << i << std::endl;
 		_servers.push_back(parse_server_block(server_tokens[i]));
 	}
+	std::cout << "size of servers vector in ConfigData " << _servers.size() << std::endl;
+	std::cout << "end of parsee func" << std::endl;
 		
 }
 

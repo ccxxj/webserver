@@ -24,6 +24,7 @@ int main(int argc, char **argv)
 		ConfigData		config;
 		ConfigParser	parser(&config, file_path);
 		parser.parse();
+		std::cout << "end of main" << std::endl;
 	}
 	catch(const std::exception& e)
 	{

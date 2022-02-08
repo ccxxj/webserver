@@ -26,6 +26,7 @@ void LocationBlock::set_limit_except(std::string str)
 {
 	Utils::split_value(str, _limit_except);
     int size = _limit_except.size();
+    (void)size; //TODO unused varibale do we need the int size?
     _limit_except.pop_back(); //pop out the "{" 
 }
 
@@ -45,13 +46,13 @@ void LocationBlock::set_autoindex(std::string str)
     // }
 }
 
-int LocationBlock::get_autoindex(std::string str) const
+int LocationBlock::get_autoindex() const
 {
     return _autoindex;
 }
 
 
-std::string LocationBlock::get_route(std::string str) const
+std::string LocationBlock::get_route() const
 {
     return _route;
 }

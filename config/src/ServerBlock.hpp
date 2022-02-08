@@ -16,9 +16,10 @@ private:
 	std::vector<LocationBlock> _locations;
 public:
 	ServerBlock(/* args */);
+	ServerBlock(const ServerBlock& other);
 	~ServerBlock();
 	void set_listen(std::string str);
 	void set_server_name(std::string str);
-	std::vector<std::string> get_listen(std::string str) const;
-	std::vector<std::string> get_server_name(std::string str) const;
+	std::vector<std::string> get_listen(void) const;
+	std::vector<std::string> get_server_name(void) const;
 };

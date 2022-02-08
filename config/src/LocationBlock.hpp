@@ -13,8 +13,8 @@ public:
 	void set_route(std::string str);
 	void set_limit_except(std::string str);
 	void set_autoindex(std::string str);
-	std::string get_route(std::string str) const;
-	int get_autoindex(std::string str) const;
+	std::string get_route(void) const;
+	int get_autoindex(void) const;
 	std::vector<std::string> get_limit_except(void) const;
 };
 
