@@ -24,7 +24,7 @@ bool RequestReader::_is_end_of_line(char* buffer, char* message_end) { // also c
 }
 
 bool RequestReader::_is_end_of_header_fields(char* buffer, char* message_end) {
-    return _is_end_of_line(buffer, message_end) && _is_end_of_line(buffer + 2, message_end);
+    return _is_end_of_line(buffer, message_end);
 }
 
 std::string RequestReader::read_line(char** buffer, char* message_end) { // pointer to the buffer as we need to keep track of it

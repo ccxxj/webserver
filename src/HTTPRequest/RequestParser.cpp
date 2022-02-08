@@ -17,7 +17,7 @@ namespace HTTPRequest {
         //TODO: validate request line
         while(buffer != message_end) {
             if (request_reader._is_end_of_header_fields(buffer, message_end)){
-                buffer += 4; // skipping double \r\n
+                buffer += 2; // skipping only one \r\n as the previous one has allrady been skipped in the previous iteration
                 break;
             }
             accumulator = request_reader.read_line(&buffer, message_end);
@@ -62,11 +62,11 @@ namespace HTTPRequest {
             if (accumulating_string == "")
             return; //TODO: fill error response
         std::vector<std::string> segments = _split_line(accumulating_string, ':');
-        std::pair<std::string, std::string> header_field(segments[0], trim(segments[1])); //TODO: No whitespace is allowed between the header field-name and colon.
+        std::pair<std::string, std::string> header_field(segments[0], _trim(segments[1])); //TODO: No whitespace is allowed between the header field-name and colon.
         _http_request_message->set_header_field(header_field); //TODO: what if the header name exists?
     }
  
-    std::string trim(const std::string& s)
+    std::string RequestParser::_trim(const std::string& s)
     {
         std::string::const_iterator start = s.begin();
         while (start != s.end() && std::isspace(*start)) {

@@ -32,9 +32,8 @@ namespace HTTPRequest {
         void _parse_header(const std::string& accumulating_string);
 
         std::vector<std::string> _split_line(const std::string& line, const char delimiter);
-
+        std::string _trim(const std::string& s);
     };
 }
-
 
 #endif
