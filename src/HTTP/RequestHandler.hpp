@@ -13,6 +13,8 @@ namespace HTTP {
         HTTPResponse::ResponseMessage _http_response_message;
         Connection _connection;
         
+        void _handle_exception();
+        
     public:
         RequestHandler(const Connection& active_connection);
         ~RequestHandler();

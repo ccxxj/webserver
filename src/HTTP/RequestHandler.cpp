@@ -11,20 +11,27 @@ namespace HTTP {
 		char buf[1024];
 		memset(buf, '\0', 1024);
 		size_t bytes_read = recv(_connection.get_socket_fd(), buf, sizeof(buf), 0);
-		if (bytes_read > 0) 
+		// TODO: add check on the bytes read == -1 or == 0(if the client stopped the connection)
+		if (bytes_read > 0)
 		{
-					printf("read %zu bytes\n", bytes_read);
-					std::cout << "The message was:\n"<< std::endl;
-					std::cout.write(buf, bytes_read);
-	
+			printf("read %zu bytes\n", bytes_read);
+			std::cout << "The message was:\n"<< std::endl;
+			std::cout.write(buf, bytes_read);
 		}
-		HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
-		parser.parse_HTTP_request(buf, bytes_read);
-		
-		std::cout<< "\n\nrequest_message method is : " << _http_request_message.get_method() << std::endl;
-		std::cout<< " request_message uri is : " << _http_request_message.get_request_uri() << std::endl;
-		std::cout<< " request_message HTTP version is : " << _http_request_message.get_HTTP_version() << std::endl;
+		try {
 
+			HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+			parser.parse_HTTP_request(buf, bytes_read);
+			
+			std::cout<< "\n\nrequest_message method is : " << _http_request_message.get_method() << std::endl;
+			std::cout<< " request_message uri is : " << _http_request_message.get_request_uri() << std::endl;
+			std::cout<< " request_message HTTP version is : " << _http_request_message.get_HTTP_version() << std::endl;
+
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
 		std::string response = "I do exist!\n";
 		send(_connection.get_socket_fd(), response.c_str(), response.size(), 0);
 	}
