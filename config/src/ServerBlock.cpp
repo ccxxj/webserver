@@ -4,22 +4,34 @@
 ServerBlock::ServerBlock(/* args */)
 {
     (void)_is_default;
-    std::cout << "created" << std::endl;
+    number = rand();
+    std::cout << number << " created" << std::endl;
 }
 
+//TODO  assign operator and copy operator
 ServerBlock::ServerBlock(const ServerBlock& other)
 {
     // std::copy(other._server_name.begin(), other._server_name.end(), this->_server_name.begin());
     // std::cout << get_server_name().size() << std::endl;
     // std::cout << get_server_name()[0] << " copy constructor" << std::endl;
-    std::cout <<  "copy constructor" << std::endl;
+    // other.number = this->number;
     *this = other;
+    std::cout <<  number << " copy constructor" << std::endl;
+    
+}
+
+ServerBlock &	ServerBlock::operator=(ServerBlock const & other)
+{
+	
+	number = other.number;
+    std::cout << this->number << " assign operator" << std::endl;
+	return *this;
 }
 
 ServerBlock::~ServerBlock()
 {
     // std::cout  << get_server_name()[0] << " destructed!" << std::endl;
-    std::cout  << " destructed!" << std::endl;
+    std::cout  << number << " destructed!" << std::endl;
 }
 
 void ServerBlock::set_listen(std::string str)

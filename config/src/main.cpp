@@ -24,6 +24,11 @@ int main(int argc, char **argv)
 		ConfigData		config;
 		ConfigParser	parser(&config, file_path);
 		parser.parse();
+		std::cout << "end of parsee func" << std::endl;
+		for (size_t i = 0; i < config.get_servers().size(); i++)
+		{
+			std::cout << "number: " << config.get_servers()[i].number << std::endl;
+		}
 		std::cout << "end of main" << std::endl;
 	}
 	catch(const std::exception& e)

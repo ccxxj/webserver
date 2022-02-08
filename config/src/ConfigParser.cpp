@@ -109,17 +109,18 @@ void ConfigParser::parse_location_block(std::string line, std::istringstream &st
 	// std::cout << "in parse location" << std::endl;
 	while (std::getline(stream, line))
 	{
-		std::cout << line << std::endl;
+		// std::cout << line << std::endl;
 		//when you hav limit except you need to skip oher lines?
 	//IGNORE THE LAST LINE
+	//STOP AT THE END OF BRACKET
 	}
 
 }
 //TODO very shitty parameters, check if reference should be passed!
-ServerBlock ConfigParser::parse_server_block(std::string server_token)
+void ConfigParser::parse_server_block(std::string server_token, ServerBlock &server)
 {
 	std::cout << "in parse server" << std::endl;
-	ServerBlock server;
+	// ServerBlock server;
 	
 	// loop inside string find key value pairs & location values
 	// saves them inside the variables of ServerBlock and LocationBlocks!
@@ -137,16 +138,17 @@ ServerBlock ConfigParser::parse_server_block(std::string server_token)
 		// std::cout << line << std::endl;
 		// std::cout << "X: " << Utils::check_first_keyword(line, "listen") << std::endl;
 		// std::cout << "/* message */" << std::endl;
+		//create the location + push back into to the server.getLocation().push_back();
 		if(ConfigParser::find_location(line))
-			parse_location_block(line, stream);
+			parse_location_block(line, stream); //record the route, limit_except? root,
 		else if(ConfigParser::find_directive(line))
-			std::cout << line << std::endl;
-		// 	parse_directive; 
+			parse_directive(); //identify the keyword, remove keyword and use the right set functoion
+		//	
 		// else
 		// 	throw std::exception;//TODO handle exception
 	}
+	// return(server);
 	std::cout << "end of parse server" << std::endl;
-	return(server);
 }
 
 void	ConfigParser::parse( void )
@@ -158,16 +160,18 @@ void	ConfigParser::parse( void )
 	tokenize_server_blocks();
 	// print_server_blocks();
 
-	std::vector<ServerBlock> _servers = config_data->get_servers();
+	// std::vector<ServerBlock> _servers = ; 
 	for (size_t i = 0; i < server_tokens.size(); i++)
 	{
 		// std::cout << "my tokenss " << server_tokens[i] << std::endl;
 		std::cout << "i: " << i << std::endl;
-		_servers.push_back(parse_server_block(server_tokens[i]));
-	}
-	std::cout << "size of servers vector in ConfigData " << _servers.size() << std::endl;
-	std::cout << "end of parsee func" << std::endl;
+		ServerBlock server;
+		parse_server_block(server_tokens[i], server);
+		config_data->get_servers().push_back(server);
 		
+	}
+	std::cout << "last line off parse" << std::endl;
+	// std::cout << "size of servers vector in ConfigData " << _servers.size() << std::endl;		
 }
 
 // }

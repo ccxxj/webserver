@@ -25,7 +25,7 @@
 		void remove_comments(void);
 		void tokenize_server_blocks(void);
 		void print_server_blocks(void);
-		ServerBlock parse_server_block(std::string server_token);
+		void parse_server_block(std::string server_token, ServerBlock &server);
 		bool find_location(std::string line);
 		bool find_directive(std::string line);
 		void parse_location_block(std::string line, std::istringstream &stream);
