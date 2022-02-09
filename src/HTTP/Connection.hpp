@@ -17,8 +17,9 @@ namespace HTTP {
 		Connection(int connection_socket_fd, int server_listening_sockfd, sockaddr_in& connection_addr, int connection_addr_len);
 		~Connection();
 
-		int get_socket_fd();
-
+		size_t recv(char *buffer, size_t buffer_size);
+		void send(const void *buffer, size_t buffer_size);
+		void close();
 	};
 }
 

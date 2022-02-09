@@ -1,5 +1,8 @@
 #include "Connection.hpp"
 
+#include <string>
+#include <iostream>
+#include <unistd.h>
 
 namespace HTTP {
 	Connection::Connection() {}
@@ -11,9 +14,21 @@ namespace HTTP {
 
 	Connection::~Connection(){}
 
-	int Connection::get_socket_fd() {
-		return _socket_fd;
+
+	void Connection::send(const void* buffer, size_t buffer_size) {
+		if (::send(_socket_fd, buffer, buffer_size, 0) < 0) {
+			std::cout << "Send failed. errno: " << errno << std::endl;
+			this->close();
+		}
 	}
 
+	void Connection::close() {
+		if (::close(_socket_fd) < 0) {
+			std::cout << "Socket closing failed. errno: " << errno << std::endl;
+		}
+	}
 
+	size_t Connection::recv(char* buffer, size_t buffer_size) {
+		return ::recv(_socket_fd, buffer, buffer_size, 0);
+	}
 }
