@@ -14,7 +14,10 @@ namespace HTTPResponse {
 
         void set_status_code(const std::string& code);
         void set_reason_phrase(const std::string& reason);
-        
+        const std::string get_HTTP_version() const;
+        const std::string get_status_code() const;
+        const std::string get_reason_phrase() const;
+
     private:
         std::string _HTTP_version;
         std::string _status_code;

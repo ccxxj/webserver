@@ -9,9 +9,19 @@ namespace HTTPResponse {
         _status_code = code;
     }
     
-    void ResponseMessage::set_status_code(const std::string& reason) {
+    void ResponseMessage::set_reason_phrase(const std::string& reason) {
         _reason_phrase = reason;
     }
-    
 
+    const std::string ResponseMessage::get_HTTP_version() const {
+        return _HTTP_version;
+    }
+
+    const std::string ResponseMessage::get_status_code() const {
+        return _status_code;
+    }
+
+    const std::string ResponseMessage::get_reason_phrase() const {
+        return _reason_phrase;
+    }
 }
