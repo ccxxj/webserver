@@ -17,3 +17,4 @@
 - publics or privates are on top?
 - ifndef or pragma?
 - the order of including libraries? <vector> first then "ConfigParser.hpp"
+- tabs or space before attribute/method name? also indentation?
