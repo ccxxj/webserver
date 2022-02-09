@@ -50,7 +50,6 @@ int main(int argc, char const *argv[])
         return -1;
     }
     send(sock , http_request_mes.c_str() , http_request_mes.size() , 0 );
-    printf("http_request_mes sent\n");
     valread = read( sock , buffer, 1024);
     printf("%s\n",buffer );
     return 0;
