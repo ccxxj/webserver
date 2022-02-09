@@ -15,7 +15,7 @@ OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.cpp=.o))
 
 # Compiler options
 CC = c++
-FLAGS	= -Wall -Wextra -Werror -pedantic -std=c++98
+FLAGS	= -Wall -Wextra -Werror -pedantic -std=c++98 -g
 EXECUTABLE	= webserv
 
 all:	$(EXECUTABLE)

@@ -5,15 +5,15 @@ void Utils::split_value(std::string str, std::vector<std::string> &a)
 	int found = str.find_first_of(" 	;");
 	int len = str.length();
 	int i = 0;
-	// a.push_back("fuckers");
-	// std::cout << "xx:  " << a[0] << std::endl;
+	a.push_back("fuckers");
+	std::cout << "xx:  " << a[0] << std::endl;
 	while (found < len && found != -1)
 	{
 		std::string sub = str.substr(i, found - i);
 		a.push_back(sub);
 		// a.push_back(str.substr(i, found - i));
 		std::cout << "first sub in a: " << sub << std::endl;
-		std::cout << "inside loop in a: " << a[0] << std::endl;
+		std::cout << "inside loop in a: " << a[1] << std::endl;
 
 		i = str.find_first_not_of(" 	;", found + 1);
 		found = str.find_first_of(" 	;", i);

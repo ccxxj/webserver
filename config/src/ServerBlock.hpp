@@ -10,7 +10,7 @@ class ServerBlock: public AConfigBlock
 private:
 	/* data */
 	bool _is_default; //TODO define the default server ??
-	int _client_max_body_size; //TODO is int okaay or do we need a bigger i.e. long?
+	// int _client_max_body_size; //TODO is int okaay or do we need a bigger i.e. long?
 	std::vector<std::string>	_listen;
 	std::vector<std::string>	_server_name;
 	std::vector<LocationBlock>	_locations; //TODO get location
