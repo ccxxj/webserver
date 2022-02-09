@@ -10,14 +10,6 @@ RequestReader::~RequestReader()
 {
 }
 
-// std::string& RequestReader::get_accumulator() {
-//     return _accumulator;
-// }
-// 
-// void  RequestReader::resize_accumulator(){
-//     _accumulator.resize(0);
-// }
-
 bool RequestReader::_is_end_of_line(char* buffer, char* message_end) { // also checking that the current char is part of the buffer
     return (buffer != message_end && *buffer == '\r'
             && buffer + 1 != message_end && *(buffer + 1) == '\n');
