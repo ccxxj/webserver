@@ -3,8 +3,8 @@
 
 #include <string>
 
-namespace HTTPResponse
-{
+namespace HTTPResponse {
+
 	enum StatusCode
 	{
 		// 1xx - Informational
