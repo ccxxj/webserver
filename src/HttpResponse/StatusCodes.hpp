@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace HttpResponse
+namespace HTTPResponse
 {
 	enum StatusCode
 	{

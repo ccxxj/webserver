@@ -1,6 +1,8 @@
 #include "RequestHandler.hpp"
 
+#include <sstream> // for converting int to string
 #include "../HTTPRequest/RequestParser.hpp"
+#include "Exceptions/RequestException.hpp"
 
 namespace HTTP {
 	RequestHandler::RequestHandler(const Connection& active_connection):  _connection(active_connection){}
@@ -28,11 +30,25 @@ namespace HTTP {
 			std::cout<< " request_message HTTP version is : " << _http_request_message.get_HTTP_version() << std::endl;
 
 		}
-		catch(const std::exception& e)
+		catch(const Exception::RequestException& e)
 		{
-			std::cerr << e.what() << '\n';
+			_handle_exception(e.get_error_status_code());
 		}
 		std::string response = "I do exist!\n";
 		send(_connection.get_socket_fd(), response.c_str(), response.size(), 0);
 	}
+
+	void RequestHandler::_handle_exception(const int code) {
+		_http_response_message.set_status_code(_convert_status_code_to_string(code));
+		_http_response_message.set_reason_phrase(HTTPResponse::get_reason_phrase(HTTPResponse::StatusCode.code));
+	}
+
+	const std::string& RequestHandler::_convert_status_code_to_string(const int code) {
+		std::string stringified_code;
+		std::stringstream sstream;
+		sstream << code;
+		sstream >> stringified_code;
+		return stringified_code;
+	}
 }
+

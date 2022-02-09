@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace HttpResponse {
+namespace HTTPResponse {
 
 	const std::string get_reason_phrase(StatusCode code) {
 

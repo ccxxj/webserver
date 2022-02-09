@@ -1,6 +1,8 @@
 #include "RequestParser.hpp"
 #include <algorithm> // for std::distance
 
+#include "../HTTP/Exceptions/RequestException.hpp"
+
 namespace HTTPRequest {
 
     RequestParser::RequestParser(HTTPRequest::RequestMessage* http_request, HTTPResponse::ResponseMessage* http_response)
@@ -52,7 +54,7 @@ namespace HTTPRequest {
         std::vector<std::string> segments = _split_line(accumulating_string, ' ');
         _http_request_message->set_method(segments[0]);
         if (segments[1].size() > 2000) {
-            return; //TODO: respond with 414 (URI Too Long) status code
+            throw Exception::RequestException(414); //TODO: respond with 414 (URI Too Long) status code
         }
         _http_request_message->set_request_uri(segments[1]);
         _http_request_message->set_HTTP_version(segments[2]);

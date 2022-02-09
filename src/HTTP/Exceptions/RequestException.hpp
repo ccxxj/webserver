@@ -10,6 +10,8 @@ namespace Exception {
     public:
         RequestException(int error_code);
         ~RequestException();
+
+        const int get_error_status_code() const;
     private:
         int _error_status_code;
     };
