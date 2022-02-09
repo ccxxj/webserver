@@ -5,43 +5,40 @@ ServerBlock::ServerBlock(/* args */)
 {
     (void)_is_default;
     number = rand();
-    // std::cout << number << " created" << std::endl;
+    //std::cout << number << " ServerBlock construtor" << std::endl;
 }
 
-//TODO  assign operator and copy operator
 ServerBlock::ServerBlock(const ServerBlock& other)
 {
-    // std::copy(other._server_name.begin(), other._server_name.end(), this->_server_name.begin());
-    // std::cout << get_server_name().size() << std::endl;
-    // std::cout << get_server_name()[0] << " copy constructor" << std::endl;
-    // other.number = this->number;
-    *this = other;
-    // std::cout <<  number << " copy constructor" << std::endl;
-    
+    // std::cout << other.number << " ServerBlock copy constructor" << std::endl;
+    *this = other;  
 }
 
-ServerBlock &	ServerBlock::operator=(ServerBlock const & other)
+const ServerBlock &	ServerBlock::operator=(ServerBlock const & other)
 {
-	
-	number = other.number;
-    // std::cout << this->number << " assign operator" << std::endl;
+	//TODO should I call the get functions?
+	number = other.number; 
+    _listen = other._listen; 
+    _server_name = other._server_name;
+    _locations = other._locations;
+    _root = other._root;
+    _return = other._return;
+    _error_page = other._error_page;
+    // std::cout << this->number << " ServerBlock assign operator" << std::endl;
 	return *this;
 }
 
 ServerBlock::~ServerBlock()
 {
-    // std::cout  << get_server_name()[0] << " destructed!" << std::endl;
-    // std::cout  << number << " destructed!" << std::endl;
+    // std::cout  << number << " ServerBlock destructor" << std::endl;
 }
 
 void ServerBlock::set_listen(std::string str)
 {
-    std::cout << "in set listen line " << str << std::endl;
     Utils::remove_first_keyword(str);
-    std::cout << "remmoved: " << str << std::endl;
     Utils::split_value(str, _listen);
-    std::cout << "in set listen port: " << _listen[0] << std::endl;
 }
+
 void ServerBlock::set_server_name(std::string str)
 {
     Utils::remove_first_keyword(str);

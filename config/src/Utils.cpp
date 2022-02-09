@@ -1,34 +1,22 @@
 #include "Utils.hpp"
-
-void Utils::split_value(std::string str, std::vector<std::string> &a)
+//TODO split value function both splits and saves the value in the vector. So, it's actually doing more than split. Adjusting the name?
+void Utils::split_value(std::string line, std::vector<std::string> &vector_to_save)
 {
-	int found = str.find_first_of(" 	;");
-	int len = str.length();
-	int i = 0;
-	a.push_back("fuckers");
-	std::cout << "xx:  " << a[0] << std::endl;
-	while (found < len && found != -1)
-	{
-		std::string sub = str.substr(i, found - i);
-		a.push_back(sub);
-		// a.push_back(str.substr(i, found - i));
-		std::cout << "first sub in a: " << sub << std::endl;
-		std::cout << "inside loop in a: " << a[1] << std::endl;
-
-		i = str.find_first_not_of(" 	;", found + 1);
-		found = str.find_first_of(" 	;", i);
-		if (str[found] == ';')
-		{
-			std::string sub = str.substr(i, found - i);
-			// std::string sub = "fu";
-			std::cout << "sub: " << sub << std::endl;
-			a.push_back(sub);
-			std::cout << "inside loop in a: " << a[0] << std::endl;
-			// a.push_back(str.substr(i, found - i));
-			break;
-		}
-	}
-	std::cout << "in a: " << a[0] << std::endl;
+    int i = line.find_first_not_of("     ;");
+    int found = line.find_first_of("     ;", i);
+    int len = line.length();
+    while(found < len && found != -1)
+    {
+        std::string sub = line.substr(i, found - i);
+        vector_to_save.push_back(sub);
+        if(line[found] == ';')
+            break;
+        else
+        {
+            i = line.find_first_not_of("     ;", found + 1);
+            found = line.find_first_of("     ;", i);
+        }
+    }
 }
 
 bool Utils::check_first_keyword(std::string line, std::string keyword)

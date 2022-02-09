@@ -15,11 +15,11 @@ private:
 	std::vector<std::string>	_server_name;
 	std::vector<LocationBlock>	_locations; //TODO get location
 public:
-	int	number;
+	int	number; //TODO get rid of this num
 	ServerBlock(/* args */);
 	ServerBlock(const ServerBlock& other);
 	~ServerBlock();
-	ServerBlock &operator=(const ServerBlock& other);
+	const ServerBlock &operator=(const ServerBlock& other);
 
 	//TODO client body size getter & setter
 	void set_listen(std::string str);

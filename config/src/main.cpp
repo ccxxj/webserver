@@ -24,14 +24,7 @@ int main(int argc, char **argv)
 		ConfigData		config;
 		ConfigParser	parser(&config, file_path);
 		parser.parse();
-		std::cout << "end of parsee func" << std::endl;
-		for (size_t i = 0; i < config.get_servers().size(); i++)
-		{
-			std::cout << "number: " << config.get_servers()[i].number << std::endl;
-			// std::cout << "port: " << config.get_servers()[i].get_listen()[0] << std::endl;
-			// std::cout << "route: " << config.get_servers()[i].get_location()[0].get_route() << std::endl;
-		}
-		std::cout << "end of main" << std::endl;
+		config.print_servers_info();
 	}
 	catch(const std::exception& e)
 	{

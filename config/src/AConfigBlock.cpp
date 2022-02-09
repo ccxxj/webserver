@@ -3,6 +3,22 @@
 
 AConfigBlock::AConfigBlock(){}
 
+AConfigBlock::AConfigBlock(const AConfigBlock& other)
+{
+    // std::cout << "AConfigBlock copy constructor" << std::endl;
+    *this = other;  
+}
+
+const AConfigBlock &	AConfigBlock::operator=(AConfigBlock const & other)
+{
+	//TODO I copy them in ServerBlock, do I need this? 
+    _return = other._return; 
+    _root = other._root;
+    _error_page = other._error_page;
+    // std::cout << "AConfigBlock assign operator" << std::endl;
+	return *this;
+}
+
 AConfigBlock::~AConfigBlock(){}
 
 /* getters & setters */

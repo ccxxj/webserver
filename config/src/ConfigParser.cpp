@@ -200,11 +200,10 @@ void	ConfigParser::parse( void )
 	// print_server_blocks();
 	for (size_t i = 0; i < server_tokens.size(); i++)
 	{
-		std::cout << i + 1 << ". Server" << std::endl;
 		ServerBlock server;
 		parse_server_block(server_tokens[i], server);
-		config_data->get_servers().push_back(server);
-	}
+		config_data->get_servers().push_back(server); //TODO check config data servers, 
+	} 
 }
 
 // }

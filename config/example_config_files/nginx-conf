@@ -1,7 +1,9 @@
 server {
 	listen 80;
 	listen [::]:80;
-	# server_name irem;
+	server_name irem;
+	server_name webservvvvv;
+	root /var/www/localhost;
 	return 301 https://$server_name$request_uri;
 }
 
@@ -9,9 +11,11 @@ server {
 	listen 443 ssl ;
 	listen [::]:443 ssl ;
 
+	server_name irem;
+	server_name random_name;
 	# server_name irem;
 
-	# client_max_body_size 2;
+	client_max_body_size 2;
 
 	ssl_certificate /etc/nginx/ssl/localhost.pem;
 	ssl_certificate_key /etc/nginx/ssl/localhost.key;
@@ -27,6 +31,7 @@ server {
 	}
 
 	location /wordpress/ {
+		root /var/www/localhost;
 		limit_except POST {
 			deny all;
 		}
@@ -38,7 +43,7 @@ server {
 
 	location / {
 		autoindex on;
-		try_files $uri $uri/ =505;
+		eturn 505 https://$server_name$request_uri;
 	}
 
 	location ~ \.php$ {

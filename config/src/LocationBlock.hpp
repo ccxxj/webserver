@@ -13,6 +13,8 @@ private:
 	int _autoindex;
 public:
 	LocationBlock(/* args */);
+	LocationBlock(const LocationBlock& other);
+	const LocationBlock &operator=(const LocationBlock& other);
 	~LocationBlock();
 	void set_route(std::string str);
 	void set_limit_except(std::string str);
