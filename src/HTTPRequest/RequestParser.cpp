@@ -52,6 +52,9 @@ namespace HTTPRequest {
         if (accumulating_string == "")
             return; //TODO: fill error response
         std::vector<std::string> segments = _split_line(accumulating_string, ' ');
+        if (segments.size() < 3) {
+            throw Exception::RequestException(HTTPResponse::BadRequest);
+        }
         _http_request_message->set_method(segments[0]);
         if (segments[1].size() > 2000) {
             throw Exception::RequestException(HTTPResponse::URITooLong); //TODO: respond with 414 (URI Too Long) status code
