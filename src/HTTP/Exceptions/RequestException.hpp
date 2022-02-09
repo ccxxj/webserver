@@ -2,18 +2,19 @@
 #define REQUESTEXCEPTION_HPP
 
 #include <string>
+#include "../../HTTPResponse/StatusCodes.hpp"
 
 namespace Exception {
 
     class RequestException
     {
     public:
-        RequestException(int error_code);
+        RequestException(HTTPResponse::StatusCode error_code);
         ~RequestException();
 
-        const int get_error_status_code() const;
+        HTTPResponse::StatusCode get_error_status_code() const;
     private:
-        int _error_status_code;
+        HTTPResponse::StatusCode _error_status_code;
     };
 }
 
