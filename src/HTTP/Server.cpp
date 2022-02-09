@@ -65,9 +65,9 @@ namespace HTTP {
 	}
 
 	void Server::_remove_closed_connection(int fd) {
-		std::vector<Connection>::iterator iter = _connections.begin();
+		std::map<int, Connection>::iterator iter = _connections.begin();
 		while (iter != _connections.end()) {
-			if (iter->get_socket_fd() == fd) {
+			if (iter->first == fd) {
 				_connections.erase(iter);
 				break;
 			}
@@ -117,22 +117,19 @@ namespace HTTP {
 						perror("accept socket error");
 					}
 					Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
-					_connections.push_back(connection);
+					_connections.insert(std::make_pair(connection_socket_fd, connection));
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
 						perror("kevent error");
 					}
 				}
 				else if (event_fds[i].filter & EVFILT_READ) {
-					for (size_t j = 0; j < _connections.size(); ++j)
-					{
-						if (_connections[j].get_socket_fd() == current_event_fd) {
-							RequestHandler request_handler(_connections[j]);
+					std::map<int, Connection>::iterator connection_iter = _connections.find(current_event_fd);
+					if (connection_iter != _connections.end()) {
+							RequestHandler request_handler(connection_iter->second);
 							request_handler.handle_http_request();
 							break;
-						}
 					}
-
 				}
 			}
 		}
@@ -141,8 +138,7 @@ namespace HTTP {
 	void Server::run() {
 		//TODO: hardcoded values will be replaced after config parsing
 		_listen_ports.push_back(8080);
-		_listen_ports.push_back(1000);
-		_listen_ports.push_back(20);
+		_listen_ports.push_back(80);
 		_setup_listening_sockets();
 		_handle_events();
 	}
