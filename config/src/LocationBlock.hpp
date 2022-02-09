@@ -1,3 +1,7 @@
+#ifndef LocationBlock_HPP
+#define LocationBlock_HPP
+#include <vector>
+#include <string>
 #include "AConfigBlock.hpp"
 
 class LocationBlock: public AConfigBlock
@@ -17,4 +21,4 @@ public:
 	int get_autoindex(void) const;
 	std::vector<std::string> get_limit_except(void) const;
 };
-
+#endif

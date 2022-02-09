@@ -1,5 +1,5 @@
-#ifndef _CONFIGPARSER_HPP_
-# define _CONFIGPARSER_HPP_
+#ifndef ConfigParser_HPP
+# define ConfigParser_HPP
 
 # include <string>
 # include <fstream>
@@ -22,7 +22,8 @@
 			ERROR_PAGE,
 			RETURN,
 			ROOT,
-			LIMIT_EXCEPT
+			LIMIT_EXCEPT,
+			AUTOINDEX
 		};
 		ConfigData *config_data;
 		std::string file_path;

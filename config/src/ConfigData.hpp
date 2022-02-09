@@ -1,5 +1,5 @@
-#ifndef _CONFIGDATA_HPP_
-# define _CONFIGDATA_HPP_
+#ifndef ConfigData_HPP
+# define ConfigData_HPP
 
 #include "ServerBlock.hpp"
 #include <vector>
@@ -15,11 +15,6 @@
 		~ConfigData();
 
 		std::vector<ServerBlock> &get_servers(void);
-
 	};
 // }
 #endif
- 
-
-
-

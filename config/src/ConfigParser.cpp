@@ -1,17 +1,13 @@
 #include "ConfigParser.hpp"
-#include <stdlib.h> 
+#include <stdlib.h>
 // namespace Config {
 
 ConfigParser::ConfigParser(ConfigData *config_data, std::string file_path):
 	config_data(config_data),
 	file_path(file_path)
 {
-	
-}
 
-// ConfigParser::ConfigParser(std::string file_path): file_path(file_path)
-// {
-// }
+}
 
 ConfigParser::~ConfigParser()
 {
@@ -48,7 +44,6 @@ void	ConfigParser::remove_comments( void )
 		//TODO some lines still have tabs and they are saved into the file_content. Should I remove them?
 		if(!line.empty())
 		{
-			// std::cout << line << std::endl;
 			file_content.append(line);
 			file_content.append("\n");
 		}
@@ -112,12 +107,13 @@ void parse_limit_except(std::string line, LocationBlock &location, std::istrings
 		if(temp.compare("}") == 0)
 			break;
 		else
-			continue;		
+			continue;
 	}
 }
 
 void ConfigParser::parse_location_block(std::string line, std::istringstream &stream, ServerBlock &server)
 {
+	//create the location + push back into to the server.getLocation().push_back();
 	LocationBlock location;
 	int	e_num = -4;
 	//call set_route on the line (but first get rid of location {})
@@ -130,7 +126,7 @@ void ConfigParser::parse_location_block(std::string line, std::istringstream &st
 			break;
 		if(Utils::check_first_keyword(line, "limit_except"))
 			parse_limit_except(line, location, stream);
-		if((e_num = find_directive(line)) >= 0)
+		if((e_num = find_directive(line)) >= 0) //TODO does this condition work?
 			parse_location_directive(line, location, e_num);
 	}
 	server.get_location().push_back(location);
@@ -139,7 +135,6 @@ void ConfigParser::parse_location_block(std::string line, std::istringstream &st
 void ConfigParser::parse_server_directive(std::string line, ServerBlock &server, int e_num)
 {
 	//identify the keyword, remove keyword and use the right set functoion
-	(void)server;
 	// std::cout << "directive parsinngggg: " << line << std::endl;
 	if(e_num == LISTEN)
 		server.set_listen(line);
@@ -152,7 +147,6 @@ void ConfigParser::parse_server_directive(std::string line, ServerBlock &server,
 		server.set_return_value(line);
 	else if(e_num == ROOT)
 		server.set_root_value(line);
-	//remove_keyword("listen", line);
 }
 
 void ConfigParser::parse_location_directive(std::string line, LocationBlock &location, int e_num)
@@ -161,23 +155,22 @@ void ConfigParser::parse_location_directive(std::string line, LocationBlock &loc
 	// std::cout << "directive parsinngggg: " << line << std::endl;
 	// if(e_num = ROOT)
 	// 	location.set_root_value(line);
-	//AUTO INDEX?
 	if(e_num == ERROR_PAGE)
 		location.set_error_page_value(line);
 	else if(e_num == RETURN)
 		location.set_return_value(line);
 	else if(e_num == LIMIT_EXCEPT)
 		location.set_limit_except(line);
-	//remove_keyword("listen", line);
+	else if(e_num == AUTOINDEX) //TODO check with Xiaojing if this is okay here!
+		location.set_autoindex(line);
 }
 
 void ConfigParser::parse_server_block(std::string server_token, ServerBlock &server)
 {
-	// std::cout << "in parse server" << std::endl;
 	// loop inside string find key value pairs & location values
 	// saves them inside the variables of ServerBlock and LocationBlocks!
-	//read line by line? call ServerBlocks functions based on the line?
-	//what to do with compulsory fields? throw exception!
+	// call ServerBlock & LocationBlock functions based on the line?
+	// what to do with compulsory fields? throw exception!
 
 	std::string line;
 	std::istringstream stream(server_token);
@@ -185,17 +178,14 @@ void ConfigParser::parse_server_block(std::string server_token, ServerBlock &ser
 	while (std::getline(stream, line))
 	{
 		// std::cout << line << std::endl;
-		//create the location + push back into to the server.getLocation().push_back();
 		if(ConfigParser::find_location(line))
 			parse_location_block(line, stream, server); //record the route, limit_except? root,
 		else
 		{
 			e_num = ConfigParser::find_directive(line);
 			if(e_num >= 0)
-				parse_server_directive(line, server, e_num); 
+				parse_server_directive(line, server, e_num);
 		}
-		
-	
 		// else
 		// 	throw ConfigParser::InvalidConfigDirectiveException();
 	}
@@ -204,26 +194,17 @@ void ConfigParser::parse_server_block(std::string server_token, ServerBlock &ser
 
 void	ConfigParser::parse( void )
 {
-	// std::cout << "IN PARSE" << std::endl;
-	(void)config_data;
 	open_and_read_file();
 	remove_comments();
 	tokenize_server_blocks();
 	// print_server_blocks();
-
-	// std::vector<ServerBlock> _servers = ; 
 	for (size_t i = 0; i < server_tokens.size(); i++)
 	{
-		// std::cout << "my tokenss " << server_tokens[i] << std::endl;
-		std::cout << "i: " << i << std::endl;
+		std::cout << i + 1 << ". Server" << std::endl;
 		ServerBlock server;
 		parse_server_block(server_tokens[i], server);
 		config_data->get_servers().push_back(server);
-		std::cout << "FUCK" << server.number << "LISTEEN: " << server.get_listen()[0] << std::endl;
-		
 	}
-	// std::cout << "last line off parse" << std::endl;
-	// std::cout << "size of servers vector in ConfigData " << _servers.size() << std::endl;		
 }
 
 // }

@@ -1,6 +1,5 @@
-#ifndef _ACONFIG_HPP_
-# define _ACONFIG_HPP_
-
+#ifndef AConfig_HPP_
+#define AConfig_HPP_
 #include <iostream>
 #include <string>
 #include <vector>
@@ -9,7 +8,7 @@ class AConfigBlock
 {
 protected:
 	/* data */
-	std::vector<std::string> 	_return;
+	std::vector<std::string>	_return;
 	std::vector<std::string>	_root;
 	std::vector<std::string>	_error_page;
 public:

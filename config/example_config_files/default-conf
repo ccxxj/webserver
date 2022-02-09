@@ -6,7 +6,7 @@
 #    By: icikrikc <icikrikc@student.codam.nl>         +#+                      #
 #                                                    +#+                       #
 #    Created: 2021/01/15 18:59:47 by icikrikc      #+#    #+#                  #
-#    Updated: 2022/02/08 16:01:08 by icikrikc      ########   odam.nl          #
+#    Updated: 2022/02/09 09:58:29 by icikrikc      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,7 @@ server {
 	# server_name      irem;
 	server_name      irem;
 	server_name asffdsf;
+	autoindex 45;
 	return 301 https://$server_name$request_uri;
 }
 
@@ -33,10 +34,10 @@ server{
 	# ABCBCBCBCB ; #invalid config file elements
 
 	location /wordpress/ {
-		limit_except POST 
-		{ 
+		limit_except POST
+		{
 			#
-			deny all; 
+			deny all;
 		}
 	}
 
