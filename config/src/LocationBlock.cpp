@@ -12,8 +12,8 @@ LocationBlock::LocationBlock(/* args */)
 
 LocationBlock::LocationBlock(const LocationBlock& other)
 {
-    // std::cout << other.number << " LocationBlock copy constructor" << std::endl;
-    *this = other;  
+    // std::cout << "LocationBlock copy constructor" << std::endl;
+    *this = other;
 }
 
 const LocationBlock &	LocationBlock::operator=(LocationBlock const & other)
@@ -24,7 +24,7 @@ const LocationBlock &	LocationBlock::operator=(LocationBlock const & other)
     _root = other._root;
     _return = other._return;
     _error_page = other._error_page;
-    // std::cout << this->number << " LocationBlock assign operator" << std::endl;
+    // std::cout << "LocationBlock assign operator" << std::endl;
 	return *this;
 }
 
@@ -47,7 +47,7 @@ void LocationBlock::set_limit_except(std::string str)
 	Utils::split_value(str, _limit_except);
     int size = _limit_except.size();
     (void)size; //TODO unused varibale do we need the int size?
-    _limit_except.pop_back(); //pop out the "{" 
+    _limit_except.pop_back(); //pop out the "{"
 }
 
 //TODO add exception handling on the key word other than on or off??
