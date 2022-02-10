@@ -23,7 +23,8 @@
 			RETURN,
 			ROOT,
 			LIMIT_EXCEPT,
-			AUTOINDEX
+			AUTOINDEX,
+			ROUTE
 		};
 		ConfigData *config_data;
 		std::string file_path;
