@@ -37,7 +37,7 @@ void LocationBlock::set_route(std::string str)
     Utils::remove_first_keyword(str);
 	int first = str.find_first_not_of("     ");
     int last = str.find_first_of("  {", first);
-    str = str.substr(first, last - first);
+    _route.assign(str.substr(first, last - first));
 }
 
 //TODO do we want to validate the Method keywords

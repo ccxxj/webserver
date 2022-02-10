@@ -87,9 +87,9 @@ bool ConfigParser::find_location(std::string line)
 
 int ConfigParser::find_directive(std::string line)
 {
-	const char *directive_list[8] = {"listen", "server_name", "client_max_body_size", "error_page", "return", "root", "limit_except", NULL};
+	const char *directive_list[10] = {"listen", "server_name", "client_max_body_size", "error_page", "return", "root", "limit_except", "autoindex", "location", NULL};
 	//auto index and directory listing?
-	for (size_t i = 0; i < 7; i++)
+	for (size_t i = 0; i < 9; i++)
 	{
 		if(Utils::check_first_keyword(line, directive_list[i]))
 			return i;
@@ -118,6 +118,9 @@ void ConfigParser::parse_location_block(std::string line, std::istringstream &st
 	int	e_num = -4;
 	//call set_route on the line (but first get rid of location {})
 	// std::cout << "in parse location" << std::endl;
+	e_num = find_directive(line); //TODO does this condition work?
+	parse_location_directive(line, location, e_num);
+	std::cout << "for now the route is" << location.get_route() << std::endl;
 	while (std::getline(stream, line))
 	{
 		std::string temp = line;
@@ -126,8 +129,9 @@ void ConfigParser::parse_location_block(std::string line, std::istringstream &st
 			break;
 		if(Utils::check_first_keyword(line, "limit_except"))
 			parse_limit_except(line, location, stream);
-		if((e_num = find_directive(line)) >= 0) //TODO does this condition work?
+		else if((e_num = find_directive(line)) >= 0) //TODO does this condition work?
 			parse_location_directive(line, location, e_num);
+
 	}
 	server.get_location().push_back(location);
 }
@@ -157,6 +161,8 @@ void ConfigParser::parse_location_directive(std::string line, LocationBlock &loc
 	// 	location.set_root_value(line);
 	if(e_num == ERROR_PAGE)
 		location.set_error_page_value(line);
+	else if(e_num == ROUTE)
+		location.set_route(line);
 	else if(e_num == RETURN)
 		location.set_return_value(line);
 	else if(e_num == LIMIT_EXCEPT)
