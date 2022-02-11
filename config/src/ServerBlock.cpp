@@ -45,6 +45,20 @@ void ServerBlock::set_server_name(std::string str)
     Utils::split_value(str, _server_name);
 }
 
+void ServerBlock::set_client_max_body_size(std::string str)
+{
+    Utils::remove_first_keyword(str);
+    int first = str.find_first_not_of("     ;");
+    int last = str.find_first_of("     ;", first + 1);
+    std::string temp = str.substr(first, last - first);
+    _client_max_body_size = stoi(temp);
+}
+
+int ServerBlock::get_client_max_body_size(void) const
+{
+    return _client_max_body_size;
+}
+
 std::vector<std::string> ServerBlock::get_listen() const
 {
     return _listen;
