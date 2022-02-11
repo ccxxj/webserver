@@ -116,7 +116,8 @@ namespace HTTP {
 					{
 						perror("accept socket error");
 					}
-					Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
+					//TODO:: check if these are needed Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
+					Connection connection(connection_socket_fd);
 					_connections.insert(std::make_pair(connection_socket_fd, connection));
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
