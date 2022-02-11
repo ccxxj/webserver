@@ -1,0 +1,57 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         ::::::::             #
+#    default-conf                                       :+:    :+:             #
+#                                                      +:+                     #
+#    By: icikrikc <icikrikc@student.codam.nl>         +#+                      #
+#                                                    +#+                       #
+#    Created: 2021/01/15 18:59:47 by icikrikc      #+#    #+#                  #
+#    Updated: 2022/02/09 14:40:43 by icikrikc      ########   odam.nl          #
+#                                                                              #
+# **************************************************************************** #
+
+//TODO some seg fault?
+server {
+	listen 80;
+	listen [::]:80;
+	# server_name      irem;
+	server_name      irem;
+	server_name asffdsf;
+	autoindex 45;
+	return 301 https://$server_name$request_uri;
+}
+
+server{
+	listen 443 ssl ;
+	listen [::]:443 ssl ; #asjhdsagfdhhasgjf
+
+	# server_name irem;
+
+	# client_max_body_size 2;
+
+	root /var/www/localhost;
+
+	error_page 404 /custom-404.html; #put them in the root!
+	# ABCBCBCBCB ; #invalid config file elements
+
+	location /wordpress/ {
+		limit_except POST
+		{
+			#
+			deny all;
+		}
+	}
+
+	# location /wordpress/ {
+	# 	return 301 https://localhost;
+	# }
+
+	# location / {
+	# 	autoindex on;
+	# 	try_files $uri $uri/ =505;
+	# }
+
+	location \.php {
+		return 505 https://$server_name$request_uri;
+	}
+}
