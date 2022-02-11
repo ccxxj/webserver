@@ -1,21 +1,24 @@
 #ifndef ConfigParser_HPP
-# define ConfigParser_HPP
+#define ConfigParser_HPP
 
-# include <string>
-# include <fstream>
-# include <sstream>
-# include <iostream>
-# include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <vector>
 #include "ServerBlock.hpp"
 #include "ConfigData.hpp"
 #include "Utils.hpp"
 //TODO should we have a ConfigValidator?
-// namespace Config {
+namespace Config
+{
 
-	class ConfigParser {
+	class ConfigParser
+	{
 	private:
 		/* data */
-		enum Directives {
+		enum Directives
+		{
 			LISTEN,
 			SERVER_NAME,
 			BODY_SIZE,
@@ -68,7 +71,5 @@
 			}
 		};
 	};
-// }
+} // namespace Config
 #endif
-
-

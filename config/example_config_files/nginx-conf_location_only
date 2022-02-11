@@ -26,9 +26,4 @@ server {
 		autoindex on;
 		return 505 https://$server_name$request_uri;
 	}
-
-	location ~ \.php$ {
-		include snippets/fastcgi-php.conf;
-		fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
-	}
 }

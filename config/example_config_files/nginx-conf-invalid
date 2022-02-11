@@ -13,22 +13,13 @@ server {
 
 	server_name irem;
 	server_name random_name;
-	# server_name irem;
 
 	client_max_body_size 2;
 
-	ssl_certificate /etc/nginx/ssl/localhost.pem;
-	ssl_certificate_key /etc/nginx/ssl/localhost.key;
-
 	root /var/www/localhost;
 
-	index index.html index.htm index.nginx-debian.html index.php;
-
+	sbfvasfas;
 	error_page 404 /custom-404.html; #put them in the root!
-	ABCBCBCBCB ; #invalid config file elements
-	limit_except GET {
-			deny all;
-	}
 
 	location /wordpress/ {
 		root /var/www/localhost;
@@ -46,8 +37,4 @@ server {
 		return 505 https://$server_name$request_uri;
 	}
 
-	location \.php$ {
-		include snippets/fastcgi-php.conf;
-		fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
-	}
 }

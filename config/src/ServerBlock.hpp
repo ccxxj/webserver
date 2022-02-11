@@ -5,29 +5,34 @@
 #include <vector>
 #include <string>
 
-class ServerBlock: public AConfigBlock
+namespace Config
 {
-private:
-	/* data */
-	bool _is_default; //TODO define the default server ??
-	int _client_max_body_size; //TODO is int okaay or do we need a bigger i.e. long?
-	std::vector<std::string>	_listen;
-	std::vector<std::string>	_server_name;
-	std::vector<LocationBlock>	_locations; //TODO get location
-public:
-	int	number; //TODO get rid of this num
-	ServerBlock(/* args */);
-	ServerBlock(const ServerBlock& other);
-	~ServerBlock();
-	const ServerBlock &operator=(const ServerBlock& other);
 
-	//TODO client body size getter & setter
-	void set_listen(std::string str);
-	void set_server_name(std::string str);
-	void set_client_max_body_size(std::string str);
-	int get_client_max_body_size(void) const;
-	std::vector<std::string> get_listen(void) const;
-	std::vector<std::string> get_server_name(void) const;
-	std::vector<LocationBlock> &get_location(void); //TODO have it with const?
-};
+	class ServerBlock : public AConfigBlock
+	{
+	private:
+		/* data */
+		bool _is_default;
+		int _client_max_body_size;
+		std::vector<std::string> _listen;
+		std::vector<std::string> _server_name;
+		std::vector<LocationBlock> _locations;
+
+	public:
+		ServerBlock(/* args */);
+		ServerBlock(const ServerBlock &other);
+		~ServerBlock();
+		const ServerBlock &operator=(const ServerBlock &other);
+
+		void set_default(bool value);
+		void set_listen(std::string str);
+		void set_server_name(std::string str);
+		void set_client_max_body_size(std::string str);
+		int get_client_max_body_size(void) const;
+		bool get_default(void) const;
+		std::vector<std::string> get_listen(void) const;
+		std::vector<std::string> get_server_name(void) const;
+		std::vector<LocationBlock> &get_location(void); //TODO have it with const? if we have it with const, we're not able to push things inside!
+	};
+} // namespace Config
 #endif

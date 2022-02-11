@@ -1,56 +1,60 @@
 #include "AConfigBlock.hpp"
 #include "Utils.hpp"
 
-AConfigBlock::AConfigBlock(){}
-
-AConfigBlock::AConfigBlock(const AConfigBlock& other)
+namespace Config
 {
-    // std::cout << "AConfigBlock copy constructor" << std::endl;
-    *this = other;  
-}
 
-const AConfigBlock &	AConfigBlock::operator=(AConfigBlock const & other)
-{
-	//TODO I copy them in ServerBlock, do I need this? 
-    _return = other._return; 
-    _root = other._root;
-    _error_page = other._error_page;
-    // std::cout << "AConfigBlock assign operator" << std::endl;
-	return *this;
-}
+    AConfigBlock::AConfigBlock() {}
 
-AConfigBlock::~AConfigBlock(){}
+    AConfigBlock::AConfigBlock(const AConfigBlock &other)
+    {
+        // std::cout << "AConfigBlock copy constructor" << std::endl;
+        *this = other;
+    }
 
-/* getters & setters */
-void AConfigBlock::set_return_value(std::string str)
-{
-    Utils::remove_first_keyword(str);
-	Utils::split_value(str, _return);	
-}
+    const AConfigBlock &AConfigBlock::operator=(AConfigBlock const &other)
+    {
+        //TODO I copy them in ServerBlock, do I need this?
+        _return = other._return;
+        _root = other._root;
+        _error_page = other._error_page;
+        // std::cout << "AConfigBlock assign operator" << std::endl;
+        return *this;
+    }
 
-void AConfigBlock::set_root_value(std::string str)
-{
-    Utils::remove_first_keyword(str);
-	Utils::split_value(str, _root);	
-}
+    AConfigBlock::~AConfigBlock() {}
 
-void AConfigBlock::set_error_page_value(std::string str)
-{
-    Utils::remove_first_keyword(str);
-	Utils::split_value(str, _error_page);	
-}
+    /* getters & setters */
+    void AConfigBlock::set_return_value(std::string str)
+    {
+        Utils::remove_first_keyword(str);
+        Utils::split_value(str, _return);
+    }
 
-std::vector<std::string> AConfigBlock::get_return(void) const
-{
-	return _return;
-}
+    void AConfigBlock::set_root_value(std::string str)
+    {
+        Utils::remove_first_keyword(str);
+        Utils::split_value(str, _root);
+    }
 
-std::vector<std::string> AConfigBlock::get_root(void) const
-{
-	return _root;
-}
+    void AConfigBlock::set_error_page_value(std::string str)
+    {
+        Utils::remove_first_keyword(str);
+        Utils::split_value(str, _error_page);
+    }
 
-std::vector<std::string> AConfigBlock::get_error_page(void) const
-{
-	return _error_page;
-}
+    std::vector<std::string> AConfigBlock::get_return(void) const
+    {
+        return _return;
+    }
+
+    std::vector<std::string> AConfigBlock::get_root(void) const
+    {
+        return _root;
+    }
+
+    std::vector<std::string> AConfigBlock::get_error_page(void) const
+    {
+        return _error_page;
+    }
+} // namespace Config

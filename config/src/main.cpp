@@ -1,5 +1,3 @@
-// #include "AConfigBlock.hpp"
-// #include "LocationBlock.hpp"
 #include "ConfigData.hpp"
 #include "ConfigParser.hpp"
 #include <iostream>
@@ -7,7 +5,7 @@
 
 int main(int argc, char **argv)
 {
-	std::string	file_path;
+	std::string file_path;
 
 	if (argc > 2)
 	{
@@ -21,12 +19,12 @@ int main(int argc, char **argv)
 
 	try
 	{
-		ConfigData		config;
-		ConfigParser	parser(&config, file_path);
+		Config::ConfigData config;
+		Config::ConfigParser parser(&config, file_path);
 		parser.parse();
 		config.print_servers_info();
 	}
-	catch(const std::exception& e)
+	catch (const std::exception &e)
 	{
 		std::cerr << e.what() << '\n';
 	}
