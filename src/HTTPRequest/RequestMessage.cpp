@@ -31,6 +31,11 @@ namespace HTTPRequest {
         return (*_request_headers.find(header_name)).second;
     }
 
+//debug
+    std::map<std::string, std::string> RequestMessage::get_headers() const {
+        return _request_headers;
+    }
+
     void RequestMessage::set_header_field(std::pair<std::string, std::string>& header_field){
         _request_headers.insert(header_field); //TODO: or use operator[] ?
     }
