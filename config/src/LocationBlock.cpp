@@ -12,8 +12,8 @@ LocationBlock::LocationBlock(/* args */)
 
 LocationBlock::LocationBlock(const LocationBlock& other)
 {
-    // std::cout << other.number << " LocationBlock copy constructor" << std::endl;
-    *this = other;  
+    // std::cout << "LocationBlock copy constructor" << std::endl;
+    *this = other;
 }
 
 const LocationBlock &	LocationBlock::operator=(LocationBlock const & other)
@@ -24,7 +24,7 @@ const LocationBlock &	LocationBlock::operator=(LocationBlock const & other)
     _root = other._root;
     _return = other._return;
     _error_page = other._error_page;
-    // std::cout << this->number << " LocationBlock assign operator" << std::endl;
+    // std::cout << "LocationBlock assign operator" << std::endl;
 	return *this;
 }
 
