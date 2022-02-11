@@ -115,6 +115,13 @@ void	ConfigData::print_multiple_locations_info(ServerBlock &server)
     for (size_t i = 0; i < locations.size(); i++)
     {
         std::cout << RED << "\n\tLocation Number " << i + 1 << RESET << std::endl;
+<<<<<<< HEAD
+        std::cout << GREEN << "\tRoute: " << locations[i].get_route() << std::endl;
+        print_limit_except(locations[i]);
+        print_roots((ServerBlock&)locations[i]);
+        print_returns((ServerBlock&)locations[i]);
+        print_error_pages((ServerBlock&)locations[i]);
+=======
         std::cout << GREEN << "\troute: " << locations[i].get_route() << std::endl;
 		std::cout << BLUE << "\tauto_index: " << locations[i].get_autoindex() << RESET << std::endl;
 		print_limit_except(locations[i]);
@@ -125,6 +132,7 @@ void	ConfigData::print_multiple_locations_info(ServerBlock &server)
 		std::cout << "\t";
         print_error_pages((ServerBlock&)locations[i]);
 
+>>>>>>> 2802bcb0329c11fe5321446aa51f8bc69b08ac79
     }
 }
 //TODO client max body size print

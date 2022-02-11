@@ -158,6 +158,8 @@ void ConfigParser::parse_location_directive(std::string line, LocationBlock &loc
 		location.set_root_value(line);
 	else if(e_num == ERROR_PAGE)
 		location.set_error_page_value(line);
+	else if(e_num == ROOT)
+		location.set_root_value(line);
 	else if(e_num == ROUTE)
 		location.set_route(line);
 	else if(e_num == RETURN)

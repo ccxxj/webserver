@@ -45,9 +45,9 @@ void LocationBlock::set_limit_except(std::string str)
 {
     Utils::remove_first_keyword(str);
 	Utils::split_value(str, _limit_except);
-    int size = _limit_except.size();
-    (void)size; //TODO unused varibale do we need the int size?
-    _limit_except.pop_back(); //pop out the "{"
+    // int size = _limit_except.size();
+    // (void)size; //TODO unused varibale do we need the int size?
+    // _limit_except.pop_back(); //pop out the "{" 
 }
 
 //TODO add exception handling on the key word other than on or off??
