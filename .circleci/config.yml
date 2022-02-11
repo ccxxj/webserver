@@ -12,4 +12,5 @@ jobs:
             - run:
                   name: Build Unit Tests
                   command: |
-                      cd tests && clang++ main_test.cpp isTestPassed.cpp -fsanitize=address  -std=c++11 -o unit_tests && ./unit_tests
+                        cd tests && clang++ requestParserTests.cpp main_test.cpp catch_amalgamated.cpp  ../src/HTTP/Exceptions/*.cpp  ../src/HTTPRequest/*.cpp ../src/HTTPResponse/*.cpp  -std=c++14 -fsanitize=address -o unittests && ./unittests
+                        
