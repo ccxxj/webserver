@@ -1,7 +1,7 @@
 #ifndef WEBSERVER_HPP
 #define WEBSERVER_HPP
 
-#include "../src/HTTP/Server.hpp"
+#include "HTTP/Server.hpp"
 
 class Webserver
 {
