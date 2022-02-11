@@ -18,12 +18,12 @@ LocationBlock::LocationBlock(const LocationBlock& other)
 
 const LocationBlock &	LocationBlock::operator=(LocationBlock const & other)
 {
-	//TODO should I call the get functions?
     _route = other._route;
     _limit_except = other._limit_except;
     _root = other._root;
     _return = other._return;
     _error_page = other._error_page;
+	_autoindex = other._autoindex;
     // std::cout << "LocationBlock assign operator" << std::endl;
 	return *this;
 }
