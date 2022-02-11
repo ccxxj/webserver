@@ -17,6 +17,10 @@ namespace Config
 	{
 	private:
 		/* data */
+		ConfigData *config_data;
+		std::string file_path;
+		std::string file_content;
+		std::vector<std::string> server_tokens;
 		enum Directives
 		{
 			LISTEN,
@@ -29,10 +33,6 @@ namespace Config
 			AUTOINDEX,
 			ROUTE
 		};
-		ConfigData *config_data;
-		std::string file_path;
-		std::string file_content;
-		std::vector<std::string> server_tokens;
 
 		/* methods */
 		void open_and_read_file(void);
@@ -45,7 +45,7 @@ namespace Config
 		void parse_location_block(std::string line, std::istringstream &stream, ServerBlock &server);
 		void parse_server_directive(std::string line, ServerBlock &server, int e_num);
 		void parse_location_directive(std::string line, LocationBlock &location, int e_num);
-		//ConfigParser(); do we need default constructor?
+		//TODO ConfigParser(); do we need default constructor?
 
 	public:
 		ConfigParser(ConfigData *config_data, std::string file_path);

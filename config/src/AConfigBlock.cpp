@@ -14,7 +14,6 @@ namespace Config
 
     const AConfigBlock &AConfigBlock::operator=(AConfigBlock const &other)
     {
-        //TODO I copy them in ServerBlock, do I need this?
         _return = other._return;
         _root = other._root;
         _error_page = other._error_page;

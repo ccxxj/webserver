@@ -15,7 +15,6 @@ namespace Config
 		std::vector<std::string> _error_page;
 
 	public:
-		//TODO check if additional cononibal form need to apply, also if additional actions need to taken for constructor and destructor
 		AConfigBlock();
 		AConfigBlock(const AConfigBlock &other);
 		const AConfigBlock &operator=(const AConfigBlock &other);

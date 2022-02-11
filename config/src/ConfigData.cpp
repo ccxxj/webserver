@@ -134,7 +134,7 @@ namespace Config
             print_error_pages((ServerBlock &)locations[i]);
         }
     }
-    //TODO client max body size print
+
     void ConfigData::print_servers_info(void)
     {
         for (size_t i = 0; i < _servers.size(); i++)
