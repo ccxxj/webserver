@@ -120,7 +120,6 @@ void ConfigParser::parse_location_block(std::string line, std::istringstream &st
 	// std::cout << "in parse location" << std::endl;
 	e_num = find_directive(line); //TODO does this condition work?
 	parse_location_directive(line, location, e_num);
-	std::cout << "for now the route is" << location.get_route() << std::endl;
 	while (std::getline(stream, line))
 	{
 		std::string temp = line;
@@ -157,10 +156,11 @@ void ConfigParser::parse_location_directive(std::string line, LocationBlock &loc
 {
 	//identify the keyword, remove keyword and use the right set functoion
 	// std::cout << "directive parsinngggg: " << line << std::endl;
-	// if(e_num = ROOT)
-	// 	location.set_root_value(line);
+
 	if(e_num == ERROR_PAGE)
 		location.set_error_page_value(line);
+	else if(e_num == ROOT)
+		location.set_root_value(line);
 	else if(e_num == ROUTE)
 		location.set_route(line);
 	else if(e_num == RETURN)

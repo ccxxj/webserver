@@ -2,8 +2,8 @@
 //TODO split value function both splits and saves the value in the vector. So, it's actually doing more than split. Adjusting the name?
 void Utils::split_value(std::string line, std::vector<std::string> &vector_to_save)
 {
-    int i = line.find_first_not_of("     ;");
-    int found = line.find_first_of("     ;", i);
+    int i = line.find_first_not_of("     ;{");
+    int found = line.find_first_of("     ;{", i);
     int len = line.length();
     while(found < len && found != -1)
     {
@@ -13,8 +13,8 @@ void Utils::split_value(std::string line, std::vector<std::string> &vector_to_sa
             break;
         else
         {
-            i = line.find_first_not_of("     ;", found + 1);
-            found = line.find_first_of("     ;", i);
+            i = line.find_first_not_of("     ;{", found + 1);
+            found = line.find_first_of("     ;{", i);
         }
     }
 }

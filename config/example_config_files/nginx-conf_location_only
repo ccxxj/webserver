@@ -17,11 +17,14 @@ server {
 
 	location /wordpress/ {
 		return 301 https://localhost;
+		limit_except POST GET DELETE{
+			deny all;
+		}
 	}
 
 	location / {
 		autoindex on;
-		eturn 505 https://$server_name$request_uri;
+		return 505 https://$server_name$request_uri;
 	}
 
 	location ~ \.php$ {
