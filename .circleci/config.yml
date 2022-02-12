@@ -8,7 +8,7 @@ jobs:
             - run:
                   name: Install clang, libkqueue, nodejs, npm # nodejs & npm are needed for integration tests
                   command: |
-                      apt update && apt install -y clang libkqueue-dev nodejs npm
+                      apt update && DEBIAN_FRONTEND='noninteractive' apt install -y clang libkqueue-dev nodejs npm
             - run:
                   name: Install dependencies
                   command: npm install
