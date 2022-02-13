@@ -7,7 +7,7 @@
     "scripts": {
         "webserver": "./webserver",
         "test": "jest",
-        "start": "concurrently \"npm run webserver\" \"npm run test\"",
+        "start": "concurrently --kill-others \"npm run webserver\" \"npm run test\"",
         "test:watch": "jest --watch"
     }
 }
