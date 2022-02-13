@@ -16,7 +16,7 @@ namespace HTTP {
         HTTPResponse::ResponseMessage _http_response_message;
         Connection _connection;
         
-        void _handle_exception(HTTPResponse::StatusCode code);
+        void _handle_request_exception(HTTPResponse::StatusCode code);
         const std::string _convert_status_code_to_string(const int code);
         
     public:

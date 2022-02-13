@@ -12,7 +12,6 @@ namespace HTTP {
 
 	void RequestHandler::handle_http_request() {
 		char buf[1024];
-		memset(buf, '\0', 1024);
 		size_t bytes_read = _connection.recv(buf, sizeof(buf));
 		// TODO: add check on the bytes read == -1 or == 0(if the client stopped the connection)
 		if (bytes_read > 0)
@@ -21,14 +20,13 @@ namespace HTTP {
 			std::cout.write(buf, bytes_read);
 		}
 		try {
-
 			HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
 			parser.parse_HTTP_request(buf, bytes_read);
 
 		}
 		catch(const Exception::RequestException& e)
 		{
-			_handle_exception(e.get_error_status_code());
+			_handle_request_exception(e.get_error_status_code());
 		}
 		std::string status_code = _http_response_message.get_status_code();
 		std::string reason_phrase = _http_response_message.get_reason_phrase();
@@ -38,7 +36,7 @@ namespace HTTP {
 		_connection.close();
 	}
 
-	void RequestHandler::_handle_exception(HTTPResponse::StatusCode code) {
+	void RequestHandler::_handle_request_exception(HTTPResponse::StatusCode code) {
 		_http_response_message.set_status_code(_convert_status_code_to_string(static_cast<int>(code)));
 		_http_response_message.set_reason_phrase(HTTPResponse::get_reason_phrase(code));
 		std::cout << "\n\nstatus code: " << _http_response_message.get_status_code() << std::endl;
