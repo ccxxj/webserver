@@ -1,13 +1,19 @@
 #include "Server.hpp"
 
+#include "RequestHandler.hpp"
+
 #include <sys/socket.h> // for socket
-#include <sys/event.h> // for kqueue and kevent
 #include <sys/errno.h>
 #include <unistd.h> // for close
 #include <iostream>
 #include <string>
+#include <string.h> // strerror TODO: remove
+#ifdef _LINUX
+	#include "/usr/include/kqueue/sys/event.h" //linux kqueue
+#else
+	#include <sys/event.h> // for kqueue and kevent
+#endif
 
-#include "RequestHandler.hpp"
 
 
 namespace HTTP {
