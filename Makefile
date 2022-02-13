@@ -42,36 +42,31 @@ CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value\
 		-std=c++98 -pedantic \
 		-g -fsanitize=address -O3
 
-# # tests
-# ifdef tests
-# 	EXE = $(addprefix $(NAME), _tests)
-# 	SRC_DIR = tests
-# 
-# 	SRC = main_test.cpp
-# 
-# 	HEADERS = $(addprefix $(SRC_DIR)/, catch.hpp) 
-# 	BUILD_PATH = $(addprefix $(BUILD_DIR)/, tests/out)
-# 	CXXFLAGS = -I$(INC_DIR) -std=c++14 \
-# 			-g -fsanitize=address
-# endif
-
 HEADERS := $(addprefix $(SRC_DIR)/,$(HEADERS))
 OBJ = $(SRC:.cpp=.o)
 CXX=clang++
 
 .PHONY: all clean fclean re tests
 
+
+
 all: $(EXE)
 
 $(EXE): $(addprefix $(BUILD_PATH)/,$(OBJ))
 	$(CXX) -o $(EXE) $(CXXFLAGS) $(addprefix $(BUILD_PATH)/,$(OBJ))
 
+UNAME := $(shell uname)
+ifeq ($(UNAME), Linux)
+$(EXE): $(addprefix $(BUILD_PATH)/,$(OBJ))
+	$(CXX) -o $(EXE) $(CXXFLAGS) -lkqueue  $(addprefix $(BUILD_PATH)/,$(OBJ))
+endif
+
 $(BUILD_PATH)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	mkdir -p ${dir $@}
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -D_LINUX -c -o $@ $<
 
-# tests:
-# 	$(MAKE) tests=1 all
+
+
 
 clean:
 	rm -rf $(BUILD_DIR)
