@@ -7,10 +7,11 @@ Webserver::~Webserver()
 {
 }
 
-void Webserver::start() {
-		//TODO: parse config
-		// if (config is ok) {
-		// HTTPServer server(&config);
+void Webserver::start()
+{
+	// TODO: parse config
+	//  if (config is ok) {
+	//  HTTPServer server(&config);
 	// }
 	try
 	{
@@ -18,11 +19,11 @@ void Webserver::start() {
 		Config::ConfigParser parser(&config, _file_path);
 		parser.parse();
 		config.print_servers_info();
+		HTTP::Server server(&config);
+		server.run();
 	}
 	catch (const std::exception &e)
 	{
 		std::cerr << e.what() << '\n';
 	}
-		HTTP::Server server;
-		server.run();
-	}
+}
