@@ -52,18 +52,25 @@ CXX=clang++
 
 all: $(EXE)
 
-$(EXE): $(addprefix $(BUILD_PATH)/,$(OBJ))
-	$(CXX) -o $(EXE) $(CXXFLAGS) $(addprefix $(BUILD_PATH)/,$(OBJ))
-
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 $(EXE): $(addprefix $(BUILD_PATH)/,$(OBJ))
 	$(CXX) -o $(EXE) $(CXXFLAGS) -lkqueue  $(addprefix $(BUILD_PATH)/,$(OBJ))
-endif
 
 $(BUILD_PATH)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	mkdir -p ${dir $@}
 	$(CXX) $(CXXFLAGS) -D_LINUX -c -o $@ $<
+
+else
+$(EXE): $(addprefix $(BUILD_PATH)/,$(OBJ))
+	$(CXX) -o $(EXE) $(CXXFLAGS) $(addprefix $(BUILD_PATH)/,$(OBJ))
+
+$(BUILD_PATH)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
+	mkdir -p ${dir $@}
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+endif
+
 
 
 
