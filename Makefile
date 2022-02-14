@@ -32,8 +32,7 @@ SRC = Webserver.cpp \
 	HTTP/Connection.cpp \
 	HTTP/Server.cpp \
 	HTTPResponse/ResponseMessage.cpp \
-	HTTPResponse/StatusCodes.cpp \
-	main.cpp
+	HTTPResponse/StatusCodes.cpp
 
 
 CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
@@ -48,30 +47,35 @@ CXX=clang++
 
 all: $(EXE)
 
+$(EXE): libwebserv.a $(addprefix $(BUILD_PATH)/,main.o) 
+	$(CXX) -o $(EXE) $(CXXFLAGS)  -L. -lwebserv $(addprefix $(BUILD_PATH)/,main.o)
+
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
-$(EXE): $(addprefix $(BUILD_PATH)/,$(OBJ))
-	$(CXX) -o $(EXE) $(CXXFLAGS) -lkqueue  $(addprefix $(BUILD_PATH)/,$(OBJ))
+libwebserv.a: $(addprefix $(BUILD_PATH)/,$(OBJ))
+		ar -crs libwebserv.a $(addprefix $(BUILD_PATH)/,$(OBJ))  -lkqueue
 
 $(BUILD_PATH)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	mkdir -p ${dir $@}
-	$(CXX) $(CXXFLAGS) -D_LINUX -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -D=_LINUX -c -o $@ $<
 
 else
-$(EXE): $(addprefix $(BUILD_PATH)/,$(OBJ))
-	$(CXX) -o $(EXE) $(CXXFLAGS) $(addprefix $(BUILD_PATH)/,$(OBJ))
+libwebserv.a: $(addprefix $(BUILD_PATH)/,$(OBJ))
+		ar -crs libwebserv.a $(addprefix $(BUILD_PATH)/,$(OBJ))
 
 $(BUILD_PATH)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	mkdir -p ${dir $@}
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 endif
+$(BUILD_PATH)/main.o: $(SRC_DIR)/main.cpp
+	$(CXX) $(CXXFLAGS) $(SRC_DIR)/main.cpp -c -o $@
 
 clean:
 	rm -rf $(BUILD_DIR)
 
 fclean:
-	rm -rf $(BUILD_DIR) $(EXE)
+	rm -rf $(BUILD_DIR) $(EXE) libwebserv.a
 
 re:
 	$(MAKE) fclean
