@@ -1,8 +1,6 @@
 #ifndef WEBSERVER_HPP
 #define WEBSERVER_HPP
 
-#include "HTTP/Server.hpp"
-
 class Webserver
 {
 private:
