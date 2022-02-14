@@ -2,11 +2,12 @@
     "devDependencies": {
         "concurrently": "^7.0.0",
         "jest": "^27.5.1",
+        "jest-junit": "^13.0.0",
         "supertest": "^6.2.2"
     },
     "scripts": {
         "webserver": "./webserver",
-        "test": "jest",
+        "test": "jest --reporters=\"jest-junit\"",
         "start": "./run_integration_tests.sh",
         "test:watch": "jest --watch"
     }
