@@ -36,7 +36,7 @@ SRC = Webserver.cpp \
 	main.cpp
 
 
-CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value\
+CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
 		-std=c++98 -pedantic \
 		-g -fsanitize=address -O3
 
