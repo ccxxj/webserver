@@ -7,7 +7,8 @@ SRC_DIR = src
 BUILD_DIR = build
 BUILD_PATH = $(addprefix $(BUILD_DIR)/, out)
 
-HEADERS = HTTPRequest/RequestMessage.hpp \
+HEADERS = Webserver.hpp \
+	HTTPRequest/RequestMessage.hpp \
 	HTTPRequest/RequestParser.hpp \
 	HTTPRequest/RequestReader.hpp \
 	HTTPRequest/HTTPRequestMethods.hpp \
@@ -17,7 +18,6 @@ HEADERS = HTTPRequest/RequestMessage.hpp \
 	HTTP/Exceptions/ServerErrorException.hpp \
 	HTTP/Exceptions/RequestException.hpp \
 	HTTP/RequestHandler.hpp \
-	Webserver.hpp \
 	HTTPResponse/StatusCodes.hpp \
 	HTTPResponse/ResponseMessage.hpp
 
@@ -45,21 +45,27 @@ CXX=clang++
 
 .PHONY: all clean fclean re tests
 
-all: $(EXE)
+all: libwebserv.a $(EXE)
 
-$(EXE): libwebserv.a $(addprefix $(BUILD_PATH)/,main.o) 
-	$(CXX) -o $(EXE) $(CXXFLAGS)  -L. -lwebserv $(addprefix $(BUILD_PATH)/,main.o)
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
+
+$(EXE): $(addprefix $(BUILD_PATH)/,main.o) | libwebserv.a
+	$(CXX) -o $(EXE) $(CXXFLAGS) $(addprefix $(BUILD_PATH)/,main.o) -L. -lwebserv -lkqueue
+
 libwebserv.a: $(addprefix $(BUILD_PATH)/,$(OBJ))
-		ar -crs libwebserv.a $(addprefix $(BUILD_PATH)/,$(OBJ))  -lkqueue
+		ar -crs libwebserv.a $(addprefix $(BUILD_PATH)/,$(OBJ))
 
 $(BUILD_PATH)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	mkdir -p ${dir $@}
 	$(CXX) $(CXXFLAGS) -D=_LINUX -c -o $@ $<
 
 else
+
+$(EXE): $(addprefix $(BUILD_PATH)/,main.o) | libwebserv.a
+	$(CXX) -o $(EXE) $(CXXFLAGS) $(addprefix $(BUILD_PATH)/,main.o) -L. -lwebserv
+
 libwebserv.a: $(addprefix $(BUILD_PATH)/,$(OBJ))
 		ar -crs libwebserv.a $(addprefix $(BUILD_PATH)/,$(OBJ))
 
@@ -68,6 +74,7 @@ $(BUILD_PATH)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 endif
+
 $(BUILD_PATH)/main.o: $(SRC_DIR)/main.cpp
 	$(CXX) $(CXXFLAGS) $(SRC_DIR)/main.cpp -c -o $@
 
