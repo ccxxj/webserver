@@ -16,7 +16,7 @@ namespace HTTP {
 		// TODO: add check on the bytes read == -1 or == 0(if the client stopped the connection)
 		if (bytes_read > 0)
 		{
-			printf("read %zu bytes\n", bytes_read);
+			std::cout << "read " << bytes_read << " bytes\n";
 			std::cout.write(buf, bytes_read);
 		}
 		try {
