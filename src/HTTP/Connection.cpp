@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <unistd.h>
+#include <errno.h>
 
 namespace HTTP {
 	Connection::Connection() {}
