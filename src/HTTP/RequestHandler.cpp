@@ -2,7 +2,6 @@
 
 #include <sstream> // for converting int to string
 
-#include "../HTTPRequest/RequestParser.hpp"
 #include "Exceptions/RequestException.hpp"
 
 namespace HTTP {

@@ -5,6 +5,7 @@
 
 #include "../HTTPRequest/RequestMessage.hpp"
 #include "../HTTPResponse/ResponseMessage.hpp"
+#include "../HTTPRequest/RequestParser.hpp"
 #include "../HTTPResponse/StatusCodes.hpp"
 #include "Connection.hpp"
 
