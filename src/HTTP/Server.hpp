@@ -24,7 +24,6 @@ namespace HTTP {
 		~Server();
 		void run();
 	};
-	void signal_handler(int signal);
 }
 
 #endif
