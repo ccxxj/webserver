@@ -6,7 +6,6 @@ EXE = $(NAME)
 SRC_DIR = src
 BUILD_DIR = build
 BUILD_PATH = $(addprefix $(BUILD_DIR)/, out)
-# INC_DIR = include
 
 HEADERS = HTTPRequest/RequestMessage.hpp \
 	HTTPRequest/RequestParser.hpp \
@@ -38,7 +37,6 @@ SRC = Webserver.cpp \
 
 
 CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value\
-		#-I$(INC_DIR) \ 
 		-std=c++98 -pedantic \
 		-g -fsanitize=address -O3
 
@@ -47,8 +45,6 @@ OBJ = $(SRC:.cpp=.o)
 CXX=clang++
 
 .PHONY: all clean fclean re tests
-
-
 
 all: $(EXE)
 
@@ -70,10 +66,6 @@ $(BUILD_PATH)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 endif
-
-
-
-
 
 clean:
 	rm -rf $(BUILD_DIR)
