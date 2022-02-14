@@ -3,6 +3,7 @@
 #include "RequestHandler.hpp"
 
 #include <sys/socket.h> // for socket
+#include <csignal>
 #include <sys/errno.h>
 #include <unistd.h> // for close
 #include <iostream>
@@ -142,10 +143,15 @@ namespace HTTP {
 		}
 	}
 
+	void signal_handler(int signal) {
+		exit(0);
+	}
+
 	void Server::run() {
 		//TODO: hardcoded values will be replaced after config parsing
 		_listen_ports.push_back(8080);
 		_listen_ports.push_back(80);
+		std::signal(SIGTERM, signal_handler);
 		_setup_listening_sockets();
 		_handle_events();
 	}
