@@ -17,7 +17,7 @@ namespace Config
 		std::ifstream file_stream;
 		std::string line;
 
-		file_stream.open(file_path);
+		file_stream.open(file_path.c_str());
 		if (!file_stream.is_open())
 			throw ConfigParser::FailedToOpenException();
 		while (std::getline(file_stream, line))

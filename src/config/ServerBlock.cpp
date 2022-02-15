@@ -1,6 +1,7 @@
 #include "ServerBlock.hpp"
 #include "Utils.hpp"
 
+#include <cstdlib>
 namespace Config
 {
 
@@ -53,7 +54,7 @@ namespace Config
         int first = str.find_first_not_of("     ;");
         int last = str.find_first_of("     ;", first + 1);
         std::string temp = str.substr(first, last - first);
-        _client_max_body_size = stoi(temp);
+        _client_max_body_size = atoi(temp.c_str());
     }
 
     void ServerBlock::set_default(bool value)
