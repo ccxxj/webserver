@@ -1,5 +1,5 @@
 # executable names
-NAME = tests
+NAME = unit_tests
 EXE = $(NAME)
 
 # directories
@@ -31,9 +31,6 @@ $(EXE): $(addprefix $(BUILD_PATH)/,$(TEST_OBJ))
 $(BUILD_PATH)/%.o: %.cpp $(CATCH_HEADER)
 	mkdir -p ${dir $@}
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-# tests_request_parser: $(EXE)
-# 	$(EXE) tests_request_parser=1 all
 
 clean:
 	rm -rf $(BUILD_DIR)
