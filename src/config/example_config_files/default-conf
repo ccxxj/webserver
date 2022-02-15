@@ -6,7 +6,7 @@
 #    By: icikrikc <icikrikc@student.codam.nl>         +#+                      #
 #                                                    +#+                       #
 #    Created: 2021/01/15 18:59:47 by icikrikc      #+#    #+#                  #
-#    Updated: 2022/02/09 14:40:43 by icikrikc      ########   odam.nl          #
+#    Updated: 2022/02/14 13:46:42 by icikrikc      ########   odam.nl          #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,13 +17,13 @@ server {
 	# server_name      irem;
 	server_name      irem;
 	server_name asffdsf;
-	autoindex 45;
-	return 301 https://$server_name$request_uri;
+	autoindex on;
+	return 301 https://localhost;
 }
 
 server{
-	listen 443 ssl ;
-	listen [::]:443 ssl ; #asjhdsagfdhhasgjf
+	listen 443;
+	listen [::]:443; #asjhdsagfdhhasgjf
 
 	# server_name irem;
 
@@ -37,21 +37,15 @@ server{
 	location /wordpress/ {
 		limit_except POST
 		{
-			#
 			deny all;
 		}
 	}
 
-	# location /wordpress/ {
-	# 	return 301 https://localhost;
-	# }
-
 	# location / {
 	# 	autoindex on;
-	# 	try_files $uri $uri/ =505;
 	# }
 
-	location \.php {
+	location /wordpress/ {
 		return 505 https://$server_name$request_uri;
 	}
 }
