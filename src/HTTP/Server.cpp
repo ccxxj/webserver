@@ -141,7 +141,6 @@ namespace HTTP {
 	}
 
 	void Server::run() {
-		//TODO: hardcoded values will be replaced after config parsing
 		std::vector<Config::ServerBlock> servers = config_data->get_servers();
 		//TODO implemented on the idea that each server block will have on port
 		for (size_t i = 0; i < servers.size(); i++)
@@ -150,3 +149,4 @@ namespace HTTP {
 		_handle_events();
 	}
 }
+

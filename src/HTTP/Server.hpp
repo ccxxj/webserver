@@ -12,6 +12,7 @@ namespace HTTP {
 	class Server{
 	private:
 		Config::ConfigData *config_data;
+    
 		void _handle_events();
 		void _setup_listening_sockets();
 		bool _is_in_listen_sockfd_list(int fd);

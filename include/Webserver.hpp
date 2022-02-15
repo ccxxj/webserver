@@ -8,7 +8,6 @@
 class Webserver
 {
 private:
-	/* data */
 	std::string _file_path;
 public:
 	Webserver(std::string file_path);
