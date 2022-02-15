@@ -10,7 +10,7 @@ namespace tests {
 
     std::vector<std::string> http_requests;
     void fill_requests() {
-        std::ifstream file("tests/requestParserMessages.txt");
+        std::ifstream file("request_parser_unit_tests/request_parser_messages.txt");
         if (file.is_open()) {
             std::string line;
             std::string buffer = "";
