@@ -1,8 +1,11 @@
-unit_tests
+webserver
 .vscode
-a.out
+*.out
+*.o
+*.a
 .idea
 .DS_Store
 *.dSYM
-# CMake*
+CMake*
 node_modules/*
+junit.xml
