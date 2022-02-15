@@ -20,3 +20,6 @@ jobs:
                   command: npm run start
             - store_test_results:
                   path: junit.xml
+            - run:
+                  name: Run unit tests
+                  command: cd tests/unit_tests && make && ./unit_tests
