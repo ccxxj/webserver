@@ -1,0 +1,46 @@
+server {
+	listen 80;
+	listen [::]:80;
+	server_name irem;
+	server_name webservvvvv;
+	root /var/www/localhost;
+	client_max_body_size 200;
+	return 301  https://localhost;
+}
+
+server {
+	listen 443 ssl ;
+	listen [::]:443 ssl ;
+
+	server_name irem;
+	server_name random_name;
+	# server_name irem;
+
+	client_max_body_size 2;
+
+	root /var/www/localhost;
+	error_page 404 /custom-404.html; #put them in the root!
+
+	location /wordpress/ {
+		root /var/www/localhost;
+		error_page 301 /custom-301.html;
+		autoindex on;
+		limit_except POST {
+			deny all;
+		}
+		return 301 https://localhost;
+	}
+
+	location /myyy_route/ {
+		autoindex off;
+		error_page 301 /custom-301.html; #put them in the root!
+		return 301 https://localhost;
+	}
+
+	location /whatssssup/ {
+		root /var/www/iremiremirem;
+		autoindex on;
+		return 505 https://$server_name$request_uri;
+	}
+
+}

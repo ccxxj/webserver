@@ -12,7 +12,9 @@
 
 namespace HTTP {
 
-	Server::Server(){}
+	Server::Server(Config::ConfigData *config_data): config_data(config_data)
+	{
+	}
 
 	Server::~Server(){
 		std::vector<int>::iterator it = _listening_sockfds.begin();
@@ -83,7 +85,7 @@ namespace HTTP {
 		}
 		struct kevent kev[10], event_fds[10]; // kernel event
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
-			EV_SET(kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure. 
+			EV_SET(kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
 			if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
 				perror("kevent");
 				exit(1);
@@ -139,11 +141,12 @@ namespace HTTP {
 	}
 
 	void Server::run() {
-		//TODO: hardcoded values will be replaced after config parsing
-		_listen_ports.push_back(8080);
-		_listen_ports.push_back(1000);
-		_listen_ports.push_back(20);
+		std::vector<Config::ServerBlock> servers = config_data->get_servers();
+		//TODO implemented on the idea that each server block will have on port
+		for (size_t i = 0; i < servers.size(); i++)
+			_listen_ports.push_back(std::atoi(servers[i].get_listen()[0].c_str()));
 		_setup_listening_sockets();
 		_handle_events();
 	}
 }
+
