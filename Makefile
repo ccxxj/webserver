@@ -32,8 +32,13 @@ SRC = Webserver.cpp \
 	HTTP/Connection.cpp \
 	HTTP/Server.cpp \
 	HTTPResponse/ResponseMessage.cpp \
-	HTTPResponse/StatusCodes.cpp
-
+	HTTPResponse/StatusCodes.cpp \
+	config/ConfigParser.cpp \
+	config/ConfigData.cpp \
+	config/AConfigBlock.cpp \
+	config/ServerBlock.cpp \
+	config/LocationBlock.cpp \
+	config/Utils.cpp
 
 CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
 		-std=c++98 -pedantic \
