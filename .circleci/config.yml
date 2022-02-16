@@ -9,7 +9,10 @@ jobs:
             - run:
                   name: Install clang, make, libkqueue, nodejs, npm # nodejs & npm are needed for integration tests
                   command: |
-                      apt update && DEBIAN_FRONTEND='noninteractive' apt install -y clang make libkqueue-dev nodejs npm
+                      apt update && DEBIAN_FRONTEND='noninteractive' apt install -y clang make libkqueue-dev nodejs npm git
+            - run:
+                  name: Reset git (workaround for CircleCI bug)
+                  command: git reset --hard
             - run:
                   name: Install dependencies
                   command: npm install
@@ -22,8 +25,5 @@ jobs:
             - store_test_results:
                   path: junit.xml
             - run:
-                  name: Build unit tests
-                  command: cd tests/unit_tests && make
-            - run:
                   name: Run unit tests
-                  command: ./unit_tests
+                  command: cd tests/unit_tests && make && ./unit_tests
