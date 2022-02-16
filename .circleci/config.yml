@@ -1,6 +1,7 @@
 version: 2.1
 jobs:
     build:
+        working_directory: ~/webserv_project
         docker:
             - image: ubuntu:21.10 # the primary container, where your job's commands are run
         steps:
@@ -21,5 +22,8 @@ jobs:
             - store_test_results:
                   path: junit.xml
             - run:
+                  name: Build unit tests
+                  command: cd tests/unit_tests && make
+            - run:
                   name: Run unit tests
-                  command: cd tests/unit_tests && make && ./unit_tests
+                  command: ./unit_tests
