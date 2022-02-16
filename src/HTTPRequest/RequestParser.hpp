@@ -31,17 +31,9 @@ namespace HTTPRequest {
         void _parse_request_line(const std::string& accumulating_string);
         void _parse_header(const std::string& accumulating_string);
 
-        std::vector<std::string> split(const std::string& accumulating_string);
-        
-        std::string &_parse_method(const std::string &message_buffer);
-        std::string& parse_request_uri(const std::string& message_buffer);
-        std::string& parse_HTTP_version(const std::string& message_buffer);
-        std::string& parse_message_body(const std::string& message_buffer);
-
-    std::string _get_substring(size_t* start, const std::string& string);
-
+        std::vector<std::string> _split_line(const std::string& line, const char delimiter);
+        std::string _trim(const std::string& s);
     };
 }
-
 
 #endif

@@ -10,21 +10,13 @@ RequestReader::~RequestReader()
 {
 }
 
-// std::string& RequestReader::get_accumulator() {
-//     return _accumulator;
-// }
-// 
-// void  RequestReader::resize_accumulator(){
-//     _accumulator.resize(0);
-// }
-
 bool RequestReader::_is_end_of_line(char* buffer, char* message_end) { // also checking that the current char is part of the buffer
     return (buffer != message_end && *buffer == '\r'
             && buffer + 1 != message_end && *(buffer + 1) == '\n');
 }
 
 bool RequestReader::_is_end_of_header_fields(char* buffer, char* message_end) {
-    return _is_end_of_line(buffer, message_end) && _is_end_of_line(buffer + 2, message_end);
+    return _is_end_of_line(buffer, message_end);
 }
 
 std::string RequestReader::read_line(char** buffer, char* message_end) { // pointer to the buffer as we need to keep track of it

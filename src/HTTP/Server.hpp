@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include <vector>
+#include <map>
 #include <cstdlib>
 #include <cstring>
 #include "Connection.hpp"
@@ -21,7 +22,7 @@ namespace HTTP {
 
 		std::vector<int> _listen_ports;
 		std::vector<int> _listening_sockfds;
-		std::vector<Connection> _connections;
+		std::map<int, Connection> _connections;
 
 	public:
 		Server(Config::ConfigData *config_data);
