@@ -117,7 +117,7 @@
 -   [Redirections](https://developer.mozilla.org/fr/docs/Web/HTTP/Redirections)
 
 **URI documentation**
--   [Redirections](https://datatracker.ietf.org/doc/html/rfc3986)
+-   [URI dedicated RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986)
 
 **Useful RFCs**
 
