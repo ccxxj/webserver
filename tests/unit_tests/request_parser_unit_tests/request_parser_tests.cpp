@@ -32,7 +32,7 @@ namespace tests {
         }
     }
 
-    TEST_CASE ("Parsing valid request messages") {
+    TEST_CASE ("Parsing valid request messages", "[request_parser]") {
         fill_requests();
         HTTPRequest::RequestMessage _http_request_message;
         HTTPResponse::ResponseMessage _http_response_message;
@@ -55,7 +55,9 @@ namespace tests {
                     }
             }
     }
-    TEST_CASE ("Parsing non_existing headers, map must be empty") {
+    
+    TEST_CASE ("Parsing non_existing headers, map must be empty", "[request_parser]") {
+        fill_requests();
         HTTPRequest::RequestMessage _http_request_message;
         HTTPResponse::ResponseMessage _http_response_message;
         HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
