@@ -15,15 +15,6 @@ namespace HTTPRequest {
 
     class RequestParser {
 
-    public:
-        RequestParser(HTTPRequest::RequestMessage* http_request, HTTPResponse::ResponseMessage* http_response);
-        RequestParser(const RequestParser& other);
-        ~RequestParser();
-        const RequestParser& operator=(const RequestParser& other);
-
-        void parse_HTTP_request(char* buffer, size_t bytes_read);
-        HTTPRequest::RequestMessage* _http_request_message;
-        HTTPResponse::ResponseMessage* _http_response_message;
     private:
         RequestParser();
         RequestReader request_reader;
@@ -33,6 +24,16 @@ namespace HTTPRequest {
 
         std::vector<std::string> _split_line(const std::string& line, const char delimiter);
         std::string _trim(const std::string& s);
+
+    public:
+        RequestParser(HTTPRequest::RequestMessage* http_request, HTTPResponse::ResponseMessage* http_response);
+        RequestParser(const RequestParser& other);
+        ~RequestParser();
+        const RequestParser& operator=(const RequestParser& other);
+
+        void parse_HTTP_request(char* buffer, size_t bytes_read);
+        HTTPRequest::RequestMessage* _http_request_message;
+        HTTPResponse::ResponseMessage* _http_response_message;
     };
 }
 
