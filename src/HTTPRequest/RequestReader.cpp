@@ -17,10 +17,6 @@ namespace HTTPRequest {
                 && buffer + 1 != buffer_end && *(buffer + 1) == '\n');
     }
 
-    bool RequestReader::_is_end_of_header_fields(char* buffer, char* buffer_end) {
-        return _is_end_of_line(buffer, buffer_end);
-    }
-
     std::string RequestReader::read_line(char** buffer, char* buffer_end, bool* can_be_parsed) { // pointer to the buffer as we need to keep track of it
         char* temp_ptr = *buffer;
         while (temp_ptr != buffer_end)
