@@ -3,36 +3,47 @@
 #include <sstream> // for converting int to string
 
 #include "Exceptions/RequestException.hpp"
+#include "../globals.hpp"
 
 namespace HTTP {
-	RequestHandler::RequestHandler(const Connection& active_connection):  _connection(active_connection){}
+	RequestHandler::RequestHandler(const Connection& active_connection)
+	: _http_request_message()
+	, _http_response_message()
+	, _connection(active_connection)
+	, _parser(&_http_request_message, &_http_response_message)
+	{
+	}
 
 	RequestHandler::~RequestHandler(){}
 
 	void RequestHandler::handle_http_request() {
 		char buf[4096];
-		size_t bytes_read = _connection.recv(buf, sizeof(buf));
-		// TODO: add check on the bytes read == -1 or == 0(if the client stopped the connection)
-		if (bytes_read > 0)
-		{
-			std::cout << "read " << bytes_read << " bytes\n";
-			std::cout.write(buf, bytes_read);
+		ssize_t bytes_read = _connection.recv(buf, sizeof(buf));
+		if (bytes_read == 0) {
+			_connection.close();
+		} else if (bytes_read == ERROR) {
+			std::perror("recv error");
+			_connection.close();
+		} else {
+				std::cout << "read " << bytes_read << " bytes\n";
+				std::cout.write(buf, bytes_read);
+				try {
+					_parser.parse_HTTP_request(buf, bytes_read);
+				}
+				catch(const Exception::RequestException& e)
+				{
+					_handle_request_exception(e.get_error_status_code());
+				}
+				if (!_parser.is_parsing_finished()) {
+					return;
+				}
+			std::string status_code = _http_response_message.get_status_code();
+			std::string reason_phrase = _http_response_message.get_reason_phrase();
+			std::string status_line = _http_response_message.get_HTTP_version() + " " + status_code + " " + reason_phrase + "\r\n\r\n";
+			std::cout << "\n\nstatus line: " << status_line << std::endl;
+			_connection.send(&status_line[0], status_line.size()); //TODO: replace by full response
+			_connection.close();
 		}
-		try {
-			HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
-			parser.parse_HTTP_request(buf, bytes_read);
-
-		}
-		catch(const Exception::RequestException& e)
-		{
-			_handle_request_exception(e.get_error_status_code());
-		}
-		std::string status_code = _http_response_message.get_status_code();
-		std::string reason_phrase = _http_response_message.get_reason_phrase();
-		std::string status_line = _http_response_message.get_HTTP_version() + " " + status_code + " " + reason_phrase + "\r\n\r\n";
-		std::cout << "\n\nstatus line: " << status_line << std::endl;
-		_connection.send(&status_line[0], status_line.size()); //TODO: replace by full response
-		_connection.close();
 	}
 
 	void RequestHandler::_handle_request_exception(HTTPResponse::StatusCode code) {
