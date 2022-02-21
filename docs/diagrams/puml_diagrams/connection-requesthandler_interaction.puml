@@ -1,0 +1,24 @@
+@startuml connection-requesthandler_interaction
+
+skinparam class {
+BackgroundColor LightGray
+BorderColor DimGray
+}
+
+interface       RequestHandlerDelegate {
+	+receive()
+	+send()
+	+close()
+}
+
+class RequestHandler
+class Connection  {
+	+receive()
+	+send()
+	+close()
+}
+
+Connection *-- RequestHandler #Black : contains
+RequestHandlerDelegate <|-- Connection  #Black : inherits
+RequestHandler .. RequestHandlerDelegate #Black
+@enduml
