@@ -10,7 +10,7 @@ namespace HTTP {
 	RequestHandler::~RequestHandler(){}
 
 	void RequestHandler::handle_http_request() {
-		char buf[1024];
+		char buf[4096];
 		size_t bytes_read = _connection.recv(buf, sizeof(buf));
 		// TODO: add check on the bytes read == -1 or == 0(if the client stopped the connection)
 		if (bytes_read > 0)
