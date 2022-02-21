@@ -1,27 +1,28 @@
-#ifndef CONNECTION_HPP
-#define CONNECTION_HPP
+#pragma once
 
 #include <netinet/in.h> // for sockaddr_in struct
 
+#include "RequestHandler.hpp"
+#include "RequestHandlerDelegate.hpp"
+
 namespace HTTP {
-	class Connection
+	class Connection : public RequestHandlerDelegate
 	{
 	private:
 		int _socket_fd;
+		std::auto_ptr<RequestHandler> request_handler;
+
 		// int _listening_socket_fd;
 		// sockaddr_in _client_addr;
 		// int _client_addr_len;
-
-		Connection();
 	public:
 		Connection(int connection_socket_fd);
 		// Connection(int connection_socket_fd, int server_listening_sockfd, sockaddr_in& connection_addr, int connection_addr_len);
 		~Connection();
 
-		size_t recv(char *buffer, size_t buffer_size);
-		void send(const void *buffer, size_t buffer_size);
-		void close();
+		void handle_http_request();
+		virtual size_t recv(char *buffer, size_t buffer_size);
+		virtual void send(const void *buffer, size_t buffer_size);
+		virtual void close();
 	};
 }
-
-#endif
