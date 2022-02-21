@@ -116,6 +116,9 @@
 -   [HTTP messages](https://developer.mozilla.org/en-US/docs/Web/HTTP/Messages)
 -   [Redirections](https://developer.mozilla.org/fr/docs/Web/HTTP/Redirections)
 
+**URI documentation**
+-   [URI dedicated RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986)
+
 **Useful RFCs**
 
 -   [RFC editor](https://www.rfc-editor.org/retrieve/): official source for RFCs on the World Wide Web.
