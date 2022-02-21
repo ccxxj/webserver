@@ -1,6 +1,7 @@
 #include "RequestHandler.hpp"
 
 #include <sstream> // for converting int to string
+#include <stdio.h> // for perror
 
 #include "Exceptions/RequestException.hpp"
 #include "../globals.hpp"
@@ -22,10 +23,10 @@ namespace HTTP {
 		if (bytes_read == 0) {
 			_connection.close();
 		} else if (bytes_read == ERROR) {
-			std::perror("recv error");
+			perror("recv error");
 			_connection.close();
 		} else {
-				std::cout << "read " << bytes_read << " bytes\n";
+				std::cout << "\nRead " << bytes_read << " bytes\n";
 				std::cout.write(buf, bytes_read);
 				try {
 					_parser.parse_HTTP_request(buf, bytes_read);
