@@ -1,7 +1,5 @@
 #include "Server.hpp"
 
-#include "RequestHandler.hpp"
-
 #include <sys/socket.h> // for socket
 #include <sys/errno.h>
 #include <unistd.h> // for close
@@ -10,11 +8,15 @@
 #include <string.h> // strerror TODO: remove
 #include  <cstdlib> // for exit
 #include <cstdio> // for perror
+#include <fcntl.h> // for fcntl
 #ifdef _LINUX
 	#include "/usr/include/kqueue/sys/event.h" //linux kqueue
 #else
 	#include <sys/event.h> // for kqueue and kevent
 #endif
+
+#include "RequestHandler.hpp"
+#include "../globals.hpp"
 
 namespace HTTP {
 
@@ -57,6 +59,9 @@ namespace HTTP {
 			if (listen(_listening_sockfds[i], 10) < 0) {
 				std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
 				std::exit(EXIT_FAILURE);
+			}
+			if (fcntl(_listening_sockfds[i], F_SETFL, O_NONBLOCK) == ERROR) {
+				std::perror("fcntl error");
 			}
 			std::cout << "***************The server is listening on port: " << _listen_ports[i] <<"***************" << std::endl;
 		}
@@ -123,6 +128,10 @@ namespace HTTP {
 					if (connection_socket_fd == -1)
 					{
 						std::perror("accept socket error");
+					}
+					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
+
+						std::perror("fcntl error");
 					}
 					//TODO:: check if these are needed Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
 					Connection connection(connection_socket_fd);

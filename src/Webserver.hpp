@@ -1,7 +1,8 @@
-#ifndef WEBSERVER_HPP
-#define WEBSERVER_HPP
+#pragma once
+
 #include <iostream>
 #include <string>
+
 #include "../src/HTTP/Server.hpp"
 #include "../src/config/ConfigParser.hpp"
 
@@ -15,4 +16,3 @@ public:
 	void start();
 };
 
-#endif

@@ -63,21 +63,13 @@ int main(int argc, char const *argv[])
 
     // send(sock, bla_mesasage.c_str(), bla_mesasage.size(), 0);
 
-//     send(sock , http_request_mes.c_str() , 1, 0 );
-//     sleep(1);
-//     send(sock , http_request_mes.c_str() + 1 , 1, 0 );
-//     sleep(1);
-//     send(sock , http_request_mes.c_str() + 2 , 1, 0 );
-//     sleep(1);
-//     send(sock , http_request_mes.c_str() + 3 , 1, 0 );
-// 
-//     send(sock , http_request_mes.c_str() + 4, http_request_mes.size() - 4 , 0 );
-
     // std::cout << "size: " << longest_message.size() << std::endl;
     // send(sock, longest_message.c_str(), 1, 0);
     // sleep(1);
     // send(sock, longest_message.c_str() + 1, longest_message.size() - 1, 0);
+
     send(sock, http_request_mes.c_str(), http_request_mes.size(), 0);
+
 
     valread = read( sock , buffer, 1024);
     printf("%s\n",buffer );
