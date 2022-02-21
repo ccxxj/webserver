@@ -11,6 +11,7 @@
 namespace HTTP {
 
 	class Server{
+		
 	private:
 		Config::ConfigData *config_data;
     
