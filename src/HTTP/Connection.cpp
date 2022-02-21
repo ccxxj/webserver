@@ -35,7 +35,7 @@ namespace HTTP {
 		}
 	}
 
-	size_t Connection::recv(char* buffer, size_t buffer_size) {
+	size_t Connection::receive(char* buffer, size_t buffer_size) {
 		return ::recv(_socket_fd, buffer, buffer_size, 0);
 	}
 }

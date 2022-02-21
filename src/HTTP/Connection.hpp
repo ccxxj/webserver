@@ -21,7 +21,7 @@ namespace HTTP {
 		~Connection();
 
 		void handle_http_request();
-		virtual size_t recv(char *buffer, size_t buffer_size);
+		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(const void *buffer, size_t buffer_size);
 		virtual void close();
 	};

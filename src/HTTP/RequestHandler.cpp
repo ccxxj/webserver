@@ -19,7 +19,7 @@ namespace HTTP {
 
 	void RequestHandler::handle_http_request() {
 		char buf[4096];
-		ssize_t bytes_read = _delegate.recv(buf, sizeof(buf));
+		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
 			_delegate.close();
 		} else if (bytes_read == ERROR) {
