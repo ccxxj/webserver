@@ -16,7 +16,8 @@ namespace HTTP {
         HTTPRequest::RequestMessage _http_request_message;
         HTTPResponse::ResponseMessage _http_response_message;
         Connection _connection;
-        
+        HTTPRequest::RequestParser _parser;
+
         void _handle_request_exception(HTTPResponse::StatusCode code);
         const std::string _convert_status_code_to_string(const int code);
         

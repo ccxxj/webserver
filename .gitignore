@@ -9,3 +9,5 @@ webserver
 CMake*
 node_modules/*
 junit.xml
+tests/integration_tests/invalid_requests.spec.js
+tests/unit_tests/unit_test
