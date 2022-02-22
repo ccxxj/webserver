@@ -32,6 +32,8 @@ namespace HTTP {
 	void Connection::close() {
 		if (::close(_socket_fd) < 0) {
 			std::cout << "Socket closing failed. errno: " << errno << std::endl;
+		} else {
+			std::cout << "Socket " << _socket_fd << " is closed." << std::endl; // for debug
 		}
 	}
 
