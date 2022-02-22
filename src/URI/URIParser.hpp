@@ -21,4 +21,5 @@ public:
 	~URIParser();
 	void parse(void);
 	void print_URI_data();
+	const URIData &get_uri_data(void) const;
 };

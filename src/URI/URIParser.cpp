@@ -53,7 +53,7 @@ void URIParser::pct_decoding(std::string &target)
 				throw Exception::RequestException(HTTPResponse::BadRequest);//TODO is this the write error code to throw in case the provided %hh is not qualified for decoding
 		}
 		else if(temp[i] == '%' && len <= (i + 2))
-			throw Exception::RequestException(HTTPResponse::BadRequest);//TODO is this the write error code to throw in case the provided %hh is not qualified for decoding
+			throw Exception::RequestException(HTTPResponse::BadRequest);//TODO is this the write error code to throw in case the provided %hh is not complete
 		else
 			target += temp[i];		
 	}
@@ -147,4 +147,10 @@ void URIParser::print_URI_data(void)
 		std::cout << it2->first << "=" << it2->second << std::endl;
 	}
 }
+
+const URIData &URIParser::get_uri_data(void) const
+{
+	return uri;
+}
+
 

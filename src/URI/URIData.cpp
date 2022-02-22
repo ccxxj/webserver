@@ -21,6 +21,7 @@ const URIData &URIData::operator=(const URIData &other)
 {
 	_path = other._path;
 	_query = other._query;
+	return *this;
 }
 
 
