@@ -73,13 +73,69 @@ namespace tests {
 
     }
 
-    TEST_CASE ("Invalid requests result in the response with error status codes", "[request_parser]") {
+    TEST_CASE ("Invalid requests - exceptions thrown", "[request_parser]") {
         std::vector<std::string> http_requests = fill_requests("request_parser_unit_tests/request_parser_messages_to_throw_exceptions.txt");
         SECTION ("Space between header field and colon not allowed, Bad Request must be thrown", "[invalid_request]") {
             HTTPRequest::RequestMessage _http_request_message;
             HTTPResponse::ResponseMessage _http_response_message;
             HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
             char *buf = &(http_requests[0])[0]; // header looks like this: "Host : localhost:80"
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+        }
+        SECTION ("Spaces between request line elements not allowed, Bad Request must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char *buf = &(http_requests[1])[0]; // P O ST /cgi-bin/process.cgi HTTP/1.1
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+        }
+        SECTION ("Space inside uri, Bad Request must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char *buf = &(http_requests[2])[0]; // POST /cgi-bin/ process.cgi HTTP/1.1
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+        }
+        SECTION ("Spaces between request line and first header field are not allowed, Bad Request must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char *buf = &(http_requests[3])[0];
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+        }
+        SECTION ("Invalid method in request line, Bad Request must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char *buf = &(http_requests[4])[0]; //POSTT /foo.php HTTP/1.1
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+        }
+        SECTION ("Only method in request line, Bad Request must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char *buf = &(http_requests[5])[0]; // GET - without uri and version 
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+        }
+        SECTION ("Method and http version in request line only, Bad Request must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char *buf = &(http_requests[6])[0]; // GET HTTP/1.1 
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+        }
+        SECTION ("Long uri in request line - LongUri 414", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char *buf = &(http_requests[7])[0]; // long uri
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
         }
