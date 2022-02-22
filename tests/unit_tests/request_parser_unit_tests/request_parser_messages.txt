@@ -1,5 +1,6 @@
 ------
-0
+
+0 Valid Request
 POST /cgi-bin/process.cgi HTTP/1.1
 User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
 Host: www.tutorialspoint.com
@@ -11,81 +12,7 @@ Connection: Keep-Alive
 
 licenseID=string&content=string&/paramsXML=string
 ------
-1
-GET /home.html HTTP/1.1
-Host: developer.mozilla.org
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-Accept-Language: en-US,en;q=0.5
-Accept-Encoding: gzip, deflate, br
-Referer: https://developer.mozilla.org/testpage.html
-Connection: keep-alive
-Upgrade-Insecure-Requests: 1
-If-Modified-Since: Mon, 18 Jul 2016 02:36:04 GMT
-If-None-Match: "c561c68d0ba92bbeb8b0fff2a9199f722e3a621a"
-Cache-Control: max-age=0
-------
-2
-POST /cgi-bin/process.cgi HTTP/1.1
-User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
-Host: www.tutorialspoint.com
-Content-Type: text/xml; charset=utf-8
-Content-Length: length
-Accept-Language: en-us
-Accept-Encoding: gzip, deflate
-Connection: Keep-Alive
 
-<?xml version="1.0" encoding="utf-8"?>
-<string xmlns="http://clearforest.com/">string</string>
-------
-3
-POST /cgi-bin/process.cgi HTTP/1.1
-User-Agent:  Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
-Host: www.tutorialspoint.com
-Content-Type: application/x-www-form-urlencoded
-Content-Length: length
-Accept-Language: en-us
-Accept-Encoding: gzip, deflate
-Connection: Keep-Alive
-
-licenseID=string&content=string&/paramsXML=string
-------
-4
-GET /tutorials/other/top-20-mysql-best-practices/ HTTP/1.1
-Host: code.tutsplus.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-Accept-Language: en-us,en;q=0.5
-Accept-Encoding: gzip,deflate
-Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
-Keep-Alive: 300
-Connection: keep-alive
-Cookie: PHPSESSID=r2t5uvjq435r4q7ib3vtdjq120
-Pragma: no-cache
-Cache-Control: no-cache
-------
-5
-POST /foo.php HTTP/1.1
-Host: localhost
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-Accept-Language: en-us,en;q=0.5
-Accept-Encoding: gzip,deflate
-Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
-Keep-Alive: 300
-Connection: keep-alive
-Referer: http://localhost/test.php
-Content-Type: application/x-www-form-urlencoded
-Content-Length: 43
-
-first_name=John&last_name=Doe&action=Submit
-------
-6
-GET /hello.txt HTTP/1.1
-User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3
-Host: www.example.com
-Accept-Language: en, mi
-------
-7
+1 No headers
 GET /file.txt HTTP/1.1
 ------

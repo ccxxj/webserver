@@ -1,0 +1,96 @@
+------
+
+0 Space between header field and colon not allowed - BAd Request 400
+GET /home.html HTTP/1.1
+Host : localhost:80
+User-Agent : Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko/20100101 Firefox/50.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: https://developer.mozilla.org/testpage.html
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+If-Modified-Since: Mon, 18 Jul 2016 02:36:04 GMT
+If-None-Match: "c561c68d0ba92bbeb8b0fff2a9199f722e3a621a"
+Cache-Control: max-age=0
+------
+
+1 Spaces between request line elements not allowed - BAd Request 400
+P O ST /cgi-bin/process.cgi HTTP/1.1
+User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
+Host: www.tutorialspoint.com
+Content-Type: text/xml; charset=utf-8
+Content-Length: length
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+Connection: Keep-Alive
+
+<?xml version="1.0" encoding="utf-8"?>
+<string xmlns="http://clearforest.com/">string</string>
+------
+
+2 Spaces between request line elements not allowed - BAd Request 400
+POST /cgi-bin/ process.cgi HTTP/1.1
+User-Agent:  Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
+Host: www.tutorialspoint.com
+Content-Type: application/x-www-form-urlencoded
+Content-Length: length
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+Connection: Keep-Alive
+
+licenseID=string&content=string&/paramsXML=string
+------
+
+3 Spaces between request line and first header field are not allowed - Bad Request -400
+GET /tutorials/other/top-20-mysql-best-practices/ HTTP/1.1
+	Host: code.tutsplus.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip,deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Keep-Alive: 300
+Connection: keep-alive
+Cookie: PHPSESSID=r2t5uvjq435r4q7ib3vtdjq120
+Pragma: no-cache
+Cache-Control: no-cache
+------
+
+4 Invalid method in request line - Bad Request -400
+POSTT /foo.php HTTP/1.1
+Host: localhost
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-us,en;q=0.5
+Accept-Encoding: gzip,deflate
+Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+Keep-Alive: 300
+Connection: keep-alive
+Referer: http://localhost/test.php
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 43
+
+first_name=John&last_name=Doe&action=Submit
+------
+
+5 Only method in request line - Bad Request -400
+GET
+User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3
+Host: www.example.com
+Accept-Language: en, mi
+------
+
+6 Method and http version in request line - Bad Request -400
+GET HTTP/1.1
+User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3
+Host: www.example.com
+Accept-Language: en, mi
+------
+
+7 Long uri in request line - Bad Request -414
+GET /V57gxvvkHGfQ+Y7mTnEcSQi/dsfjkhsdkfhdskfhsdkjfhds,fhsbcfcjshfsjf/dfk/sdjhgasjdgasjdgasjdgasjdgsadgasdgasjdgasjdhgasjdgsajdgufdfdjfgsdjdfgsdjdgfsdfgs/SlpcyUF45J5ZeMrRuERsdkjfsdfkjhjnjGRBjGwD8282QRoXOmE1308vB6kr6viaf5aK4NeK7MBpm4RZ5RkayYyM1MkzQs/ztPODpEPnMIg1UdwVTi2nfc92c7rdU4ADHU+N4yUNtI3+wmfFlMiPF14d8f6QM3sJSUwllkzmua9JiUAq14dxUt24huefy07USXRMW7D8oZ7tlPO91Yi4QNOaHpf6orWA2mVoMMuTNLvT6Xg7ZIfH/Qal80jhrza3qhNm9IEY9SetIczC9hy0hUaxUpgppzLSPuTf/Yw2OJnilpmobsylZzrzZe6/q5nRcbJonvtN8XhAFNt1bNN9czndbOz/3qmKabO22X0N9fBDjd5Mh+hIaZ4dXaa0vqLpjAV9POpqj3nYBqEKoiWcxRKfqf4BXujWE7OaiVOOxVVygyhNha/gC7muGvVJkz1PPlz/uaWAiNnH25EiKcC2PnktXYdkBdParUhQI/oexObbSDyqdmheCMLDTRpC1wU7ctzfnNpw9KXwxQDdVoEXO7XlLy7649zKRR0ICvqMdTHleiT9oEesSG2AmELwi2lBy46yeKaQIBynvDrZ8wFE1Jajb2DNs8tPdVcITBkqJDNN/gQUPi5s5Khs9PuMz3KdluZ9amPKzZytUriXqUNkKl+ueBVKZR3YT9nxFFCdnNyD7MQoicBCYS05rmE/sBH24X8u6JwYGIZ/dW3Su7GeEhu7LGps+qrR0M6Q/AOAeE21YS/4ztzFXqVC4HaWZIE1uBR6KagPLDIVtvF/NFAex8/IguDXRn5aIwbmpTLFBdyQtWjQGTHae+584FlpB4ye5AAx8wkLu8ZbNtzzGSxCYyEw2E0pNAGILgzHk0LhyN7lFWpM5oVcYx7Dl5nRH4SDYtmgK1WNqCnb8lrbd8aEP5gBu8GdHCd1iOOnaaWMgQV8gZQWr8N5QYNclOfNMUFii3gVCq6EbBAq78eyasRa1kRflwFj3WGa6+BpoDheUBCJi/XjiYcP6EEIJuj3bZkDsbmS5iKUyAMokmd+KuisyO+a78ZVgaQrXTulctM4Od2tk0k2yd4WqHUNm8JWhSwF+64gRV2evMFK79oOCg0YPxDZxoaly2AutKp3lWmwV/CxEG7Qe+wvOAg6Z2AB55zZrGOWKEc/cgMzZZ1RxvfmLiD2ajTDTkCFHf067o6PfrKnpe06jxvdOCFZE16lYiGgCIMpQEaRbzlGeSpJnfaPUhGz4PlClepwm9cGqaDC5Mz3aTJaOXVNE8H2uM3WsuFlm6497/8bZ8SrFA0BxNKwDSnW31WisF9FZZ7YvEx/mmRtNOmIRA4kBnHPId5nzBxTNfe0g2yTMtdEN/KuEVELXaDPf1DHnfkesPGSZuHcacZowpPwT+tlZfp5gNLnY9w9WI3KXygAtqmHuLW/Rvf1hTqF1qPX/AAGRp2oAQBQjhW9JWvlXvWnvTwDxkKY+GqSZgOMe0riGnTmfC7kmLpUDehzuApnpy47Of8q8V3k6dKVULUYFms9ls+l83rnf8yF/ipccU4EzR4w7p8aIqsBILEF3mIESmbdrkM5fjbWQdcr3UK8/ELFU2I6AgHV2iF7bHwW/E6SCP8wQd8z63C5pGWPcnfp7818URlA/g77Lj9XTU2jscq86tKQ4b1uZU3LXFRj4SmbYbS5qNKz5ftcdoAK8RNSBS7TKKQYKMjMmOrMhLjB6hLwGBeGXlovJo6L8X/pG+R4aCuUu+Uu0kyS2ajs2Fg+njJJhP8F4dRnMrTQWx8eRLlWolIUEzIWi4gjl8KRD8wD3tw1h4jESvtdfkhsdjfhskdfhskjdfhskdfhlsbcjshfjshf,h//sdjfgsdgfsakdfgaksdgfsdfkjghds,fhds,jfh/dsfdsf HTTP/1.1
+User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3
+Host: localhost:80
+Accept-Language: en, mi
+------
