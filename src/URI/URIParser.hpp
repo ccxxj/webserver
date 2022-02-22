@@ -8,8 +8,17 @@
 class URIParser{
 private:
 	URIData uri;
+	std::string URI_input;
+	std::string query_string;
+
+	void pct_decoding(std::string &target);
+	void parse_path(void);
+	void parse_queries(void);
+	URIParser();
 
 public:
-	void decoding_reservedC();
-
+	URIParser(std::string URI_input);
+	~URIParser();
+	void parse(void);
+	void print_URI_data();
 };

@@ -5,26 +5,19 @@
 #include <map>
 #include <vector>
 
-/*
-assumptions:
-TODO:
-parse query
-decoding
-check if anything is case insensative
-*/
 class URIData{
 private:
 	std::vector<std::string> _path;
-	std::vector<std::string> _query;
-	std::string input_URI;
-	URIData();
+	std::map<std::string, std::string> _query;
 
 public:
-	URIData(std::string input_URI);
+	URIData();
 	~URIData();
-	void set_path(void);
-	// void set_query(void);
+	URIData(const URIData &other);
+	const URIData &operator=(const URIData &other);
+
+	void set_path(std::vector<std::string> path);
+	void set_query(std::map<std::string, std::string> query);
 	const std::vector<std::string> get_path(void) const;
-	// const std::string get_query(void) const;
-	const void print_URI_data(void);
+	const std::map<std::string, std::string> get_query(void) const;
 };

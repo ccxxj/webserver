@@ -54,9 +54,6 @@ namespace HTTPRequest {
             throw Exception::RequestException(HTTPResponse::BadRequest);
         }
         _http_request_message->set_method(segments[0]);
-        if (segments[1].size() > 2000) {
-            throw Exception::RequestException(HTTPResponse::URITooLong);
-        }
         _http_request_message->set_request_uri(segments[1]);
         _http_request_message->set_HTTP_version(segments[2]);
     }
