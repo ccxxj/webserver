@@ -5,12 +5,13 @@
 #include <map>
 
 #include "../../../src/HTTP/RequestHandler.hpp"
+#include "../../../src/HTTP/Exceptions/RequestException.hpp"
 
 namespace tests {
 
+    std::vector<std::string> fill_requests(const char* filename) {
     std::vector<std::string> http_requests;
-    void fill_requests() {
-        std::ifstream file("request_parser_unit_tests/request_parser_messages.txt");
+        std::ifstream file(filename);
         if (file.is_open()) {
             std::string line;
             std::string buffer = "";
@@ -21,7 +22,8 @@ namespace tests {
                         http_requests.push_back(buffer);
                         buffer.resize(0);
                     }
-                    getline(file, line); // skipping the line with index number, we don't need it
+                    getline(file, line);
+                    getline(file, line); // skipping 2 lines  with index number and description of the request, we don't need it
                 }
                 else {
                     buffer.append(line);
@@ -30,15 +32,18 @@ namespace tests {
             }
             file.close();
         }
+        return http_requests;
     }
 
-    TEST_CASE ("Parsing valid request messages", "[request_parser]") {
-        fill_requests();
-        HTTPRequest::RequestMessage _http_request_message;
-        HTTPResponse::ResponseMessage _http_response_message;
-        HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
-        char* buf = &(http_requests[0])[0];
-        parser.parse_HTTP_request(buf, strlen(buf));
+    TEST_CASE ("Request Parser", "[request_parser]") {
+        std::vector<std::string> http_requests = fill_requests("request_parser_unit_tests/request_parser_messages.txt");
+        SECTION ("Parsing valid request message", "[valid_request]") {
+
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char* buf = &(http_requests[0])[0];
+            parser.parse_HTTP_request(buf, strlen(buf));
 
             SECTION("Request line should be parsed and split into 3 atrributes") {
                 CHECK(_http_request_message.get_method() == "POST");
@@ -54,18 +59,33 @@ namespace tests {
                         CHECK(_http_request_message.get_header_value("Content-Type") == "application/x-www-form-urlencoded");
                     }
             }
+        }
+
+        SECTION ("Request with no headers passed, map is empty", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char* buf = &(http_requests[1])[0];
+            parser.parse_HTTP_request(buf, strlen(buf));    
+            CHECK(_http_request_message.get_headers().size() == 0);            
+
+        }
+
     }
-    
-    TEST_CASE ("Parsing non_existing headers, map must be empty", "[request_parser]") {
-        fill_requests();
-        HTTPRequest::RequestMessage _http_request_message;
-        HTTPResponse::ResponseMessage _http_response_message;
-        HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
-        char* buf = &(http_requests[7])[0];
-        parser.parse_HTTP_request(buf, strlen(buf));    
-        CHECK(_http_request_message.get_headers().size() == 0);            
+
+    TEST_CASE ("Invalid requests result in the response with error status codes", "[request_parser]") {
+        std::vector<std::string> http_requests = fill_requests("request_parser_unit_tests/request_parser_messages_to_throw_exceptions.txt");
+        SECTION ("Space between header field and colon not allowed, Bad Request must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char *buf = &(http_requests[0])[0]; // header looks like this: "Host : localhost:80"
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+        }
     }
 }
+
 
         // using IteratorType = std::vector<char*>::iterator;
         // std::vector<char*>::iterator it = http_requests.begin();
