@@ -16,3 +16,18 @@ licenseID=string&content=string&/paramsXML=string
 1 No headers
 GET /file.txt HTTP/1.1
 ------
+
+2 Valid Request with multiple headers with the same name
+POST / HTTP/1.1
+User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
+Host: localhost:80
+Content-Type:     application/x-www-form-urlencoded      
+Accept: text/plain
+Content-Length: length
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+Connection: Keep-Alive
+Accept: text/html
+
+licenseID=string&content=string&/paramsXML=string
+------

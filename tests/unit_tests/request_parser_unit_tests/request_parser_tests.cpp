@@ -66,11 +66,18 @@ namespace tests {
             HTTPResponse::ResponseMessage _http_response_message;
             HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
             char* buf = &(http_requests[1])[0];
-            parser.parse_HTTP_request(buf, strlen(buf));    
+            parser.parse_HTTP_request(buf, strlen(buf));
             CHECK(_http_request_message.get_headers().size() == 0);            
-
         }
 
+        SECTION ("Request multiple headers with the same name", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char* buf = &(http_requests[2])[0];
+            parser.parse_HTTP_request(buf, strlen(buf));  
+            CHECK(_http_request_message.get_header_value("Accept") == "text/plain, text/html");
+        }
     }
 
     TEST_CASE ("Invalid requests - exceptions thrown", "[request_parser]") {
