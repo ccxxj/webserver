@@ -71,7 +71,7 @@ namespace HTTPRequest {
             _throw_request_exception(HTTPResponse::BadRequest);
         }
         std::vector<std::string> segments = _split_line(line, ' ');
-        if (segments.size() < 3) {
+        if (segments.size() != 3) {
             _throw_request_exception(HTTPResponse::BadRequest);
         }
         if (_is_method_supported(segments[0])) {
