@@ -1,6 +1,7 @@
 #pragma once
 
 #include <netinet/in.h> // for sockaddr_in struct
+#include <memory> // for auto_ptr
 
 #include "RequestHandler.hpp"
 #include "RequestHandlerDelegate.hpp"
