@@ -59,6 +59,12 @@ namespace HTTPRequest {
         throw Exception::RequestException(error_status);
     }
 
+    bool RequestParser::contains_whitespace(std::string& str) {
+        size_t whitespace_found = str.find(' ', 0);
+        size_t tab_found = str.find('\t', 0);
+        return whitespace_found != std::string::npos || tab_found != std::string::npos;
+    }
+
     void RequestParser::_parse_request_line(std::string& line) {
         if (line.empty()) {
 
@@ -107,6 +113,9 @@ namespace HTTPRequest {
             return;
         }
         std::vector<std::string> segments = _split_line(line, ':');
+        if (contains_whitespace(segments[0])) {
+            _throw_request_exception(HTTPResponse::BadRequest);
+        }
         std::pair<std::string, std::string> header_field(segments[0], _trim(segments[1])); //TODO: No whitespace is allowed between the header field-name and colon.
         _http_request_message->set_header_field(header_field); //TODO: what if the header name exists?
     }
