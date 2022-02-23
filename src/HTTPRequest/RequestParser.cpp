@@ -132,26 +132,6 @@ namespace HTTPRequest {
         lines.push_back(line.substr(start, line.size()));
         return lines;
     }
-
-    void RequestParser::_parse_request_line(const std::string& accumulating_string) {
-        if (accumulating_string.empty())
-            throw Exception::RequestException(HTTPResponse::BadRequest);
-        std::vector<std::string> segments = _split_line(accumulating_string, ' ');
-        if (segments.size() < 3) {
-            throw Exception::RequestException(HTTPResponse::BadRequest);
-        }
-        _http_request_message->set_method(segments[0]);
-        _http_request_message->set_request_uri(segments[1]);
-        _http_request_message->set_HTTP_version(segments[2]);
-    }
-
-    void RequestParser::_parse_header(const std::string& accumulating_string) {
-            if (accumulating_string == "")
-            return; //TODO: fill error response
-        std::vector<std::string> segments = _split_line(accumulating_string, ':');
-        std::pair<std::string, std::string> header_field(segments[0], _trim(segments[1])); //TODO: No whitespace is allowed between the header field-name and colon.
-        _http_request_message->set_header_field(header_field); //TODO: what if the header name exists?
-    }
  
     std::string RequestParser::_trim(const std::string& s)
     {
