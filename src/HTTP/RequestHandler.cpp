@@ -7,10 +7,10 @@
 #include "../globals.hpp"
 
 namespace HTTP {
-	RequestHandler::RequestHandler(const Connection& active_connection)
+	RequestHandler::RequestHandler(RequestHandlerDelegate& delegate)
 	: _http_request_message()
 	, _http_response_message()
-	, _connection(active_connection)
+	, _delegate(delegate)
 	, _parser(&_http_request_message, &_http_response_message)
 	{
 	}
@@ -19,31 +19,31 @@ namespace HTTP {
 
 	void RequestHandler::handle_http_request() {
 		char buf[4096];
-		ssize_t bytes_read = _connection.recv(buf, sizeof(buf));
+		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
-			_connection.close();
+			_delegate.close();
 		} else if (bytes_read == ERROR) {
 			perror("recv error");
-			_connection.close();
+			_delegate.close();
 		} else {
-				std::cout << "\nRead " << bytes_read << " bytes\n";
-				std::cout.write(buf, bytes_read);
-				try {
-					_parser.parse_HTTP_request(buf, bytes_read);
-				}
-				catch(const Exception::RequestException& e)
-				{
-					_handle_request_exception(e.get_error_status_code());
-				}
-				if (!_parser.is_parsing_finished()) {
-					return;
-				}
+			std::cout << "\nRead " << bytes_read << " bytes\n";
+			std::cout.write(buf, bytes_read);
+			try {
+				_parser.parse_HTTP_request(buf, bytes_read);
+			}
+			catch(const Exception::RequestException& e)
+			{
+				_handle_request_exception(e.get_error_status_code());
+			}
+			if (!_parser.is_parsing_finished()) {
+				return;
+			}
 			std::string status_code = _http_response_message.get_status_code();
 			std::string reason_phrase = _http_response_message.get_reason_phrase();
 			std::string status_line = _http_response_message.get_HTTP_version() + " " + status_code + " " + reason_phrase + "\r\n\r\n";
 			std::cout << "\n\nstatus line: " << status_line << std::endl;
-			_connection.send(&status_line[0], status_line.size()); //TODO: replace by full response
-			_connection.close();
+			_delegate.send(&status_line[0], status_line.size()); //TODO: replace by full response
+			_delegate.close();
 		}
 	}
 
