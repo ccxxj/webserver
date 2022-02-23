@@ -118,6 +118,7 @@ namespace tests {
             char* buf = create_writable_buf(http_requests[0]); // header looks like this: "Host : localhost:80"
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
         }
         SECTION ("Spaces between request line elements not allowed, Bad Request must be thrown", "[invalid_request]") {
             HTTPRequest::RequestMessage _http_request_message;
@@ -126,6 +127,7 @@ namespace tests {
             char* buf = create_writable_buf(http_requests[1]); // P O ST /cgi-bin/process.cgi HTTP/1.1
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
         }
         SECTION ("Space inside uri, Bad Request must be thrown", "[invalid_request]") {
             HTTPRequest::RequestMessage _http_request_message;
@@ -134,6 +136,7 @@ namespace tests {
             char* buf = create_writable_buf(http_requests[2]); // POST /cgi-bin/ process.cgi HTTP/1.1
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
         }
         SECTION ("Spaces between request line and first header field are not allowed, Bad Request must be thrown", "[invalid_request]") {
             HTTPRequest::RequestMessage _http_request_message;
@@ -142,6 +145,7 @@ namespace tests {
             char* buf = create_writable_buf(http_requests[3]);
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
         }
         SECTION ("Invalid method in request line, Bad Request must be thrown", "[invalid_request]") {
             HTTPRequest::RequestMessage _http_request_message;
@@ -150,6 +154,7 @@ namespace tests {
             char* buf = create_writable_buf(http_requests[4]); //POSTT /foo.php HTTP/1.1
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
         }
         SECTION ("Only method in request line, Bad Request must be thrown", "[invalid_request]") {
             HTTPRequest::RequestMessage _http_request_message;
@@ -158,6 +163,7 @@ namespace tests {
             char* buf = create_writable_buf(http_requests[5]); // GET - without uri and version 
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
         }
         SECTION ("Method and http version in request line only, Bad Request must be thrown", "[invalid_request]") {
             HTTPRequest::RequestMessage _http_request_message;
@@ -166,6 +172,7 @@ namespace tests {
             char* buf = create_writable_buf(http_requests[6]); // GET HTTP/1.1 
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
         }
         SECTION ("Long uri in request line - LongUri 414", "[invalid_request]") {
             HTTPRequest::RequestMessage _http_request_message;
@@ -174,6 +181,7 @@ namespace tests {
             char* buf = create_writable_buf(http_requests[7]); // long uri
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
         }
     }
 
