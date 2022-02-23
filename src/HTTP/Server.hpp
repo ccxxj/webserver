@@ -11,6 +11,7 @@
 namespace HTTP {
 
 	class Server{
+		
 	private:
 		Config::ConfigData *config_data;
     
@@ -22,7 +23,7 @@ namespace HTTP {
 
 		std::vector<int> _listen_ports;
 		std::vector<int> _listening_sockfds;
-		std::map<int, Connection> _connections;
+		std::map<int, Connection*> _connections;
 
 	public:
 		Server(Config::ConfigData *config_data);

@@ -6,6 +6,13 @@
 namespace HTTPRequest {
     class RequestMessage {
 
+    private:
+        std::string _method;
+        std::string _request_uri;
+        std::string _HTTP_version;
+        std::map<std::string, std::string> _request_headers;
+        std::string _message_body;
+
     public:
         RequestMessage();
         RequestMessage(const RequestMessage& other);
@@ -22,12 +29,6 @@ namespace HTTPRequest {
         void set_header_field(std::pair<std::string, std::string>& header_field);
         //debug
         std::map<std::string, std::string> get_headers() const; //TODO;; temp?
-    private:
-        std::string _method;
-        std::string _request_uri;
-        std::string _HTTP_version;
-        std::map<std::string, std::string> _request_headers;
-        std::string _message_body;
     };
 }
 #endif

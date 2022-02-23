@@ -13,11 +13,12 @@ HEADERS = Webserver.hpp \
 	HTTPRequest/RequestReader.hpp \
 	HTTPRequest/HTTPRequestMethods.hpp \
 	HTTP/Connection.hpp \
+	HTTP/RequestHandler.hpp \
+	HTTP/RequestHandlerDelegate.hpp \
 	HTTP/Server.hpp \
 	HTTP/Exceptions/ClientErrorException.hpp \
 	HTTP/Exceptions/ServerErrorException.hpp \
 	HTTP/Exceptions/RequestException.hpp \
-	HTTP/RequestHandler.hpp \
 	HTTPResponse/StatusCodes.hpp \
 	HTTPResponse/ResponseMessage.hpp
 

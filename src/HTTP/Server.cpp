@@ -1,7 +1,5 @@
 #include "Server.hpp"
 
-#include "RequestHandler.hpp"
-
 #include <sys/socket.h> // for socket
 #include <sys/errno.h>
 #include <unistd.h> // for close
@@ -10,11 +8,15 @@
 #include <string.h> // strerror TODO: remove
 #include  <cstdlib> // for exit
 #include <cstdio> // for perror
+#include <fcntl.h> // for fcntl
 #ifdef _LINUX
 	#include "/usr/include/kqueue/sys/event.h" //linux kqueue
 #else
 	#include <sys/event.h> // for kqueue and kevent
 #endif
+
+#include "RequestHandler.hpp"
+#include "../globals.hpp"
 
 namespace HTTP {
 
@@ -58,6 +60,9 @@ namespace HTTP {
 				std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
 				std::exit(EXIT_FAILURE);
 			}
+			if (fcntl(_listening_sockfds[i], F_SETFL, O_NONBLOCK) == ERROR) {
+				std::perror("fcntl error");
+			}
 			std::cout << "***************The server is listening on port: " << _listen_ports[i] <<"***************" << std::endl;
 		}
 	}
@@ -73,7 +78,7 @@ namespace HTTP {
 	}
 
 	void Server::_remove_closed_connection(int fd) {
-		std::map<int, Connection>::iterator iter = _connections.begin();
+		std::map<int, Connection*>::iterator iter = _connections.begin();
 		while (iter != _connections.end()) {
 			if (iter->first == fd) {
 				_connections.erase(iter);
@@ -124,20 +129,23 @@ namespace HTTP {
 					{
 						std::perror("accept socket error");
 					}
+					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
+
+						std::perror("fcntl error");
+					}
 					//TODO:: check if these are needed Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
-					Connection connection(connection_socket_fd);
-					_connections.insert(std::make_pair(connection_socket_fd, connection));
+					Connection* connection_ptr = new Connection(connection_socket_fd);
+					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
 						std::perror("kevent error");
 					}
 				}
 				else if (event_fds[i].filter & EVFILT_READ) {
-					std::map<int, Connection>::iterator connection_iter = _connections.find(current_event_fd);
-					if (connection_iter != _connections.end()) {
-							RequestHandler request_handler(connection_iter->second);
-							request_handler.handle_http_request();
-							break;
+					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
+					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
+						(connection_iter->second)->handle_http_request();
+						break;
 					}
 				}
 			}
