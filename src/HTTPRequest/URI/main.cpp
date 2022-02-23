@@ -7,7 +7,8 @@ int main()
 {
 	std::string line;
 	std::getline(std::cin, line);
-	URIParser uri(line);
-	uri.parse();
+	URIData uri;
+	URIParser parser(line);
+	parser.parse(uri);
 	uri.print_URI_data();
 }

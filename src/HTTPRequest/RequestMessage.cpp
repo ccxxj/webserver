@@ -39,4 +39,16 @@ namespace HTTPRequest {
     void RequestMessage::set_header_field(std::pair<std::string, std::string>& header_field){
         _request_headers.insert(header_field); //TODO: or use operator[] ?
     }
+
+    void RequestMessage::set_uri(URIData &uri)
+    {
+        uri_data = uri;
+    }
+
+    const URIData &RequestMessage::get_uri(void) const
+    {
+        return uri_data;
+    }
 }
+
+

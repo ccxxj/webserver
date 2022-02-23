@@ -28,6 +28,9 @@ SRC = Webserver.cpp \
 	HTTPRequest/HTTPRequestMethods.cpp \
 	HTTPRequest/RequestParser.cpp \
 	HTTPRequest/RequestMessage.cpp \
+	HTTPRequest/URI/URIData.cpp \
+	HTTPRequest/URI/URIParser.cpp \
+	HTTPRequest/URI/Utils.cpp \
 	HTTP/RequestHandler.cpp \
 	HTTP/Exceptions/RequestException.cpp \
 	HTTP/Connection.cpp \

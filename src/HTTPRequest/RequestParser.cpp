@@ -71,14 +71,17 @@ namespace HTTPRequest {
         if (_is_method_supported(segments[0])) {
             _http_request_message->set_method(segments[0]);
         }
-        if (segments[1].size() > 2000) {
-            _throw_request_exception(HTTPResponse::URITooLong);
-        }
         _http_request_message->set_request_uri(segments[1]);
+
+        URIParser uri_parser(segments[1]);
+        URIData uri_data;
+        uri_parser.parse(uri_data);
+        _http_request_message->set_uri(uri_data);
+        
         _http_request_message->set_HTTP_version(segments[2]);
         _current_parsing_state = HEADER;
     }
-
+    
     bool RequestParser::_is_method_supported(const std::string& method) {
         if (method.size() > _longest_method_size()){
             _throw_request_exception(HTTPResponse::NotImplemented);
