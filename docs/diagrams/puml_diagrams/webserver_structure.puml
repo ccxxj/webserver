@@ -3,26 +3,21 @@
 skinparam BackgroundColor White
 skinparam componentStyle rectangle
 
-component HTTPServer {
+component Server {
 	[Config] #Gray
 	[ConfigParser] #LightGray
 		component Connection <<>> {
 			() buffer #Gray
+	   		component RequestHandler <<>>{
 				   [HTTPRequestMessage] #Gray
 				   [HTTPResponseMessage] #Gray
-	   		component HTTPRequestHandler <<>>{
-				   [validator,analyzer] #Azure
-			}
-			component HTTPRequestHandlerFactory <<>> {
 				   [RequestParser] #LightGray
-				   [RequestReader]#LightGray
-
+				   [validator,analyzer] #Azure
 			}
 		}
 		component "kqueue_loop" {
 			[new event] #Linen
 		}
-		[ConnectionFactory?] #White
 }
 
 () config_file #Gray
@@ -31,19 +26,13 @@ component HTTPServer {
 
 [Client] ..> [new event] #Black : HTTPRequest
 [Config] --> [new event]
-[ConnectionFactory?] --> Connection <<>> : create
 [new event] ..> [buffer] #Black : data
 () config_file --> [ConfigParser] #Black
 [ConfigParser] --> [Config] #Black
 [Config] --> [validator,analyzer] #Black
-' [Config] --> [new event] : port, ip address
-[HTTPRequestMessage] --> HTTPRequestHandler <<>>
-' [HTTPResponseMessage] --> HTTPRequestHandler <<>>
-[buffer] ..> [RequestReader] #Black
-[RequestReader] --> [RequestParser] #Black
-[RequestReader] --> [HTTPResponseMessage] #Black : if error
+[buffer] ..> [RequestParser] #Black
 [RequestParser] --> [HTTPRequestMessage] #Black
-[RequestParser] --> [HTTPResponseMessage] #Black : if error 
+[HTTPRequestMessage] --> [validator,analyzer] #Black
 [validator,analyzer] --> [HTTPResponseMessage] #Black
 [HTTPResponseMessage] ..> [Client] #Black : HTTPResponse
 ' HTTPRequestHandlerFactory <<>> --> HTTPRequestHandler <<>> : create
