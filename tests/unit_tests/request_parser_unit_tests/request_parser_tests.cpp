@@ -35,7 +35,7 @@ namespace tests {
         return http_requests;
     }
 
-    TEST_CASE ("Request Parser", "[request_parser]") {
+    TEST_CASE ("Request Parser - valid", "[request_parser]") {
         std::vector<std::string> http_requests = fill_requests("request_parser_unit_tests/request_parser_messages.txt");
         SECTION ("Parsing valid request message", "[valid_request]") {
 
@@ -77,6 +77,23 @@ namespace tests {
             char* buf = &(http_requests[2])[0];
             parser.parse_HTTP_request(buf, strlen(buf));  
             CHECK(_http_request_message.get_header_value("Accept") == "text/plain, text/html");
+        }
+        SECTION ("Request message coming with a delay", "[valid_request]") {
+
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            // char* buf = &(http_requests[0])[0];
+            size_t index = 0;
+            char* buf = &(http_requests[0])[index];
+            size_t buf_size = http_requests[0].size();
+            while (index < buf_size) {
+                parser.parse_HTTP_request(buf, 1);
+                index++;
+            }
+            SECTION("Request line should be parsed and split into 3 atrributes") {
+                CHECK(_http_request_message.get_method() == "POST");
+            }
         }
     }
 
@@ -147,6 +164,35 @@ namespace tests {
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
         }
     }
+
+    // TEST_CASE ("Request Parser -delayed", "[request_parser]") {
+    // std::vector<std::string> http_requests = fill_requests("request_parser_unit_tests/request_parser_messages.txt");
+    //     SECTION ("Request message coming with a delay", "[valid_request]") {
+
+    //         HTTPRequest::RequestMessage _http_request_message;
+    //         HTTPResponse::ResponseMessage _http_response_message;
+    //         HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+    //         char* buf = &(http_requests[0])[0];
+    //         while (buf) {
+    //             parser.parse_HTTP_request(buf, 1);
+    //             buf++;
+    //         }
+    //         SECTION("Request line should be parsed and split into 3 atrributes") {
+    //             CHECK(_http_request_message.get_method() == "POST");
+    //             // CHECK(_http_request_message.get_request_uri() == "/cgi-bin/process.cgi");
+    //             // CHECK(_http_request_message.get_HTTP_version() == "HTTP/1.1");
+                
+    //             //     SECTION("Headers must be split by ':' and headers map must be filled") {
+    //             //         CHECK(_http_request_message.get_headers().size() == 7);
+    //             //         CHECK(_http_request_message.get_header_value("Accept-Language") == "en-us");
+    //             //     }
+
+    //             //     SECTION("Any number of spaces are allowed in header_values (after ''), they must be trimmed") {
+    //             //         CHECK(_http_request_message.get_header_value("Content-Type") == "application/x-www-form-urlencoded");
+    //             //     }
+    //         }
+    //     }
+    // }
 }
 
 
