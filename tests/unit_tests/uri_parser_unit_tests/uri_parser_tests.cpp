@@ -8,6 +8,7 @@
 #include "../../../src/HTTPRequest/URI/URIParser.hpp"
 #include "../../../src/HTTPRequest/URI/URIData.hpp"
 #include "../../../src/HTTPRequest/URI/Utils.hpp"
+#include "../../../src/HTTP/Exceptions/RequestException.hpp"
 
 namespace tests {
     TEST_CASE ("Parsing valid uri string", "[uri_parser]") {
@@ -70,6 +71,22 @@ namespace tests {
             CHECK(query["query1"] == "nbc");
             CHECK(query["query2"] == "ncd");
             CHECK(query["aa"] == "bb");
+        }
+    }
+    TEST_CASE ("Parsing invalid uri string", "[uri_parser]") {
+        std::string uri_string;
+        SECTION("test exception handling when pct_encoding is disqualified"){
+            uri_string = "google/doc/?query%31=%6ebc&query%32=%6Ecd&a%6z=bb";
+            HTTPRequest::URIParser uri(uri_string);
+            HTTPRequest::URIData uri_data;
+            CHECK_THROWS_AS(uri.parse(uri_data), Exception::RequestException);
+        }
+
+        SECTION("test exception handling when missing euqal sign"){
+            uri_string = "google/doc/?query%31=%6ebc&query%32=%6Ecd&a%65";
+            HTTPRequest::URIParser uri(uri_string);
+            HTTPRequest::URIData uri_data;
+            CHECK_THROWS_AS(uri.parse(uri_data), Exception::RequestException);
         }
     }
 }
