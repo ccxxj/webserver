@@ -57,7 +57,7 @@ all: libwebserv.a $(EXE)
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 
-$(EXE): $(addprefix $(BUILD_PATH)/,main.o) | libwebserv.a
+$(EXE): $(addprefix $(BUILD_PATH)/,main.o) libwebserv.a
 	$(CXX) -o $(EXE) $(CXXFLAGS) $(addprefix $(BUILD_PATH)/,main.o) -L. -lwebserv -lkqueue
 
 libwebserv.a: $(addprefix $(BUILD_PATH)/,$(OBJ))
@@ -69,7 +69,7 @@ $(BUILD_PATH)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 
 else
 
-$(EXE): $(addprefix $(BUILD_PATH)/,main.o) | libwebserv.a
+$(EXE): $(addprefix $(BUILD_PATH)/,main.o) libwebserv.a
 	$(CXX) -o $(EXE) $(CXXFLAGS) $(addprefix $(BUILD_PATH)/,main.o) -L. -lwebserv
 
 libwebserv.a: $(addprefix $(BUILD_PATH)/,$(OBJ))
