@@ -26,8 +26,8 @@ namespace Config
 		void _validate_server_blocks(void);
 		bool _validate_server_opening(std::string line);
 		void _check_outside_of_server_block(std::string line);
+		void _validate_location_block(std::string line, std::istringstream &stream);
 		// bool validate_server_line(std::string line);
-		// void validate_location_block(std::string line, std::istringstream &stream);
 		//TODO ConfigValidator(); do we need default constructor?
 
 	public:

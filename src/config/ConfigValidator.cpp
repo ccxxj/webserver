@@ -58,6 +58,26 @@ namespace Config
 			throw ConfigException("Error: Information outside of server blocks");
 	}
 
+	void ConfigValidator::_validate_location_block(std::string line, std::istringstream &stream)
+	{
+		bool limit_on;
+
+		//TODO validate location block opening
+		limit_on = false;
+		while (std::getline(stream, line))
+		{
+			if (line.find("limit_except") != std::string::npos)
+				limit_on = true;
+			if (line.find("}") != std::string::npos)
+			{
+				if (limit_on == true)
+					limit_on = false;
+				else
+					break;
+			}
+		}
+	}
+
 	void ConfigValidator::_validate_server_blocks(void)
 	{
 		bool server_on;
@@ -71,6 +91,8 @@ namespace Config
 				server_on = _validate_server_opening(line);
 			else if(server_on == false)
 				_check_outside_of_server_block(line);
+			else if (line.find("location") != std::string::npos)
+				_validate_location_block(line, stream);
 		}
 	}
 	//TODO it still parses without ; at the end of lines!
