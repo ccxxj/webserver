@@ -3,43 +3,13 @@
 namespace Config
 {
 
-	ConfigParser::ConfigParser(ConfigData *config_data, std::string file_path) : config_data(config_data),
-																				 file_path(file_path)
+	ConfigParser::ConfigParser(ConfigData *config_data, std::vector<std::string> server_tokens) : config_data(config_data),
+																								   server_tokens(server_tokens)
 	{
 	}
 
 	ConfigParser::~ConfigParser()
 	{
-	}
-
-	void ConfigParser::open_and_read_file(void)
-	{
-		std::ifstream file_stream;
-		std::string line;
-
-		file_stream.open(file_path.c_str());
-		if (!file_stream.is_open())
-			throw ConfigParser::FailedToOpenException();
-		while (std::getline(file_stream, line))
-			file_content.append(line + "\n");
-		file_stream.close();
-	}
-
-	void ConfigParser::remove_comments(void)
-	{
-		std::istringstream stream(file_content);
-		std::string line;
-		size_t hashtag_pos;
-
-		file_content.clear();
-		while (std::getline(stream, line))
-		{
-			hashtag_pos = line.find('#');
-			if (hashtag_pos != std::string::npos)
-				line.erase(hashtag_pos, std::string::npos);
-			if (!line.empty())
-				file_content.append(line + "\n");
-		}
 	}
 
 	void ConfigParser::tokenize_server_blocks(void)
@@ -186,13 +156,10 @@ namespace Config
 		}
 	}
 
-	//TODO it still parses without ; at the end of lines!
 	void ConfigParser::parse(void)
 	{
-		open_and_read_file();
-		remove_comments();
 		tokenize_server_blocks();
-		// print_server_blocks();
+		print_server_blocks();
 		for (size_t i = 0; i < server_tokens.size(); i++)
 		{
 			ServerBlock server;
