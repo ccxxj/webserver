@@ -9,6 +9,7 @@
 #include "ServerBlock.hpp"
 #include "ConfigData.hpp"
 #include "Utils.hpp"
+#include "ConfigException.hpp"
 //TODO should we have a ConfigValidator?
 namespace Config
 {
@@ -48,28 +49,10 @@ namespace Config
 		//TODO ConfigParser(); do we need default constructor?
 
 	public:
-		ConfigParser(ConfigData *config_data, std::string file_path);
+		ConfigParser(ConfigData *config_data, std::vector<std::string> server_tokens);
 		~ConfigParser();
 
 		void parse(void);
-
-		class FailedToOpenException : public std::exception
-		{
-		public:
-			const char *what() const throw()
-			{
-				return "Configuration file failed to open";
-			}
-		};
-
-		class InvalidConfigDirectiveException : public std::exception
-		{
-		public:
-			const char *what() const throw()
-			{
-				return "Invalid directive in config";
-			}
-		};
 	};
 } // namespace Config
 #endif
