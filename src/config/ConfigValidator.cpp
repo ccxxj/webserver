@@ -93,6 +93,8 @@ namespace Config
 				_check_outside_of_server_block(line);
 			else if (line.find("location") != std::string::npos)
 				_validate_location_block(line, stream);
+			else if (line.find("}") != std::string::npos && server_on == true) //TODO
+				server_on = false;
 		}
 	}
 	//TODO it still parses without ; at the end of lines!
