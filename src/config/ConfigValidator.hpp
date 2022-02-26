@@ -35,5 +35,6 @@ namespace Config
 		~ConfigValidator();
 
 		void validate(void);
+		std::string get_file_content(void) const;
 	};
 } // namespace Config

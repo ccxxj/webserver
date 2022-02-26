@@ -107,4 +107,9 @@ namespace Config
 		_validate_server_blocks();
 	}
 
+	std::string ConfigValidator::get_file_content() const
+	{
+		return _file_content;
+	}
+
 } // namespace Config
