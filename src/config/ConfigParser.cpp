@@ -12,34 +12,6 @@ namespace Config
 	{
 	}
 
-	void ConfigParser::tokenize_server_blocks(void)
-	{
-		std::string line;
-		std::string single_server_block;
-		std::istringstream stream(file_content); //TODO do we check if it is streamed? if (!stream)
-
-		while (std::getline(stream, line))
-		{
-			if (line.compare("}") == 0) //TODO it depends on indenentation rules! test with unindented congfigs
-			{
-				server_tokens.push_back(single_server_block);
-				single_server_block.clear();
-			}
-			else if (line.compare("server {") != 0)
-				single_server_block.append(line + "\n");
-		}
-	}
-
-	void ConfigParser::print_server_blocks(void)
-	{
-
-		for (size_t i = 0; i < server_tokens.size(); i++)
-		{
-			std::cout << "\nEACH SERVER BLOCK" << std::endl;
-			std::cout << server_tokens[i] << std::endl;
-		}
-	}
-
 	bool ConfigParser::find_location(std::string line)
 	{
 		return Utils::check_first_keyword(line, "location");
@@ -158,8 +130,6 @@ namespace Config
 
 	void ConfigParser::parse(void)
 	{
-		tokenize_server_blocks();
-		print_server_blocks();
 		for (size_t i = 0; i < server_tokens.size(); i++)
 		{
 			ServerBlock server;
