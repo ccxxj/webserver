@@ -62,8 +62,6 @@ namespace Config
 				parse_limit_except(line, location, stream);
 			else if ((e_num = find_directive(line)) >= 0)
 				parse_location_directive(line, location, e_num);
-			else if (line.compare("\t") == 0) //TODO = I think this is shaky? needs more testing? this is for empty lines (that only have tabs after removing the comments, so anything else to add
-				continue;
 			else
 				throw ConfigException("Invalid directive in config");
 		}
@@ -121,8 +119,6 @@ namespace Config
 				parse_location_block(line, stream, server);
 			else if ((e_num = find_directive(line)) >= 0)
 				parse_server_directive(line, server, e_num);
-			else if (line.compare("\t") == 0) //TODO this is for empty lines (that only have tabs after removing the comments, so anything else to add
-				continue;
 			else
 				throw ConfigException("Invalid directive in config");
 		}
