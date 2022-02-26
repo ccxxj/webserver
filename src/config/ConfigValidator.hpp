@@ -17,16 +17,16 @@ namespace Config
 	{
 	private:
 		/* data */
-		std::string file_path;
-		std::string file_content;
+		std::string _file_path;
+		std::string _file_content;
 
 		/* methods */
-		void open_and_read_file(void);
-		void remove_comments(void);
-		// void validate_config(void);
+		void _open_and_read_file(void);
+		void _remove_comments(void);
+		void _validate_server_blocks(void);
+		bool _validate_server_opening(std::string line);
 		// bool validate_server_line(std::string line);
 		// void validate_location_block(std::string line, std::istringstream &stream);
-		// bool validate_bracket_opening(std::string line, const std::string& keyword);
 		// void check_outside_of_server_block(std::string line);
 		//TODO ConfigValidator(); do we need default constructor?
 
@@ -35,23 +35,5 @@ namespace Config
 		~ConfigValidator();
 
 		void validate(void);
-
-		// class FailedToOpenException : public std::exception
-		// {
-		// public:
-		// 	const char *what() const throw()
-		// 	{
-		// 		return "Configuration file failed to open";
-		// 	}
-		// };
-
-		// class InvalidConfigDirectiveException : public std::exception
-		// {
-		// public:
-		// 	const char *what() const throw()
-		// 	{
-		// 		return "Invalid directive in config";
-		// 	}
-		// };
 	};
 } // namespace Config
