@@ -10,7 +10,7 @@
 #include "ConfigData.hpp"
 #include "Utils.hpp"
 #include "ConfigException.hpp"
-//TODO should we have a ConfigValidator?
+
 namespace Config
 {
 
@@ -40,7 +40,7 @@ namespace Config
 		void parse_location_block(std::string line, std::istringstream &stream, ServerBlock &server);
 		void parse_server_directive(std::string line, ServerBlock &server, int e_num);
 		void parse_location_directive(std::string line, LocationBlock &location, int e_num);
-		//TODO ConfigParser(); do we need default constructor?
+		// TODO ConfigParser(); do we need default constructor?
 
 	public:
 		ConfigParser(ConfigData *config_data, std::vector<std::string> server_tokens);
