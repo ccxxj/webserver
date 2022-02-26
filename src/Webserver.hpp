@@ -6,6 +6,7 @@
 #include "../src/HTTP/Server.hpp"
 #include "../src/config/ConfigParser.hpp"
 #include "../src/config/ConfigValidator.hpp"
+#include "../src/config/ConfigTokenizer.hpp"
 
 class Webserver
 {
