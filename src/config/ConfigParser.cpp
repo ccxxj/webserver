@@ -65,7 +65,7 @@ namespace Config
 			else if (line.compare("\t") == 0) //TODO = I think this is shaky? needs more testing? this is for empty lines (that only have tabs after removing the comments, so anything else to add
 				continue;
 			else
-				throw ConfigParser::InvalidConfigDirectiveException();
+				throw ConfigException("Invalid directive in config");
 		}
 		server.get_location().push_back(location);
 	}
@@ -124,7 +124,7 @@ namespace Config
 			else if (line.compare("\t") == 0) //TODO this is for empty lines (that only have tabs after removing the comments, so anything else to add
 				continue;
 			else
-				throw ConfigParser::InvalidConfigDirectiveException();
+				throw ConfigException("Invalid directive in config");
 		}
 	}
 
