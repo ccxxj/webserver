@@ -102,6 +102,8 @@ namespace Config
 	{
 		_open_and_read_file();
 		_remove_comments();
+		//TODO check balanced brackets
+		//TODO validate } lines.
 		_validate_server_blocks();
 	}
 
