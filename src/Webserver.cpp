@@ -13,9 +13,11 @@ void Webserver::start()
 	try
 	{
 		Config::ConfigData config;
+		Config::ConfigValidator validator(_file_path);
+		validator.validate();
 		Config::ConfigParser parser(&config, _file_path);
 		parser.parse();
-		// config.print_servers_info();
+		config.print_servers_info();
 		HTTP::Server server(&config);
 		server.run();
 	}
