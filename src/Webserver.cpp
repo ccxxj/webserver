@@ -17,7 +17,7 @@ void Webserver::start()
 		validator.validate();
 		Config::ConfigTokenizer tokenizer(validator.get_file_content());
 		tokenizer.tokenize_server_blocks();
-		Config::ConfigParser parser(&config, _file_path);
+		Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
 		parser.parse();
 		config.print_servers_info();
 		HTTP::Server server(&config);
