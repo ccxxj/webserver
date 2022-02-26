@@ -50,6 +50,14 @@ namespace Config
 		return true;
 	}
 
+	void ConfigValidator::_check_outside_of_server_block(std::string line)
+	{
+		std::string temp = line;
+		Utils::remove_white_space(temp);
+		if(!temp.empty())
+			throw ConfigException("Error: Information outside of server blocks");
+	}
+
 	void ConfigValidator::_validate_server_blocks(void)
 	{
 		bool server_on;
@@ -61,6 +69,8 @@ namespace Config
 		{
 			if (line.find("server") != std::string::npos && line.find("server_name") == std::string::npos)
 				server_on = _validate_server_opening(line);
+			else if(server_on == false)
+				_check_outside_of_server_block(line);
 		}
 	}
 	//TODO it still parses without ; at the end of lines!
