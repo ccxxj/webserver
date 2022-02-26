@@ -19,8 +19,6 @@ namespace Config
 	private:
 		/* data */
 		ConfigData *config_data;
-		std::string file_path;
-		std::string file_content;
 		std::vector<std::string> server_tokens;
 		enum Directives
 		{
@@ -36,8 +34,6 @@ namespace Config
 		};
 
 		/* methods */
-		void open_and_read_file(void);
-		void remove_comments(void);
 		void tokenize_server_blocks(void);
 		void print_server_blocks(void);
 		void parse_server_block(std::string server_token, ServerBlock &server);
