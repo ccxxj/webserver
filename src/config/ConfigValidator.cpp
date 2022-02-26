@@ -24,11 +24,12 @@ namespace Config
 		file_stream.close();
 	}
 
-	void ConfigValidator::_remove_comments(void)
+	void ConfigValidator::_remove_comments_and_empty_lines(void)
 	{
 		std::istringstream stream(_file_content);
 		std::string line;
 		size_t hashtag_pos;
+		std::string tmp;
 
 		_file_content.clear();
 		while (std::getline(stream, line))
@@ -36,7 +37,9 @@ namespace Config
 			hashtag_pos = line.find('#');
 			if (hashtag_pos != std::string::npos)
 				line.erase(hashtag_pos, std::string::npos);
-			if (!line.empty())
+			tmp = line;
+			Utils::remove_white_space(tmp);
+			if (!line.empty() && !tmp.empty())
 				_file_content.append(line + "\n");
 		}
 	}
@@ -101,7 +104,7 @@ namespace Config
 	void ConfigValidator::validate(void)
 	{
 		_open_and_read_file();
-		_remove_comments();
+		_remove_comments_and_empty_lines();
 		//TODO check balanced brackets
 		//TODO validate } lines.
 		_validate_server_blocks();
@@ -113,3 +116,4 @@ namespace Config
 	}
 
 } // namespace Config
+

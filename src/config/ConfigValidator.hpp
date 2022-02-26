@@ -22,7 +22,7 @@ namespace Config
 
 		/* methods */
 		void _open_and_read_file(void);
-		void _remove_comments(void);
+		void _remove_comments_and_empty_lines(void);
 		void _validate_server_blocks(void);
 		bool _validate_server_opening(std::string line);
 		void _check_outside_of_server_block(std::string line);
