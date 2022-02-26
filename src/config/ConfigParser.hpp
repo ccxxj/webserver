@@ -34,8 +34,6 @@ namespace Config
 		};
 
 		/* methods */
-		void tokenize_server_blocks(void);
-		void print_server_blocks(void);
 		void parse_server_block(std::string server_token, ServerBlock &server);
 		bool find_location(std::string line);
 		int find_directive(std::string line);
