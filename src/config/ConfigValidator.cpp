@@ -93,11 +93,39 @@ namespace Config
 			throw ConfigException("Invalid-Config: Information outside of server blocks");
 	}
 
+	void ConfigValidator::_validate_location_opening(std::string line)
+	{
+		std::vector<std::string> location_split;
+		size_t size;
+
+		location_split = Utils::split_string_white_space(line);
+		size = location_split.size();
+		std::cout << line << std::endl;
+		if (size == 3)
+		{
+			if (location_split[0].compare("location") != 0)
+				throw ConfigException("Invalid-Config: Location opening");
+			if (location_split[size - 1].compare("{") != 0)
+				throw ConfigException("Invalid-Config: Location opening");
+		}
+		else if (size == 2)
+		{
+			if (location_split[0].compare("location") != 0)
+				throw ConfigException("Invalid-Config: Location opening");
+			if (location_split[1].find("{") != location_split[1].length() - 1)
+				throw ConfigException("Invalid-Config: Location opening");
+			if (location_split[1].compare("{") == 0)
+				throw ConfigException("Invalid-Config: Location opening");
+		}
+		else
+			throw ConfigException("Invalid-Config: Location opening");
+	}
+
 	void ConfigValidator::_validate_location_block(std::string line, std::istringstream &stream)
 	{
 		bool limit_on;
 
-		//TODO validate location block opening
+		_validate_location_opening(line);
 		limit_on = false;
 		while (std::getline(stream, line))
 		{
@@ -136,7 +164,7 @@ namespace Config
 				_check_semi_colon(line);
 		}
 	}
-	//TODO it still parses without ; at the end of lines!
+
 	void ConfigValidator::validate(void)
 	{
 		_open_and_read_file();
