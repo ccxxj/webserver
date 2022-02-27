@@ -29,6 +29,7 @@ namespace Config
 		void _validate_location_opening(std::string line);
 		void _are_brackets_balanced(void);
 		void _check_semi_colon(std::string line);
+		void _check_closing_bracket_line(std::string line);
 		//TODO ConfigValidator(); do we need default constructor?
 
 	public:

@@ -76,11 +76,19 @@ namespace Config
 			throw ConfigException("Invalid-Config: Missing semicolon");
 	}
 
+	void ConfigValidator::_check_closing_bracket_line(std::string line)
+	{
+		std::string temp = line;
+		Utils::remove_white_space(temp);
+		if (temp.compare("}") != 0)
+			throw ConfigException("Invalid-Config: Closing bracket");
+	}
+
 	bool ConfigValidator::_validate_server_opening(std::string line)
 	{
 		std::string temp = line;
 		Utils::remove_white_space(temp);
-		if(temp.compare("server{") != 0)
+		if (temp.compare("server{") != 0)
 			throw ConfigException("Server opening line is invalid in config");
 		return true;
 	}
@@ -100,7 +108,6 @@ namespace Config
 
 		location_split = Utils::split_string_white_space(line);
 		size = location_split.size();
-		std::cout << line << std::endl;
 		if (size == 3)
 		{
 			if (location_split[0].compare("location") != 0)
@@ -133,6 +140,7 @@ namespace Config
 				limit_on = true;
 			else if (line.find("}") != std::string::npos)
 			{
+				_check_closing_bracket_line(line);
 				if (limit_on == true)
 					limit_on = false;
 				else
@@ -159,7 +167,10 @@ namespace Config
 			else if (line.find("location") != std::string::npos)
 				_validate_location_block(line, stream);
 			else if (line.find("}") != std::string::npos && server_on == true)
+			{
+				_check_closing_bracket_line(line);
 				server_on = false;
+			}
 			else
 				_check_semi_colon(line);
 		}
@@ -172,7 +183,7 @@ namespace Config
 		_are_brackets_balanced();
 		_validate_server_blocks();
 		//TODO no listening ports?
-		//TODO validate } lines.
+		//TODO validate limit_except line
 	}
 
 	std::string ConfigValidator::get_file_content() const
