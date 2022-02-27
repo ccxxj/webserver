@@ -5,8 +5,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
-#include "ServerBlock.hpp"
-#include "ConfigData.hpp"
+#include <stack>
 #include "Utils.hpp"
 #include "ConfigException.hpp"
 
@@ -27,7 +26,7 @@ namespace Config
 		bool _validate_server_opening(std::string line);
 		void _check_outside_of_server_block(std::string line);
 		void _validate_location_block(std::string line, std::istringstream &stream);
-		// bool validate_server_line(std::string line);
+		void _are_brackets_balanced(void);
 		//TODO ConfigValidator(); do we need default constructor?
 
 	public:

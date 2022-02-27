@@ -44,6 +44,26 @@ namespace Config
 		}
 	}
 
+	void ConfigValidator::_are_brackets_balanced(void)
+	{
+		std::stack<char> brackets;
+
+		for (size_t i = 0; i < _file_content.length(); i++)
+		{
+			if(_file_content[i] == '{')
+			{
+				brackets.push('{');
+				continue;
+			}
+			if(brackets.empty() && _file_content[i] == '}')
+				throw ConfigException("Invalid-Config: Unbalanced brackets");
+			if(_file_content[i] == '}')
+				brackets.pop();
+		}
+		if(!brackets.empty())
+			throw ConfigException("Invalid-Config: Unbalanced brackets");
+	}
+
 	bool ConfigValidator::_validate_server_opening(std::string line)
 	{
 		std::string temp = line;
@@ -58,7 +78,7 @@ namespace Config
 		std::string temp = line;
 		Utils::remove_white_space(temp);
 		if(!temp.empty())
-			throw ConfigException("Error: Information outside of server blocks");
+			throw ConfigException("Invalid-Config: Information outside of server blocks");
 	}
 
 	void ConfigValidator::_validate_location_block(std::string line, std::istringstream &stream)
@@ -105,7 +125,8 @@ namespace Config
 	{
 		_open_and_read_file();
 		_remove_comments_and_empty_lines();
-		//TODO check balanced brackets
+		_are_brackets_balanced();
+		//TODO no listening ports?
 		//TODO validate } lines.
 		_validate_server_blocks();
 	}
