@@ -37,7 +37,7 @@ namespace HTTPRequest {
 
     // TODO: check for any whitespaces which are not allowed
     void RequestParser::parse_HTTP_request(char* buffer, size_t bytes_read) {
-        char *buffer_end = buffer + bytes_read;
+        char* buffer_end = buffer + bytes_read;
         while (buffer != buffer_end || _current_parsing_state != FINISHED) {
             bool can_be_parsed = false;
             std::string line = _request_reader.read_line(&buffer, buffer_end, &can_be_parsed);
@@ -108,8 +108,7 @@ namespace HTTPRequest {
 
     void RequestParser::_parse_header(std::string& line) {
         if (line == "\r\n" || line == "") {
-            _current_parsing_state = FINISHED; // TODO: change to message body after headers and request line are validated
-            // _current_parsing_state = MESSAGE_BODY;
+            _current_parsing_state = MESSAGE_BODY;
             return;
         }
         std::vector<std::string> segments = _split_line(line, ':');
@@ -121,9 +120,10 @@ namespace HTTPRequest {
     }
 
     void RequestParser::_parse_message_body(std::string& line) {
+        _http_request_message->set_message_body(line);
         _current_parsing_state = FINISHED;
     }
- 
+
     std::vector<std::string> RequestParser::_split_line(const std::string& line, const char delimiter){
         size_t start  = 0;
         std::vector<std::string> lines;
