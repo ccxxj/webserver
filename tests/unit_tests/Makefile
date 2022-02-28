@@ -8,7 +8,8 @@ BUILD_DIR = build
 BUILD_PATH = $(addprefix $(BUILD_DIR)/, out)
 SRC = main_test.cpp \
 	catch_amalgamated.cpp \
-	request_parser_unit_tests/request_parser_tests.cpp
+	request_parser_unit_tests/request_parser_tests.cpp\
+	uri_parser_unit_tests/uri_parser_tests.cpp
 			
 CATCH_HEADER = catch_amalgamated.hpp
 
