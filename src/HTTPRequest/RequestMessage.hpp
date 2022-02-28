@@ -3,12 +3,15 @@
 #include <string>
 #include <map>
 
+#include "URI/URIData.hpp"
+
 namespace HTTPRequest {
     class RequestMessage {
 
     private:
         std::string _method;
         std::string _request_uri;
+        URIData uri_data;
         std::string _HTTP_version;
         std::map<std::string, std::string> _request_headers;
         std::string _message_body;
@@ -21,6 +24,8 @@ namespace HTTPRequest {
 
         const std::string& get_method() const;
         void set_method(std::string& method);
+        void set_uri(URIData &uri);
+        const URIData &get_uri(void) const;
         const std::string& get_request_uri() const;
         void set_request_uri(std::string& request_uri);
         const std::string& get_HTTP_version() const;
