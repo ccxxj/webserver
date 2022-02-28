@@ -54,4 +54,16 @@ namespace HTTPRequest {
     void RequestMessage::set_message_body(std::string& body) {
         _message_body = body;
     }
+
+    void RequestMessage::set_uri(URIData &uri)
+    {
+        uri_data = uri;
+    }
+
+    const URIData &RequestMessage::get_uri(void) const
+    {
+        return uri_data;
+    }
 }
+
+

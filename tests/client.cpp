@@ -16,7 +16,7 @@ int main(int argc, char const *argv[])
 {
     int sock = 0; long valread;
     struct sockaddr_in serv_addr;
-    std::string http_request_mes = "POST /cgi-bin/process.cgi HTTP/1.1\r\n"
+    std::string http_request_mes = "POST /cgi-bin/process.cgi?a=b&%75=uuuu HTTP/1.1\r\n"
                             "User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\r\n"
                             "Host: www.tutorialspoint.com\r\n"
                             "Content-Type: application/x-www-form-urlencoded\r\n"

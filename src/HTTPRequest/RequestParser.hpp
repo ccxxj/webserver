@@ -10,6 +10,7 @@
 #include "RequestMessage.hpp"
 #include "../HTTPResponse/ResponseMessage.hpp"
 #include "../HTTPResponse/StatusCodes.hpp"
+#include "URI/URIParser.hpp"
 
 namespace HTTPRequest {
 
