@@ -41,17 +41,17 @@ namespace HTTPRequest {
         while (buffer != buffer_end || _current_parsing_state != FINISHED) {
             bool can_be_parsed = false;
             std::string line = _request_reader.read_line(&buffer, buffer_end, &can_be_parsed);
-            if (can_be_parsed == false)
-            {
+            if (can_be_parsed == false) {
                 return;
             }
-            else
-            {
+            else {
                 _handle_request_message_part(line);
+                if (_current_parsing_state == MESSAGE_BODY) {
+                    //TODO: validate request line
+                    //TODO: validate headers
+                }
             }
         }
-        //TODO: validate request line
-        //TODO: validate headers
     }
 
     void RequestParser::_throw_request_exception(HTTPResponse::StatusCode error_status) {
@@ -89,7 +89,7 @@ namespace HTTPRequest {
     }
     
     bool RequestParser::_is_method_supported(const std::string& method) {
-        if (method.size() > _longest_method_size()){
+        if (method.size() > _longest_method_size()) {
             _throw_request_exception(HTTPResponse::NotImplemented);
         }
         if (HTTPRequestMethods.find(method) == HTTPRequestMethods.end()) {
@@ -131,8 +131,7 @@ namespace HTTPRequest {
         size_t start  = 0;
         std::vector<std::string> lines;
 
-        while (true)
-        {
+        while (true) {
             size_t match = line.find(delimiter, start);
             if (match == std::string::npos) {
                 break;
