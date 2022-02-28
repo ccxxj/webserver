@@ -46,4 +46,12 @@ namespace HTTPRequest {
             header_name_position->second.append(header_field.second);
         }
     }
+
+    const std::string& RequestMessage::get_message_body() const {
+        return _message_body;
+    }
+
+    void RequestMessage::set_message_body(std::string& body) {
+        _message_body = body;
+    }
 }
