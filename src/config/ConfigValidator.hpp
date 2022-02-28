@@ -7,7 +7,6 @@
 #include <vector>
 #include <stack>
 #include "Utils.hpp"
-#include "ConfigException.hpp"
 
 namespace Config
 {

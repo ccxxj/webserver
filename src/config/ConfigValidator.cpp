@@ -18,7 +18,7 @@ namespace Config
 
 		file_stream.open(_file_path.c_str());
 		if (!file_stream.is_open())
-			throw ConfigException("Configuration file failed to open");
+			throw std::runtime_error("Configuration file failed to open");
 		while (std::getline(file_stream, line))
 			_file_content.append(line + "\n");
 		file_stream.close();
@@ -56,12 +56,12 @@ namespace Config
 				continue;
 			}
 			if(brackets.empty() && _file_content[i] == '}')
-				throw ConfigException("Invalid-Config: Unbalanced brackets");
+				throw std::runtime_error("Invalid-Config: Unbalanced brackets");
 			if(_file_content[i] == '}')
 				brackets.pop();
 		}
 		if(!brackets.empty())
-			throw ConfigException("Invalid-Config: Unbalanced brackets");
+			throw std::runtime_error("Invalid-Config: Unbalanced brackets");
 	}
 
 	void ConfigValidator::_check_semi_colon(std::string line)
@@ -73,7 +73,7 @@ namespace Config
 		Utils::remove_white_space(tmp);
 		length = tmp.length();
 		if (tmp[length - 1] != ';')
-			throw ConfigException("Invalid-Config: Missing semicolon");
+			throw std::runtime_error("Invalid-Config: Missing semicolon");
 	}
 
 	void ConfigValidator::_check_closing_bracket_line(std::string line)
@@ -81,7 +81,7 @@ namespace Config
 		std::string temp = line;
 		Utils::remove_white_space(temp);
 		if (temp.compare("}") != 0)
-			throw ConfigException("Invalid-Config: Closing bracket");
+			throw std::runtime_error("Invalid-Config: Closing bracket");
 	}
 
 	bool ConfigValidator::_validate_server_opening(std::string line)
@@ -89,7 +89,7 @@ namespace Config
 		std::string temp = line;
 		Utils::remove_white_space(temp);
 		if (temp.compare("server{") != 0)
-			throw ConfigException("Server opening line is invalid in config");
+			throw std::runtime_error("Server opening line is invalid in config");
 		return true;
 	}
 
@@ -98,7 +98,7 @@ namespace Config
 		std::string temp = line;
 		Utils::remove_white_space(temp);
 		if(!temp.empty())
-			throw ConfigException("Invalid-Config: Information outside of server blocks");
+			throw std::runtime_error("Invalid-Config: Information outside of server blocks");
 	}
 
 	void ConfigValidator::_validate_location_opening(std::string line)
@@ -111,21 +111,21 @@ namespace Config
 		if (size == 3)
 		{
 			if (location_split[0].compare("location") != 0)
-				throw ConfigException("Invalid-Config: Location opening");
+				throw std::runtime_error("Invalid-Config: Location opening");
 			if (location_split[2].compare("{") != 0)
-				throw ConfigException("Invalid-Config: Location opening");
+				throw std::runtime_error("Invalid-Config: Location opening");
 		}
 		else if (size == 2)
 		{
 			if (location_split[0].compare("location") != 0)
-				throw ConfigException("Invalid-Config: Location opening");
+				throw std::runtime_error("Invalid-Config: Location opening");
 			if (location_split[1].find("{") != location_split[1].length() - 1)
-				throw ConfigException("Invalid-Config: Location opening");
+				throw std::runtime_error("Invalid-Config: Location opening");
 			if (location_split[1].compare("{") == 0)
-				throw ConfigException("Invalid-Config: Location opening");
+				throw std::runtime_error("Invalid-Config: Location opening");
 		}
 		else
-			throw ConfigException("Invalid-Config: Location opening");
+			throw std::runtime_error("Invalid-Config: Location opening");
 	}
 
 	void ConfigValidator::_validate_location_block(std::string line, std::istringstream &stream)

@@ -63,7 +63,7 @@ namespace Config
 			else if ((e_num = find_directive(line)) >= 0)
 				parse_location_directive(line, location, e_num);
 			else
-				throw ConfigException("Invalid directive in config");
+				throw std::runtime_error("Invalid directive in config");
 		}
 		server.get_location().push_back(location);
 	}
@@ -120,7 +120,7 @@ namespace Config
 			else if ((e_num = find_directive(line)) >= 0)
 				parse_server_directive(line, server, e_num);
 			else
-				throw ConfigException("Invalid directive in config");
+				throw std::runtime_error("Invalid directive in config");
 		}
 	}
 

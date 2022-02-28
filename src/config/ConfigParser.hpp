@@ -9,7 +9,6 @@
 #include "ServerBlock.hpp"
 #include "ConfigData.hpp"
 #include "Utils.hpp"
-#include "ConfigException.hpp"
 
 namespace Config
 {
