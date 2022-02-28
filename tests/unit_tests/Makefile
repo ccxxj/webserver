@@ -8,8 +8,10 @@ BUILD_DIR = build
 BUILD_PATH = $(addprefix $(BUILD_DIR)/, out)
 SRC = main_test.cpp \
 	catch_amalgamated.cpp \
-	request_parser_unit_tests/request_parser_tests.cpp
-			
+	request_parser_unit_tests/request_parser_tests.cpp \
+	config_parser_tests/config_parser_tests.cpp \
+	config_validator_tests/config_validator_tests.cpp
+
 CATCH_HEADER = catch_amalgamated.hpp
 
 CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value\
@@ -26,7 +28,7 @@ all: $(EXE)
 
 $(EXE): $(addprefix $(BUILD_PATH)/,$(TEST_OBJ))
 	cd $(LIBWEBSERV_DIR) && make
-	$(CXX) -o $(EXE) $(CXXFLAGS) $(addprefix $(BUILD_PATH)/,$(TEST_OBJ)) -L$(LIBWEBSERV_DIR) -lwebserv 
+	$(CXX) -o $(EXE) $(CXXFLAGS) $(addprefix $(BUILD_PATH)/,$(TEST_OBJ)) -L$(LIBWEBSERV_DIR) -lwebserv
 
 $(BUILD_PATH)/%.o: %.cpp $(CATCH_HEADER)
 	mkdir -p ${dir $@}

@@ -1,0 +1,13 @@
+server {
+listen 1000;
+server_name webservvvvv;
+root /var/www/localhost;
+
+	location /xyz {
+root /var/www/localhost;
+		limit_except POST {
+			deny all
+}
+
+	}
+}
