@@ -31,7 +31,7 @@ namespace Config
 			else if (line.find("server") == std::string::npos) //TODO may be simplified depending on invalidconfigexception change
 				single_server_block.append(line + "\n");
 		}
-		print_server_blocks();
+		// print_server_blocks();
 	}
 
 	void ConfigTokenizer::_tokenize_location_block(std::string line, std::istringstream &stream, std::string& single_server_block)

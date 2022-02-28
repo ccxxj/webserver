@@ -134,5 +134,6 @@ namespace Config
 		}
 		config_data->make_first_server_default();
 	}
-
+	//TODO after parse checks: empty file, no server block, compulsory fields: listen
+	//TODO detailed after parse checks: i.e. multiple roots  on the same line or multiple lines, return line with more than 2 info (check your list for more)
 } // namespace Config
