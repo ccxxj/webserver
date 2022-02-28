@@ -1,6 +1,5 @@
 server {
 	listen 80;
-	listen [::]:80;
 	server_name irem;
 	server_name webservvvvv;
 	root /var/www/localhost;
@@ -8,6 +7,7 @@ server {
 }
 
 server {
+	listen 2000;
 	location /wordpress/ {
 		root /var/www/localhost;
 		limit_except POST {
