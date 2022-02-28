@@ -112,7 +112,7 @@ namespace Config
 		{
 			if (location_split[0].compare("location") != 0)
 				throw ConfigException("Invalid-Config: Location opening");
-			if (location_split[size - 1].compare("{") != 0)
+			if (location_split[2].compare("{") != 0)
 				throw ConfigException("Invalid-Config: Location opening");
 		}
 		else if (size == 2)
