@@ -5,6 +5,7 @@
 #include <set>
 #include <vector>
 #include <iostream> // TODO: remove
+#include <sys/types.h>// for ssize_t
 
 #include "RequestReader.hpp"
 #include "RequestMessage.hpp"
