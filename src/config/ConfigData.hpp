@@ -16,6 +16,7 @@ namespace Config
 
 		/* methods */
 		void _check_ports(void);
+		void _check_port_range(std::vector<std::string> ports);
 
 	public:
 		ConfigData(/* args */);

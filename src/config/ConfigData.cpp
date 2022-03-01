@@ -63,8 +63,22 @@ namespace Config
 			ports = _servers[i].get_listen();
 			if(ports.size() == 0)
 				throw std::runtime_error("Invalid-Config: listen line");
+            else
+                _check_port_range(_servers[i].get_listen());
 		}
 
+	}
+
+    void ConfigData::_check_port_range(std::vector<std::string> ports)
+	{
+        size_t port_num;
+
+		for (size_t i = 0; i < ports.size(); i++)
+		{
+            port_num = std::atoi(ports[i].c_str());
+            if (port_num < 1 || port_num > 65536)
+                throw std::runtime_error("Listening port out of range or invalid");
+		}
 	}
 
 	void ConfigData::print_listen_info(ServerBlock &server)
