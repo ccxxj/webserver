@@ -94,3 +94,42 @@ User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3
 Host: localhost:80
 Accept-Language: en, mi
 ------
+
+8 Negative Content-length - Bad Request 400
+POST / HTTP/1.1
+User-Agent:  Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
+Host: localhost:80
+Content-Type: application/x-www-form-urlencoded
+Content-Length: -23
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+Connection: Keep-Alive
+
+licenseID=string&content=string&/paramsXML=string
+------
+
+9 Multiple different Content-length values- Bad Request 400
+POST / HTTP/1.1
+User-Agent:  Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
+Host: localhost:80
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 23, 46, 23, 4
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+Connection: Keep-Alive
+
+licenseID=string&content=string&/paramsXML=string
+------
+
+10 Content-length values are the same but invalid- Bad Request 400
+POST / HTTP/1.1
+User-Agent:  Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
+Host: localhost:80
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 2a3, 2a3
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+Connection: Keep-Alive
+
+licenseID=string&content=string&/paramsXML=string
+------

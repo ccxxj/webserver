@@ -90,6 +90,7 @@ namespace tests {
             CHECK(_http_request_message.get_header_value("Accept") == "text/plain, text/html");
             delete[] buf;
         }
+
         SECTION ("Request message coming with a delay", "[valid_request]") {
 
             HTTPRequest::RequestMessage _http_request_message;
@@ -117,6 +118,15 @@ namespace tests {
                     }
             }
             delete[] buf;
+        }
+        SECTION ("Multiple valid Content-length parameters with the same value: no exception is thrown", "[valid_request]") {
+
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            
+            char* buf = create_writable_buf(http_requests[3]);
+            CHECK_NOTHROW(parser.parse_HTTP_request(buf, strlen(buf)));
         }
     }
 
@@ -190,6 +200,33 @@ namespace tests {
             HTTPResponse::ResponseMessage _http_response_message;
             HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
             char* buf = create_writable_buf(http_requests[7]); // long uri
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
+        }
+        SECTION ("Negative Content-length - Bad Request must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char* buf = create_writable_buf(http_requests[8]); //-23 
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
+        }
+        SECTION ("Multiple different Content-Length values - Bad Request must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char* buf = create_writable_buf(http_requests[8]); //23, 46, 23, 4
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
+        }
+        SECTION ("Content-length values are the same but invalid - Bad Request must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char* buf = create_writable_buf(http_requests[8]); //23, 46, 23, 4
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
             delete[] buf;
