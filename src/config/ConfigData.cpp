@@ -34,18 +34,40 @@ namespace Config
         // std::cout << "ConfigData destructor" << std::endl;
     }
 
-    void ConfigData::make_first_server_default()
+    void ConfigData::make_first_server_default(void)
     {
         if (_servers.size())
             _servers[0].set_default(true);
     }
 
-    std::vector<ServerBlock> &ConfigData::get_servers(void)
-    {
-        return (_servers);
-    }
+	std::vector<ServerBlock> &ConfigData::get_servers(void)
+	{
+		return (_servers);
+	}
 
-    void ConfigData::print_listen_info(ServerBlock &server)
+	void ConfigData::check_parsed_data(void)
+	{
+		if (_servers.size() == 0)
+			throw std::runtime_error("Invalid-Config: empty file");
+		else
+		{
+			_check_ports();
+		}
+	}
+
+	void ConfigData::_check_ports(void)
+	{
+		std::vector<std::string> ports;
+		for (size_t i = 0; i < _servers.size(); i++)
+		{
+			ports = _servers[i].get_listen();
+			if(ports.size() == 0)
+				throw std::runtime_error("Invalid-Config: listen line");
+		}
+
+	}
+
+	void ConfigData::print_listen_info(ServerBlock &server)
     {
         std::vector<std::string> ports = server.get_listen();
         std::cout << GREEN << "listening ports: ";

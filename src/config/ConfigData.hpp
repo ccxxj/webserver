@@ -14,11 +14,17 @@ namespace Config
 		/* data */
 		std::vector<ServerBlock> _servers;
 
+		/* methods */
+		void _check_ports(void);
+
 	public:
 		ConfigData(/* args */);
 		~ConfigData();
 		ConfigData(const ConfigData &other);
 		const ConfigData &operator=(const ConfigData &other);
+
+		/* check methods */
+		void check_parsed_data(void);
 
 		/* general methods */
 		void make_first_server_default();
