@@ -25,13 +25,25 @@ namespace HTTPRequest {
             FINISHED
         };
 
+        enum MessageBodyLength
+        {
+            CHUNCKED,
+            CONTENT_LENGTH,
+            NOT_FOUND
+        };
+
         RequestReader _request_reader;
         State _current_parsing_state;
+        MessageBodyLength _message_body_length;
 
         void _handle_request_message_part(std::string& line);
         void _parse_request_line(std::string& line);
         void _parse_header(std::string& line);
-        void _parse_message_body(std::string& line);
+        void _determine_message_body_length();
+        int _set_content_length();
+        ssize_t _find_chuncked_encoding_position(std::vector<std::string> &encodings, size_t encodings_num);
+        void _delete_obolete_content_length_header();
+        void _parse_message_body(std::string &line);
 
         bool _is_method_supported(const std::string &method);
         size_t _longest_method_size();

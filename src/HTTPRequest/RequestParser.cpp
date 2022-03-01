@@ -1,5 +1,6 @@
 #include "RequestParser.hpp"
 #include <algorithm> // for std::distance
+#include <cstdlib> // for atoi
 
 #include "../HTTP/Exceptions/RequestException.hpp"
 #include "HTTPRequestMethods.hpp"
@@ -35,20 +36,51 @@ namespace HTTPRequest {
         return _current_parsing_state == FINISHED;
     }
 
+    int RequestParser::_set_content_length() {
+        std::string content_length_value = _http_request_message->get_headers().find("Content-Length")->second;
+        if (content_length_value.find_first_of(',', 0) != std::string::npos) {
+            std::vector<std::string> values = _split_line(content_length_value, ',');
+            std::string first_value = _trim(values[0]);
+            for (size_t i = 1; i < values.size(); ++i) {
+                if (first_value != _trim(values[i])) {
+                    _throw_request_exception(HTTPResponse::BadRequest);
+                }
+            }
+            content_length_value = first_value;
+        }
+        for (std::string::iterator it = content_length_value.begin(); it != content_length_value.end(); ++it) {
+            if (!isdigit(*it)) {
+                _throw_request_exception(HTTPResponse::BadRequest); // should throw for negative values as well
+            }
+        }
+        return std::atoi(content_length_value.c_str());
+    }
+
     // TODO: check for any whitespaces which are not allowed
     void RequestParser::parse_HTTP_request(char* buffer, size_t bytes_read) {
         char* buffer_end = buffer + bytes_read;
-        while (buffer != buffer_end || _current_parsing_state != FINISHED) {
+        size_t content_length = 0;
+        while (buffer != buffer_end || _current_parsing_state != FINISHED)
+        {
             bool can_be_parsed = false;
             std::string line = _request_reader.read_line(&buffer, buffer_end, &can_be_parsed);
+            if (_current_parsing_state == MESSAGE_BODY && line.size() == content_length) {
+                can_be_parsed = true;
+            }
             if (can_be_parsed == false) {
                 return;
             }
             else {
                 _handle_request_message_part(line);
                 if (_current_parsing_state == MESSAGE_BODY) {
+                    _determine_message_body_length();
+                    if (_message_body_length == CONTENT_LENGTH) {
+                        content_length = _set_content_length();
+                        buffer_end = buffer + content_length;
+                    }
                     //TODO: validate request line
                     //TODO: validate headers
+                    //TODO: what if content-length is less than bytes read? Do we close the connection or need to support keep-alive?
                 }
             }
         }
@@ -120,6 +152,48 @@ namespace HTTPRequest {
         }
         std::pair<std::string, std::string> header_field(segments[0], _trim(segments[1]));
         _http_request_message->set_header_field(header_field);
+    }
+
+    ssize_t RequestParser::_find_chuncked_encoding_position(std::vector<std::string>& encodings, size_t encodings_num) {
+        for (size_t i = 0; i < encodings_num; ++i) {
+            if (_trim(encodings[i]) == "chunked") {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    void RequestParser::_delete_obolete_content_length_header() {
+        _http_request_message->get_headers().erase("Content-Length");
+    }
+
+    void RequestParser::_determine_message_body_length() {
+        std::map<std::string, std::string> headers_map = _http_request_message->get_headers();
+        std::map<std::string, std::string>::iterator transfer_encoding_iter = headers_map.find("Transfer-Encoding");
+        std::map<std::string, std::string>::iterator content_length_iter = headers_map.find("Content-Length");
+        if (content_length_iter != headers_map.end()) {
+            if (transfer_encoding_iter != headers_map.end()) {
+                _delete_obolete_content_length_header(); // Transfer-Encoding overrides the Content-Length
+                std::vector<std::string> encodings = _split_line(transfer_encoding_iter->second, ','); //splitting the header value
+                ssize_t encodings_num = encodings.size();
+                ssize_t chuncked_position = _find_chuncked_encoding_position(encodings, encodings_num);
+                if (chuncked_position == - 1) {
+                    std::cout << "Chunked not found\n"; //TODO:: what to do in this case?
+                    _message_body_length = NOT_FOUND;
+                }
+                else if (chuncked_position == encodings_num - 1) {
+                    std::cout << "Will be handling chunks here\n";
+                    _message_body_length = CHUNCKED;
+                }
+                else {
+                    _throw_request_exception(HTTPResponse::BadRequest);
+                }
+            }
+            else {
+                _message_body_length = CONTENT_LENGTH;
+            }
+        }
+        // TODO add handling the situation when no Content_length is found
     }
 
     void RequestParser::_parse_message_body(std::string& line) {
