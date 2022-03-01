@@ -127,6 +127,7 @@ namespace tests {
             
             char* buf = create_writable_buf(http_requests[3]);
             CHECK_NOTHROW(parser.parse_HTTP_request(buf, strlen(buf)));
+            delete[] buf;
         }
     }
 
