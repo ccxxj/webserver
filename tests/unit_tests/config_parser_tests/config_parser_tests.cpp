@@ -15,7 +15,7 @@
 TEST_CASE("Parsing basic conf file")
 {
 	Config::ConfigData config;
-	Config::ConfigValidator validator("config_parser_tests/basic-conf");
+	Config::ConfigValidator validator("config_parser_tests/conf_files/basic-conf");
 	validator.validate();
 	Config::ConfigTokenizer tokenizer(validator.get_file_content());
 	tokenizer.tokenize_server_blocks();
@@ -34,8 +34,7 @@ TEST_CASE("Parsing basic conf file")
 			CHECK(servers[0].get_server_name().size() == 2);
 			CHECK(servers[0].get_server_name()[0] == "irem");
 			CHECK(servers[0].get_server_name()[1] == "webservvvvv");
-			CHECK(servers[0].get_root().size() == 1);
-			CHECK(servers[0].get_root()[0] == "/var/www/localhost");
+			CHECK(servers[0].get_root() == "/var/www/localhost");
 			CHECK(servers[0].get_client_max_body_size() == 200);
 			CHECK(servers[0].get_error_page().size() == 2);
 			CHECK(servers[0].get_error_page()[0] == "404");
@@ -52,8 +51,7 @@ TEST_CASE("Parsing basic conf file")
 			CHECK(servers[1].get_listen()[0] == "2000");
 			CHECK(servers[1].get_server_name().size() == 1);
 			CHECK(servers[1].get_server_name()[0] == "random_name");
-			CHECK(servers[1].get_root().size() == 1);
-			CHECK(servers[1].get_root()[0] == "/var/www/localhost");
+			CHECK(servers[1].get_root() == "/var/www/localhost");
 			CHECK(servers[1].get_client_max_body_size() == 2);
 			CHECK(servers[1].get_error_page().size() == 2);
 			CHECK(servers[1].get_error_page()[0] == "404");
@@ -64,8 +62,7 @@ TEST_CASE("Parsing basic conf file")
 				CHECK(locs.size() == 3);
 				//1st loc
 				CHECK(locs[0].get_route() == "/wordpress/");
-				CHECK(locs[0].get_root().size() == 1);
-				CHECK(locs[0].get_root()[0] == "/var/www/localhost");
+				CHECK(locs[0].get_root() == "/var/www/localhost");
 				CHECK(locs[0].get_error_page().size() == 2);
 				CHECK(locs[0].get_error_page()[0] == "301");
 				CHECK(locs[0].get_error_page()[1] == "/custom-301.html");
@@ -86,9 +83,8 @@ TEST_CASE("Parsing basic conf file")
 				CHECK(locs[1].get_return()[1] == "https://localhost");
 				//3rd loc
 				CHECK(locs[2].get_route() == "/whatssssup/");
-				CHECK(locs[2].get_autoindex() == 1); //ON
-				CHECK(locs[2].get_root().size() == 1);
-				CHECK(locs[2].get_root()[0] == "/var/www/iremiremirem");
+				CHECK(locs[2].get_autoindex() == 1); //
+				CHECK(locs[2].get_root() == "/var/www/iremiremirem");
 				CHECK(locs[2].get_return().size() == 2);
 				CHECK(locs[2].get_return()[0] == "505");
 				CHECK(locs[2].get_return()[1] == "https://$server_name$request_uri");
@@ -113,5 +109,30 @@ TEST_CASE("Parsing basic conf file")
 		CHECK(servers[3].get_server_name()[0] == "fourth_server");
 		CHECK(servers[3].get_client_max_body_size() == 500);
 	}
+	}
+}
+
+
+TEST_CASE("Validity check while parsing")
+{
+	SECTION("Multiple root lines")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/multiple_root_1");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("Multiple root on the same line")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/multiple_root_2");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
 	}
 }
