@@ -43,6 +43,15 @@ void Utils::remove_white_space(std::string &temp)
 	temp.erase(std::remove_if(temp.begin(), temp.end(), ::isspace), temp.end());
 }
 
+bool Utils::check_after_keyword(int last_pos, std::string str)
+{
+    std::string tmp = str.substr(last_pos, str.length());
+    Utils::remove_white_space(tmp);   
+    if (tmp.compare(";") != 0)
+		return false;
+	return true;
+}
+
 std::vector<std::string> Utils::split_string_white_space(const std::string& str)
 {
 	std::vector<std::string> result;
