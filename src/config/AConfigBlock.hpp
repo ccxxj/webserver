@@ -10,8 +10,8 @@ namespace Config
 	{
 	protected:
 		/* data */
+		std::string _root;
 		std::vector<std::string> _return;
-		std::vector<std::string> _root;
 		std::vector<std::string> _error_page;
 
 	public:
@@ -23,8 +23,8 @@ namespace Config
 		void set_return_value(std::string str);
 		void set_root_value(std::string str);
 		void set_error_page_value(std::string str);
+		std::string get_root(void) const;
 		std::vector<std::string> get_return(void) const;
-		std::vector<std::string> get_root(void) const;
 		std::vector<std::string> get_error_page(void) const;
 	};
 } // namespace Config

@@ -32,8 +32,12 @@ namespace Config
 
     void AConfigBlock::set_root_value(std::string str)
     {
+        if(!_root.empty())
+            throw std::runtime_error("Invalid: Multiple roots");
         Utils::remove_first_keyword(str);
-        Utils::split_value(str, _root);
+        int first = str.find_first_not_of("     ;");
+        int last = str.find_first_of("     ;", first + 1);
+        _root = str.substr(first, last - first);
     }
 
     void AConfigBlock::set_error_page_value(std::string str)
@@ -47,7 +51,7 @@ namespace Config
         return _return;
     }
 
-    std::vector<std::string> AConfigBlock::get_root(void) const
+    std::string AConfigBlock::get_root(void) const
     {
         return _root;
     }
