@@ -3,71 +3,13 @@
 namespace Config
 {
 
-	ConfigParser::ConfigParser(ConfigData *config_data, std::string file_path) : config_data(config_data),
-																				 file_path(file_path)
+	ConfigParser::ConfigParser(ConfigData *config_data, std::vector<std::string> server_tokens) : config_data(config_data),
+																								   server_tokens(server_tokens)
 	{
 	}
 
 	ConfigParser::~ConfigParser()
 	{
-	}
-
-	void ConfigParser::open_and_read_file(void)
-	{
-		std::ifstream file_stream;
-		std::string line;
-
-		file_stream.open(file_path.c_str());
-		if (!file_stream.is_open())
-			throw ConfigParser::FailedToOpenException();
-		while (std::getline(file_stream, line))
-			file_content.append(line + "\n");
-		file_stream.close();
-	}
-
-	void ConfigParser::remove_comments(void)
-	{
-		std::istringstream stream(file_content);
-		std::string line;
-		size_t hashtag_pos;
-
-		file_content.clear();
-		while (std::getline(stream, line))
-		{
-			hashtag_pos = line.find('#');
-			if (hashtag_pos != std::string::npos)
-				line.erase(hashtag_pos, std::string::npos);
-			if (!line.empty())
-				file_content.append(line + "\n");
-		}
-	}
-
-	void ConfigParser::tokenize_server_blocks(void)
-	{
-		std::string line;
-		std::string single_server_block;
-		std::istringstream stream(file_content); //TODO do we check if it is streamed? if (!stream)
-
-		while (std::getline(stream, line))
-		{
-			if (line.compare("}") == 0) //TODO it depends on indenentation rules! test with unindented congfigs
-			{
-				server_tokens.push_back(single_server_block);
-				single_server_block.clear();
-			}
-			else if (line.compare("server {") != 0)
-				single_server_block.append(line + "\n");
-		}
-	}
-
-	void ConfigParser::print_server_blocks(void)
-	{
-
-		for (size_t i = 0; i < server_tokens.size(); i++)
-		{
-			std::cout << "\nEACH SERVER BLOCK" << std::endl;
-			std::cout << server_tokens[i] << std::endl;
-		}
 	}
 
 	bool ConfigParser::find_location(std::string line)
@@ -120,10 +62,8 @@ namespace Config
 				parse_limit_except(line, location, stream);
 			else if ((e_num = find_directive(line)) >= 0)
 				parse_location_directive(line, location, e_num);
-			else if (line.compare("\t") == 0) //TODO = I think this is shaky? needs more testing? this is for empty lines (that only have tabs after removing the comments, so anything else to add
-				continue;
 			else
-				throw ConfigParser::InvalidConfigDirectiveException();
+				throw std::runtime_error("Invalid directive in config");
 		}
 		server.get_location().push_back(location);
 	}
@@ -179,20 +119,13 @@ namespace Config
 				parse_location_block(line, stream, server);
 			else if ((e_num = find_directive(line)) >= 0)
 				parse_server_directive(line, server, e_num);
-			else if (line.compare("\t") == 0) //TODO this is for empty lines (that only have tabs after removing the comments, so anything else to add
-				continue;
 			else
-				throw ConfigParser::InvalidConfigDirectiveException();
+				throw std::runtime_error("Invalid directive in config");
 		}
 	}
 
-	//TODO it still parses without ; at the end of lines!
 	void ConfigParser::parse(void)
 	{
-		open_and_read_file();
-		remove_comments();
-		tokenize_server_blocks();
-		// print_server_blocks();
 		for (size_t i = 0; i < server_tokens.size(); i++)
 		{
 			ServerBlock server;
@@ -201,5 +134,6 @@ namespace Config
 		}
 		config_data->make_first_server_default();
 	}
-
+	//TODO after parse checks: empty file, no server block, compulsory fields: listen
+	//TODO detailed after parse checks: i.e. multiple roots  on the same line or multiple lines, return line with more than 2 info (check your list for more)
 } // namespace Config

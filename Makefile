@@ -42,7 +42,9 @@ SRC = Webserver.cpp \
 	config/AConfigBlock.cpp \
 	config/ServerBlock.cpp \
 	config/LocationBlock.cpp \
-	config/Utils.cpp
+	config/Utils.cpp \
+	config/ConfigValidator.cpp \
+	config/ConfigTokenizer.cpp
 
 CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
 		-std=c++98 -pedantic \
