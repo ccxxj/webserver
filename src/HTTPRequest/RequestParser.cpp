@@ -72,7 +72,7 @@ namespace HTTPRequest {
             else {
                 _handle_request_message_part(line);
                 if (_current_parsing_state == MESSAGE_BODY) {
-                    _determine_message_body_length();
+                    _define_message_body_length();
                     if (_message_body_length == CONTENT_LENGTH) {
                         content_length = _set_content_length();
                         buffer_end = buffer + content_length;
@@ -183,23 +183,30 @@ namespace HTTPRequest {
         }
     }
 
-    void RequestParser::_determine_message_body_length() {
+    void RequestParser::_define_message_body_length() {
         std::map<std::string, std::string> headers_map = _http_request_message->get_headers();
         std::map<std::string, std::string>::iterator transfer_encoding_iter = headers_map.find("Transfer-Encoding");
         std::map<std::string, std::string>::iterator content_length_iter = headers_map.find("Content-Length");
         if (content_length_iter != headers_map.end()) {
-            if (transfer_encoding_iter != headers_map.end()) {
+            if (transfer_encoding_iter == headers_map.end()) {
+                _message_body_length = CONTENT_LENGTH;
+            }
+            else {
                 _parse_transfer_encoding(transfer_encoding_iter->second);
                 if (_message_body_length == CHUNCKED) {
                     _delete_obolete_content_length_header(); // if chunked is present Transfer-Encoding  overrides the Content-Length
                 }
             }
-            else {
-                _message_body_length = CONTENT_LENGTH;
+        }
+        else if (transfer_encoding_iter != headers_map.end()) {
+            _parse_transfer_encoding(transfer_encoding_iter->second);
+            if (_message_body_length != CHUNCKED) {
+                _throw_request_exception(HTTPResponse::LengthRequired);
             }
         }
-        
-        // TODO add handling the situation when no Content_length is found
+        else {
+            _throw_request_exception(HTTPResponse::LengthRequired);
+        }
     }
 
     void RequestParser::_parse_message_body(std::string& line) {
