@@ -1,0 +1,55 @@
+server {
+listen 1000;
+server_name irem;
+server_name webservvvvv;
+root /var/www/localhost;
+client_max_body_size 200;
+error_page 404 /custom-404.html;
+return 301 https://$server_name$request_uri;
+}
+
+server {
+listen 2000;
+
+			 server_name random_name;
+	 # server_name irem;
+
+	 client_max_body_size 2;
+
+ root /var/www/localhost;
+  error_page 404 /custom-404.html; #put them in the root!
+
+location /wordpress/ {
+        root /var/www/localhost;
+error_page 301 /custom-301.html;
+autoindex on;
+						limit_except POST {
+deny all;
+}
+return 301 https://localhost;
+           }
+
+		location /myyy_route/ {
+		autoindex off;
+			error_page 301 /custom-301.html; #put them in the root!
+			return 301 https://localhost;
+		}
+
+	location /whatssssup/ {
+							root /var/www/iremiremirem;
+							autoindex on;
+return 505 https://$server_name$request_uri;
+}
+}
+
+server {
+listen 8080;
+server_name third_server;
+client_max_body_size 200;
+				}
+
+server {
+listen 2020;
+server_name fourth_server;
+client_max_body_size 500;
+						}
