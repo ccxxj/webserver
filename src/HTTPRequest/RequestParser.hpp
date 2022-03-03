@@ -41,6 +41,7 @@ namespace HTTPRequest {
         void _parse_request_line(std::string& line);
         void _parse_header(std::string& line);
         void _determine_message_body_length();
+        void _parse_transfer_encoding(std::string coding_names_list);
         int _set_content_length();
         ssize_t _find_chuncked_encoding_position(std::vector<std::string> &encodings, size_t encodings_num);
         void _delete_obolete_content_length_header();

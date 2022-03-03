@@ -56,7 +56,6 @@ namespace HTTPRequest {
         return std::atoi(content_length_value.c_str());
     }
 
-    // TODO: check for any whitespaces which are not allowed
     void RequestParser::parse_HTTP_request(char* buffer, size_t bytes_read) {
         char* buffer_end = buffer + bytes_read;
         size_t content_length = 0;
@@ -167,6 +166,23 @@ namespace HTTPRequest {
         _http_request_message->get_headers().erase("Content-Length");
     }
 
+    void RequestParser::_parse_transfer_encoding(std::string coding_names_list) {
+        std::vector<std::string> encodings = _split_line(coding_names_list, ','); //splitting the header value
+        ssize_t encodings_num = encodings.size();
+        ssize_t chuncked_position = _find_chuncked_encoding_position(encodings, encodings_num);
+        if (chuncked_position == - 1) {
+            std::cout << "Chunked not found\n"; //TODO:: what to do in this case?
+            _message_body_length = NOT_FOUND;
+        }
+        else if (chuncked_position == encodings_num - 1) {
+            std::cout << "Will be handling chunks here\n";
+            _message_body_length = CHUNCKED;
+        }
+        else {
+            _throw_request_exception(HTTPResponse::BadRequest);
+        }
+    }
+    
     void RequestParser::_determine_message_body_length() {
         std::map<std::string, std::string> headers_map = _http_request_message->get_headers();
         std::map<std::string, std::string>::iterator transfer_encoding_iter = headers_map.find("Transfer-Encoding");
@@ -174,20 +190,7 @@ namespace HTTPRequest {
         if (content_length_iter != headers_map.end()) {
             if (transfer_encoding_iter != headers_map.end()) {
                 _delete_obolete_content_length_header(); // Transfer-Encoding overrides the Content-Length
-                std::vector<std::string> encodings = _split_line(transfer_encoding_iter->second, ','); //splitting the header value
-                ssize_t encodings_num = encodings.size();
-                ssize_t chuncked_position = _find_chuncked_encoding_position(encodings, encodings_num);
-                if (chuncked_position == - 1) {
-                    std::cout << "Chunked not found\n"; //TODO:: what to do in this case?
-                    _message_body_length = NOT_FOUND;
-                }
-                else if (chuncked_position == encodings_num - 1) {
-                    std::cout << "Will be handling chunks here\n";
-                    _message_body_length = CHUNCKED;
-                }
-                else {
-                    _throw_request_exception(HTTPResponse::BadRequest);
-                }
+                _parse_transfer_encoding(transfer_encoding_iter->second);
             }
             else {
                 _message_body_length = CONTENT_LENGTH;
