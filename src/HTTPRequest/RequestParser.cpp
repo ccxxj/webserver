@@ -182,20 +182,23 @@ namespace HTTPRequest {
             _throw_request_exception(HTTPResponse::BadRequest);
         }
     }
-    
+
     void RequestParser::_determine_message_body_length() {
         std::map<std::string, std::string> headers_map = _http_request_message->get_headers();
         std::map<std::string, std::string>::iterator transfer_encoding_iter = headers_map.find("Transfer-Encoding");
         std::map<std::string, std::string>::iterator content_length_iter = headers_map.find("Content-Length");
         if (content_length_iter != headers_map.end()) {
             if (transfer_encoding_iter != headers_map.end()) {
-                _delete_obolete_content_length_header(); // Transfer-Encoding overrides the Content-Length
                 _parse_transfer_encoding(transfer_encoding_iter->second);
+                if (_message_body_length == CHUNCKED) {
+                    _delete_obolete_content_length_header(); // if chunked is present Transfer-Encoding  overrides the Content-Length
+                }
             }
             else {
                 _message_body_length = CONTENT_LENGTH;
             }
         }
+        
         // TODO add handling the situation when no Content_length is found
     }
 
