@@ -74,12 +74,12 @@ namespace Config
         return _autoindex;
     }
 
-    std::string LocationBlock::get_route() const
+    const std::string& LocationBlock::get_route() const
     {
         return _route;
     }
 
-    std::vector<std::string> LocationBlock::get_limit_except(void) const
+    const std::vector<std::string>& LocationBlock::get_limit_except(void) const
     {
         return _limit_except;
     }

@@ -31,7 +31,7 @@ namespace Config
 		int get_client_max_body_size(void) const;
 		bool get_default(void) const;
 		std::vector<std::string> get_listen(void) const;
-		std::vector<std::string> get_server_name(void) const;
+		const std::vector<std::string>& get_server_name(void) const;
 		std::vector<LocationBlock> &get_location(void); //TODO have it with const? if we have it with const, we're not able to push things inside!
 	};
 } // namespace Config

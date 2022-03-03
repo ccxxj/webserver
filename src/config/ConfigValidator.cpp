@@ -182,11 +182,10 @@ namespace Config
 		_remove_comments_and_empty_lines();
 		_are_brackets_balanced();
 		_validate_server_blocks();
-		//TODO no listening ports?
 		//TODO validate limit_except line
 	}
 
-	std::string ConfigValidator::get_file_content() const
+	const std::string& ConfigValidator::get_file_content() const
 	{
 		return _file_content;
 	}

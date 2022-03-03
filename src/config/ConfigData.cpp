@@ -76,7 +76,7 @@ namespace Config
 		for (size_t i = 0; i < ports.size(); i++)
 		{
             port_num = std::atoi(ports[i].c_str());
-            if (port_num < 1 || port_num > 65536)
+            if (port_num < 1 || port_num > 65535)
                 throw std::runtime_error("Listening port out of range or invalid");
 		}
 	}
@@ -92,16 +92,11 @@ namespace Config
         std::cout << RESET << std::endl;
     }
 
-    void ConfigData::print_roots(ServerBlock &server)
+    void ConfigData::print_root(ServerBlock &server)
     {
 
-        std::vector<std::string> roots = server.get_root();
-        std::cout << YELLOW << "roots: ";
-        for (size_t i = 0; i < roots.size(); i++)
-        {
-            std::cout << i + 1 << ")" << roots[i] << " ";
-        }
-        std::cout << RESET << std::endl;
+        std::string root = server.get_root();
+        std::cout << YELLOW << "root: " << root << RESET << std::endl;
     }
 
     void ConfigData::print_returns(ServerBlock &server)
@@ -163,7 +158,7 @@ namespace Config
             std::cout << BLUE << "\tauto_index: " << locations[i].get_autoindex() << RESET << std::endl;
             print_limit_except(locations[i]);
             std::cout << "\t";
-            print_roots((ServerBlock &)locations[i]);
+            print_root((ServerBlock &)locations[i]);
             std::cout << "\t";
             print_returns((ServerBlock &)locations[i]);
             std::cout << "\t";
@@ -181,7 +176,7 @@ namespace Config
             std::cout << RESET << std::endl;
             print_listen_info(_servers[i]);
             print_server_name(_servers[i]);
-            print_roots(_servers[i]);
+            print_root(_servers[i]);
             std::cout << GREEN << "client_max_body_size: " << _servers[i].get_client_max_body_size() << RESET << std::endl;
             print_returns(_servers[i]);
             print_error_pages(_servers[i]);
