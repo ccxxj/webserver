@@ -20,10 +20,5 @@ jobs:
                   name: Build webserver
                   command: make
             - run:
-                  name: Run webserver & integration tests in parallel
-                  command: npm run start
-            - store_test_results:
-                  path: junit.xml
-            - run:
                   name: Run unit tests
                   command: cd tests/unit_tests && make && ./unit_tests
