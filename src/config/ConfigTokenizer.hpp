@@ -25,6 +25,6 @@ namespace Config
 
 		void tokenize_server_blocks(void);
 		void print_server_blocks(void);
-		std::vector<std::string> get_server_tokens(void) const;
+		const std::vector<std::string>& get_server_tokens(void) const;
 	};
 } // namespace Config

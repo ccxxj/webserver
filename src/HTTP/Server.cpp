@@ -153,7 +153,7 @@ namespace HTTP {
 	}
 
 	void Server::run() {
-		std::vector<Config::ServerBlock> servers = config_data->get_servers();
+		const std::vector<Config::ServerBlock> servers = config_data->get_servers();
 		//TODO implemented on the idea that each server block will have on port + check segfault if no port is given
 		for (size_t i = 0; i < servers.size(); i++)
 			_listen_ports.push_back(std::atoi(servers[i].get_listen()[0].c_str()));

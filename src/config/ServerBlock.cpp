@@ -5,7 +5,7 @@
 namespace Config
 {
 
-    ServerBlock::ServerBlock(/* args */)
+    ServerBlock::ServerBlock()
     {
         _is_default = false;
         // std::cout << "ServerBlock construtor" << std::endl;
@@ -62,12 +62,17 @@ namespace Config
         _is_default = value;
     }
 
+    void ServerBlock::set_a_location(const LocationBlock &location)
+    {
+        _locations.push_back(location);
+    }
+
     int ServerBlock::get_client_max_body_size(void) const
     {
         return _client_max_body_size;
     }
 
-    std::vector<std::string> ServerBlock::get_listen() const
+    const std::vector<std::string>& ServerBlock::get_listen() const
     {
         return _listen;
     }
@@ -77,7 +82,7 @@ namespace Config
         return _server_name;
     }
 
-    std::vector<LocationBlock> &ServerBlock::get_location(void)
+    const std::vector<LocationBlock> &ServerBlock::get_location(void) const
     {
         return _locations;
     }

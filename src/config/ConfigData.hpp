@@ -29,7 +29,8 @@ namespace Config
 
 		/* general methods */
 		void make_first_server_default();
-		std::vector<ServerBlock> &get_servers(void);
+		void set_a_server(const ServerBlock &server);
+		const std::vector<ServerBlock> &get_servers(void) const;
 
 		/* print methods */
 		void print_servers_info(void);

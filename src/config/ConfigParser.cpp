@@ -49,7 +49,6 @@ namespace Config
 
 	void ConfigParser::parse_location_block(std::string line, std::istringstream &stream, ServerBlock &server)
 	{
-		//create the location + push back into to the server.getLocation().push_back();
 		LocationBlock location;
 		int e_num = -4;
 		e_num = find_directive(line);
@@ -67,12 +66,11 @@ namespace Config
 			else
 				throw std::runtime_error("Invalid directive in config");
 		}
-		server.get_location().push_back(location);
+		server.set_a_location(location);
 	}
 
 	void ConfigParser::parse_server_directive(std::string line, ServerBlock &server, int e_num)
 	{
-		//identify the keyword, remove keyword and use the right set functoion
 		if (e_num == LISTEN)
 			server.set_listen(line);
 		else if (e_num == SERVER_NAME)
@@ -89,7 +87,6 @@ namespace Config
 
 	void ConfigParser::parse_location_directive(std::string line, LocationBlock &location, int e_num)
 	{
-		//identify the keyword, remove keyword and use the right set functoion
 		if (e_num == ROOT)
 			location.set_root_value(line);
 		else if (e_num == ERROR_PAGE)
@@ -108,13 +105,10 @@ namespace Config
 
 	void ConfigParser::parse_server_block(std::string server_token, ServerBlock &server)
 	{
-		// loop inside string find key value pairs & location values
-		// saves them inside the variables of ServerBlock and LocationBlocks!
-		// call ServerBlock & LocationBlock functions based on the line?
-		// what to do with compulsory fields? throw exception!
 		std::string line;
 		std::istringstream stream(server_token);
-		int e_num = -4; //TODO
+		int e_num;
+
 		while (std::getline(stream, line))
 		{
 			if (ConfigParser::find_location(line))
@@ -132,10 +126,8 @@ namespace Config
 		{
 			ServerBlock server;
 			parse_server_block(server_tokens[i], server);
-			config_data->get_servers().push_back(server);
+			config_data->set_a_server(server);
 		}
 		config_data->make_first_server_default();
 	}
-	//TODO after parse checks: empty file, no server block, compulsory fields: listen
-	//TODO detailed after parse checks: i.e. multiple roots  on the same line or multiple lines, return line with more than 2 info (check your list for more)
 } // namespace Config

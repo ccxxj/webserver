@@ -48,17 +48,17 @@ namespace Config
         Utility::split_value(str, _error_page);
     }
 
-    std::vector<std::string> AConfigBlock::get_return(void) const
+    const std::vector<std::string>& AConfigBlock::get_return(void) const
     {
         return _return;
     }
 
-    std::string AConfigBlock::get_root(void) const
+    const std::string& AConfigBlock::get_root(void) const
     {
         return _root;
     }
 
-    std::vector<std::string> AConfigBlock::get_error_page(void) const
+    const std::vector<std::string>& AConfigBlock::get_error_page(void) const
     {
         return _error_page;
     }
