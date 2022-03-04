@@ -1,5 +1,7 @@
 #include "ConfigParser.hpp"
 #include <stdlib.h>
+#include "../Utility/Utility.hpp"
+
 namespace Config
 {
 
@@ -14,7 +16,7 @@ namespace Config
 
 	bool ConfigParser::find_location(std::string line)
 	{
-		return Utils::check_first_keyword(line, "location");
+		return Utility::check_first_keyword(line, "location");
 	}
 
 	int ConfigParser::find_directive(std::string line)
@@ -25,7 +27,7 @@ namespace Config
 			 "autoindex", "location", NULL};
 		for (size_t i = 0; i < 9; i++)
 		{
-			if (Utils::check_first_keyword(line, directive_list[i]))
+			if (Utility::check_first_keyword(line, directive_list[i]))
 				return i;
 		}
 		return -1;
@@ -37,7 +39,7 @@ namespace Config
 		while (std::getline(stream, line))
 		{
 			std::string temp = line;
-			Utils::remove_white_space(temp);
+			Utility::remove_white_space(temp);
 			if (temp.compare("}") == 0)
 				break;
 			else
@@ -55,10 +57,10 @@ namespace Config
 		while (std::getline(stream, line))
 		{
 			std::string temp = line;
-			Utils::remove_white_space(temp);
+			Utility::remove_white_space(temp);
 			if (temp.compare("}") == 0)
 				break;
-			if (Utils::check_first_keyword(line, "limit_except"))
+			if (Utility::check_first_keyword(line, "limit_except"))
 				parse_limit_except(line, location, stream);
 			else if ((e_num = find_directive(line)) >= 0)
 				parse_location_directive(line, location, e_num);

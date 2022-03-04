@@ -43,7 +43,6 @@ SRC = Webserver.cpp \
 	config/AConfigBlock.cpp \
 	config/ServerBlock.cpp \
 	config/LocationBlock.cpp \
-	config/Utils.cpp \
 	config/ConfigValidator.cpp \
 	config/ConfigTokenizer.cpp \
 	Utility/Utility.cpp
