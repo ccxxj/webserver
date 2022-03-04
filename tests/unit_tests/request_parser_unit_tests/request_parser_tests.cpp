@@ -218,7 +218,7 @@ namespace tests {
             HTTPRequest::RequestMessage _http_request_message;
             HTTPResponse::ResponseMessage _http_response_message;
             HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
-            char* buf = create_writable_buf(http_requests[8]); //23, 46, 23, 4
+            char* buf = create_writable_buf(http_requests[9]); //23, 46, 23, 4
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
             delete[] buf;
@@ -227,7 +227,16 @@ namespace tests {
             HTTPRequest::RequestMessage _http_request_message;
             HTTPResponse::ResponseMessage _http_response_message;
             HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
-            char* buf = create_writable_buf(http_requests[8]); //23, 46, 23, 4
+            char* buf = create_writable_buf(http_requests[10]); //23, 46, 23, 4
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
+        }
+        SECTION ("No Content-Length or Transfer-Encoding but message body is there- 411 (Length Required) must be thrown", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char* buf = create_writable_buf(http_requests[11]);
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
             delete[] buf;
