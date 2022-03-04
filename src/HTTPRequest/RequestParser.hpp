@@ -1,9 +1,7 @@
 #ifndef REQUESTPARSER_HPP
 #define REQUESTPARSER_HPP
 
-#include <string>
 #include <set>
-#include <vector>
 #include <iostream> // TODO: remove
 
 #include "RequestReader.hpp"
@@ -36,10 +34,6 @@ namespace HTTPRequest {
         bool _is_method_supported(const std::string &method);
         size_t _longest_method_size();
         void _throw_request_exception(HTTPResponse::StatusCode error_status);
-
-        std::vector<std::string> _split_line(const std::string& line, const char delimiter);
-        std::string _trim(const std::string& s);
-        bool contains_whitespace(std::string &str);
         
         struct Dispatch {
             State parsing_state;
