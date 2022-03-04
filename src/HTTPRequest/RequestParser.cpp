@@ -40,10 +40,10 @@ namespace HTTPRequest {
     int RequestParser::_set_content_length() {
         std::string content_length_value = _http_request_message->get_headers().find("Content-Length")->second;
         if (content_length_value.find_first_of(',', 0) != std::string::npos) {
-            std::vector<std::string> values = _split_line(content_length_value, ',');
-            std::string first_value = _trim(values[0]);
+            std::vector<std::string> values = Utility::_split_line(content_length_value, ',');
+            std::string first_value = Utility::_trim(values[0]);
             for (size_t i = 1; i < values.size(); ++i) {
-                if (first_value != _trim(values[i])) {
+                if (first_value != Utility::_trim(values[i])) {
                     _throw_request_exception(HTTPResponse::BadRequest);
                 }
             }
@@ -151,7 +151,7 @@ namespace HTTPRequest {
 
     ssize_t RequestParser::_find_chuncked_encoding_position(std::vector<std::string>& encodings, size_t encodings_num) {
         for (size_t i = 0; i < encodings_num; ++i) {
-            if (_trim(encodings[i]) == "chunked") {
+            if (Utility::_trim(encodings[i]) == "chunked") {
                 return i;
             }
         }
@@ -163,7 +163,7 @@ namespace HTTPRequest {
     }
 
     void RequestParser::_parse_transfer_encoding(std::string coding_names_list) {
-        std::vector<std::string> encodings = _split_line(coding_names_list, ','); //splitting the header value
+        std::vector<std::string> encodings = Utility::_split_line(coding_names_list, ','); //splitting the header value
         ssize_t encodings_num = encodings.size();
         ssize_t chuncked_position = _find_chuncked_encoding_position(encodings, encodings_num);
         if (chuncked_position == - 1) {
