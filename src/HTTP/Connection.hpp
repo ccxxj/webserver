@@ -5,13 +5,15 @@
 
 #include "RequestHandler.hpp"
 #include "RequestHandlerDelegate.hpp"
+#include "../Utility/SmartPointer.hpp"
 
 namespace HTTP {
 	class Connection : public RequestHandlerDelegate
 	{
 	private:
 		int _socket_fd;
-		std::auto_ptr<RequestHandler> request_handler;
+		Utility::SmartPointer<RequestHandler> request_handler;
+		// std::auto_ptr<RequestHandler> request_handler;
 
 		// int _listening_socket_fd;
 		// sockaddr_in _client_addr;

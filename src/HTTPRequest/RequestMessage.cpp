@@ -36,8 +36,23 @@ namespace HTTPRequest {
         return _request_headers;
     }
 
-    void RequestMessage::set_header_field(std::pair<std::string, std::string>& header_field){
-        _request_headers.insert(header_field); //TODO: or use operator[] ?
+    void RequestMessage::set_header_field(std::pair<std::string, std::string>& header_field) {
+        std::map<std::string, std::string>::iterator header_name_position = _request_headers.find(header_field.first);
+        if ( header_name_position == _request_headers.end()) {
+            _request_headers.insert(header_field);
+        }
+        else {
+            header_name_position->second.append(", ");
+            header_name_position->second.append(header_field.second);
+        }
+    }
+
+    const std::string& RequestMessage::get_message_body() const {
+        return _message_body;
+    }
+
+    void RequestMessage::set_message_body(std::string& body) {
+        _message_body = body;
     }
 
     void RequestMessage::set_uri(URIData &uri)
