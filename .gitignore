@@ -10,4 +10,5 @@ CMake*
 node_modules/*
 junit.xml
 tests/integration_tests/invalid_requests.spec.js
-tests/unit_tests/unit_test
+unit_tests
+libwebserv.a.4EuP2e
