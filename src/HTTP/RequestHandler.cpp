@@ -38,12 +38,10 @@ namespace HTTP {
 			if (!_parser.is_parsing_finished()) {
 				return;
 			}
-			std::cout<<"here should be uri data!\n";
-			_http_request_message.get_uri().print_URI_data();
 			std::string status_code = _http_response_message.get_status_code();
 			std::string reason_phrase = _http_response_message.get_reason_phrase();
 			std::string status_line = _http_response_message.get_HTTP_version() + " " + status_code + " " + reason_phrase + "\r\n\r\n";
-			std::cout << "\n\nstatus line: " << status_line << std::endl;
+			std::cout << "\n\nRESPONSE:\nStatus line: " << status_line << std::endl;
 			_delegate.send(&status_line[0], status_line.size()); //TODO: replace by full response
 			_delegate.close();
 		}

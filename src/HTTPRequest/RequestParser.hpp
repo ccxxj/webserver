@@ -1,10 +1,9 @@
 #ifndef REQUESTPARSER_HPP
 #define REQUESTPARSER_HPP
 
-#include <string>
 #include <set>
-#include <vector>
 #include <iostream> // TODO: remove
+#include <sys/types.h>// for ssize_t
 
 #include "RequestReader.hpp"
 #include "RequestMessage.hpp"
@@ -25,21 +24,31 @@ namespace HTTPRequest {
             FINISHED
         };
 
+        enum MessageBodyLength
+        {
+            CHUNCKED,
+            CONTENT_LENGTH,
+            NOT_FOUND
+        };
+
         RequestReader _request_reader;
         State _current_parsing_state;
+        MessageBodyLength _message_body_length;
 
         void _handle_request_message_part(std::string& line);
         void _parse_request_line(std::string& line);
         void _parse_header(std::string& line);
-        void _parse_message_body(std::string& line);
+        void _define_message_body_length();
+        void _parse_transfer_encoding(std::string coding_names_list);
+        int _set_content_length();
+        ssize_t _find_chuncked_encoding_position(std::vector<std::string> &encodings, size_t encodings_num);
+        void _delete_obolete_content_length_header();
+        void _parse_message_body(std::string &line);
 
         bool _is_method_supported(const std::string &method);
         size_t _longest_method_size();
         void _throw_request_exception(HTTPResponse::StatusCode error_status);
-
-        std::vector<std::string> _split_line(const std::string& line, const char delimiter);
-        std::string _trim(const std::string& s);
-
+        
         struct Dispatch {
             State parsing_state;
             void (RequestParser::*ptr)(std::string& line);
