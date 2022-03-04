@@ -1,0 +1,10 @@
+server {
+listen 1000
+server_name webservvvvv;
+root /var/www/localhost;
+
+	location {
+root /var/www/localhost;
+
+	}
+}
