@@ -25,7 +25,7 @@ TEST_CASE("Empty conf")
 
 TEST_CASE("Missing listen line")
 {
-	Config::ConfigValidator validator("data_check_after_parse/conf_files/empty_conf");
+	Config::ConfigValidator validator("data_check_after_parse/conf_files/no_listen");
 	validator.validate();
 	Config::ConfigTokenizer tokenizer(validator.get_file_content());
 	tokenizer.tokenize_server_blocks();
@@ -35,28 +35,3 @@ TEST_CASE("Missing listen line")
 	CHECK_THROWS(config.check_parsed_data());
 }
 
-TEST_CASE("Invalid port number")
-{
-	SECTION("Port is not a number")
-	{
-	Config::ConfigValidator validator("data_check_after_parse/conf_files/invalid_port_num_1");
-	validator.validate();
-	Config::ConfigTokenizer tokenizer(validator.get_file_content());
-	tokenizer.tokenize_server_blocks();
-	Config::ConfigData config;
-	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
-	parser.parse();
-	CHECK_THROWS(config.check_parsed_data());
-	}
-	SECTION("Port num out of range")
-	{
-	Config::ConfigValidator validator("data_check_after_parse/conf_files/invalid_port_num_2");
-	validator.validate();
-	Config::ConfigTokenizer tokenizer(validator.get_file_content());
-	tokenizer.tokenize_server_blocks();
-	Config::ConfigData config;
-	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
-	parser.parse();
-	CHECK_THROWS(config.check_parsed_data());
-	}
-}
