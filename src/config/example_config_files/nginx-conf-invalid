@@ -8,8 +8,8 @@ server {
 }
 
 server {
-	listen 443 ssl ;
-	listen [::]:443 ssl ;
+	listen 443 ;
+	listen [::]:443;
 
 	server_name irem;
 	server_name random_name;

@@ -1,5 +1,11 @@
+		server {
+        listen       8080;
+		listen       8080 1200;
+        server_name  localhost;
+    }
 	server {
 listen [::]:1000;
+listen 20;
 server_name webservvvvv;
 
 # root /var/www/localhost afsfadad ;
@@ -12,6 +18,7 @@ server_name webservvvvv;
 
 server {
 	listen 8080;
+	#listen 8080;
 
 server_name random_name;
 	# server_name irem;
