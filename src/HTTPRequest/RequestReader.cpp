@@ -12,9 +12,8 @@ namespace HTTPRequest {
     {
     }
 
-    bool RequestReader::_is_end_of_line(char* buffer, char* buffer_end) { // also checking that the current char is part of the buffer
-        return (buffer != buffer_end && *buffer == '\r'
-                && buffer + 1 != buffer_end && *(buffer + 1) == '\n');
+    bool RequestReader::_is_end_of_line(char* buffer, char* buffer_end) { // previous \r should already be a part of the accumulator
+        return (*buffer == '\n' && *(_accumulator.rbegin()) == '\r');
     }
 
     std::string RequestReader::read_line(char** buffer, char* buffer_end, bool* can_be_parsed) { // pointer to the buffer as we need to keep track of it
@@ -26,8 +25,8 @@ namespace HTTPRequest {
             }
             if (_is_end_of_line(temp_ptr, buffer_end)) {
                 *can_be_parsed = true;
-                std::string line = _accumulator.substr(0, (temp_ptr - *buffer));
-                temp_ptr += 2; // skipping \r\n
+                std::string line = _accumulator.substr(0, _accumulator.size() - 1); // -1 \r that has been appended, we don't want it to passed
+                temp_ptr += 1; // skipping \n
                 *buffer = temp_ptr;
                 _accumulator.resize(0);
                 return line;

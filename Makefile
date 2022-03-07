@@ -20,8 +20,9 @@ HEADERS = Webserver.hpp \
 	HTTP/Exceptions/ServerErrorException.hpp \
 	HTTP/Exceptions/RequestException.hpp \
 	HTTPResponse/StatusCodes.hpp \
-	HTTPResponse/ResponseMessage.hpp
-
+	HTTPResponse/ResponseMessage.hpp \
+	Utility/Utility.hpp \
+	Utility/SmartPointer.hpp
 
 SRC = Webserver.cpp \
 	HTTPRequest/RequestReader.cpp \
@@ -30,7 +31,6 @@ SRC = Webserver.cpp \
 	HTTPRequest/RequestMessage.cpp \
 	HTTPRequest/URI/URIData.cpp \
 	HTTPRequest/URI/URIParser.cpp \
-	HTTPRequest/URI/Utils.cpp \
 	HTTP/RequestHandler.cpp \
 	HTTP/Exceptions/RequestException.cpp \
 	HTTP/Connection.cpp \
@@ -42,9 +42,9 @@ SRC = Webserver.cpp \
 	config/AConfigBlock.cpp \
 	config/ServerBlock.cpp \
 	config/LocationBlock.cpp \
-	config/Utils.cpp \
 	config/ConfigValidator.cpp \
-	config/ConfigTokenizer.cpp
+	config/ConfigTokenizer.cpp \
+	Utility/Utility.cpp
 
 CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
 		-std=c++98 -pedantic \

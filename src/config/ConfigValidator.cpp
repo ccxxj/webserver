@@ -1,5 +1,7 @@
 #include "ConfigValidator.hpp"
 #include <stdlib.h>
+#include "../Utility/Utility.hpp"
+
 namespace Config
 {
 
@@ -38,7 +40,7 @@ namespace Config
 			if (hashtag_pos != std::string::npos)
 				line.erase(hashtag_pos, std::string::npos);
 			tmp = line;
-			Utils::remove_white_space(tmp);
+			Utility::remove_white_space(tmp);
 			if (!line.empty() && !tmp.empty())
 				_file_content.append(line + "\n");
 		}
@@ -70,7 +72,7 @@ namespace Config
 		std::string tmp;
 
 		tmp = line;
-		Utils::remove_white_space(tmp);
+		Utility::remove_white_space(tmp);
 		length = tmp.length();
 		if (tmp[length - 1] != ';')
 			throw std::runtime_error("Invalid-Config: Missing semicolon");
@@ -79,7 +81,7 @@ namespace Config
 	void ConfigValidator::_check_closing_bracket_line(std::string line)
 	{
 		std::string temp = line;
-		Utils::remove_white_space(temp);
+		Utility::remove_white_space(temp);
 		if (temp.compare("}") != 0)
 			throw std::runtime_error("Invalid-Config: Closing bracket");
 	}
@@ -87,7 +89,7 @@ namespace Config
 	bool ConfigValidator::_validate_server_opening(std::string line)
 	{
 		std::string temp = line;
-		Utils::remove_white_space(temp);
+		Utility::remove_white_space(temp);
 		if (temp.compare("server{") != 0)
 			throw std::runtime_error("Server opening line is invalid in config");
 		return true;
@@ -96,7 +98,7 @@ namespace Config
 	void ConfigValidator::_check_outside_of_server_block(std::string line)
 	{
 		std::string temp = line;
-		Utils::remove_white_space(temp);
+		Utility::remove_white_space(temp);
 		if(!temp.empty())
 			throw std::runtime_error("Invalid-Config: Information outside of server blocks");
 	}
@@ -106,7 +108,7 @@ namespace Config
 		std::vector<std::string> location_split;
 		size_t size;
 
-		location_split = Utils::split_string_white_space(line);
+		location_split = Utility::split_string_white_space(line);
 		size = location_split.size();
 		if (size == 3)
 		{

@@ -8,7 +8,6 @@
 #include <vector>
 #include "ServerBlock.hpp"
 #include "ConfigData.hpp"
-#include "Utils.hpp"
 
 namespace Config
 {

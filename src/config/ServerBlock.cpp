@@ -1,11 +1,11 @@
 #include "ServerBlock.hpp"
-#include "Utils.hpp"
+#include "../Utility/Utility.hpp"
 
 #include <cstdlib>
 namespace Config
 {
 
-    ServerBlock::ServerBlock(/* args */)
+    ServerBlock::ServerBlock()
     {
         _is_default = false;
         // std::cout << "ServerBlock construtor" << std::endl;
@@ -38,19 +38,19 @@ namespace Config
 
     void ServerBlock::set_listen(std::string str)
     {
-        Utils::remove_first_keyword(str);
-        Utils::split_value(str, _listen);
+        Utility::remove_first_keyword(str);
+        Utility::split_value(str, _listen);
     }
 
     void ServerBlock::set_server_name(std::string str)
     {
-        Utils::remove_first_keyword(str);
-        Utils::split_value(str, _server_name);
+        Utility::remove_first_keyword(str);
+        Utility::split_value(str, _server_name);
     }
 
     void ServerBlock::set_client_max_body_size(std::string str)
     {
-        Utils::remove_first_keyword(str);
+        Utility::remove_first_keyword(str);
         int first = str.find_first_not_of("     ;");
         int last = str.find_first_of("     ;", first + 1);
         std::string temp = str.substr(first, last - first);
@@ -62,12 +62,17 @@ namespace Config
         _is_default = value;
     }
 
+    void ServerBlock::set_a_location(const LocationBlock &location)
+    {
+        _locations.push_back(location);
+    }
+
     int ServerBlock::get_client_max_body_size(void) const
     {
         return _client_max_body_size;
     }
 
-    std::vector<std::string> ServerBlock::get_listen() const
+    const std::vector<std::string>& ServerBlock::get_listen() const
     {
         return _listen;
     }
@@ -77,7 +82,7 @@ namespace Config
         return _server_name;
     }
 
-    std::vector<LocationBlock> &ServerBlock::get_location(void)
+    const std::vector<LocationBlock> &ServerBlock::get_location(void) const
     {
         return _locations;
     }

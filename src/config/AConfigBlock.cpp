@@ -1,5 +1,5 @@
 #include "AConfigBlock.hpp"
-#include "Utils.hpp"
+#include "../Utility/Utility.hpp"
 
 namespace Config
 {
@@ -52,21 +52,21 @@ namespace Config
 
     void AConfigBlock::set_error_page_value(std::string str)
     {
-        Utils::remove_first_keyword(str);
-        Utils::split_value(str, _error_page);
+        Utility::remove_first_keyword(str);
+        Utility::split_value(str, _error_page);
     }
 
-    std::vector<std::string> AConfigBlock::get_return(void) const
+    const std::vector<std::string>& AConfigBlock::get_return(void) const
     {
         return _return;
     }
 
-    std::string AConfigBlock::get_root(void) const
+    const std::string& AConfigBlock::get_root(void) const
     {
         return _root;
     }
 
-    std::vector<std::string> AConfigBlock::get_error_page(void) const
+    const std::vector<std::string>& AConfigBlock::get_error_page(void) const
     {
         return _error_page;
     }

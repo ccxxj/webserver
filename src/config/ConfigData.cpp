@@ -40,7 +40,12 @@ namespace Config
             _servers[0].set_default(true);
     }
 
-	std::vector<ServerBlock> &ConfigData::get_servers(void)
+    void ConfigData::set_a_server(const ServerBlock &server)
+    {
+        _servers.push_back(server);
+    }
+    
+    const std::vector<ServerBlock> &ConfigData::get_servers(void) const
 	{
 		return (_servers);
 	}
@@ -98,7 +103,6 @@ namespace Config
 
     void ConfigData::print_root(ServerBlock &server)
     {
-
         std::string root = server.get_root();
         std::cout << YELLOW << "root: " << root << RESET << std::endl;
     }

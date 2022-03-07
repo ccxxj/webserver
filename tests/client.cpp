@@ -14,13 +14,13 @@
 
 int main(int argc, char const *argv[])
 {
-    int sock = 0; long valread;
+    int sock = 0;
     struct sockaddr_in serv_addr;
     std::string http_request_mes = "POST /cgi-bin/process.cgi?a=b&%75=uuuu HTTP/1.1\r\n"
                             "User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\r\n"
                             "Host: www.tutorialspoint.com\r\n"
                             "Content-Type: application/x-www-form-urlencoded\r\n"
-                            "Content-Length: length\r\n"
+                            "Content-Length: 49\r\n"
                             "Accept-Language: en-us\r\n"
                             "Accept-Encoding: gzip, deflate\r\n"
                             "Connection: Keep-Alive\r\n\r\n"
@@ -69,9 +69,9 @@ int main(int argc, char const *argv[])
     // send(sock, longest_message.c_str() + 1, longest_message.size() - 1, 0);
 
     send(sock, http_request_mes.c_str(), http_request_mes.size(), 0);
+    
 
-
-    valread = read( sock , buffer, 1024);
+    long valread = read( sock , buffer, 1024);
     printf("%s\n",buffer );
     return 0;
 }

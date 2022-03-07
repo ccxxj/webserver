@@ -1,5 +1,5 @@
 #include "LocationBlock.hpp"
-#include "Utils.hpp"
+#include "../Utility/Utility.hpp"
 
 #define NOT_SET -1
 #define OFF 0
@@ -36,7 +36,7 @@ namespace Config
 
     void LocationBlock::set_route(std::string str)
     {
-        Utils::remove_first_keyword(str);
+        Utility::remove_first_keyword(str);
         int first = str.find_first_not_of("     ");
         int last = str.find_first_of("  {", first);
         _route.assign(str.substr(first, last - first));
@@ -45,8 +45,8 @@ namespace Config
     //TODO do we want to validate the Method keywords
     void LocationBlock::set_limit_except(std::string str)
     {
-        Utils::remove_first_keyword(str);
-        Utils::split_value(str, _limit_except);
+        Utility::remove_first_keyword(str);
+        Utility::split_value(str, _limit_except);
         // int size = _limit_except.size();
         // (void)size; //TODO unused varibale do we need the int size?
         // _limit_except.pop_back(); //pop out the "{"
@@ -55,7 +55,7 @@ namespace Config
     //TODO add exception handling on the key word other than on or off??
     void LocationBlock::set_autoindex(std::string str)
     {
-        Utils::remove_first_keyword(str);
+        Utility::remove_first_keyword(str);
         int first = str.find_first_not_of("     ");
         int last = str.find_first_of("  ;", first + 1);
         std::string keyword = str.substr(first, last - first);
