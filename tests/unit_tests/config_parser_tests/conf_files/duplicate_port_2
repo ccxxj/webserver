@@ -1,0 +1,7 @@
+# ipv4 duplicate: a duplicate listen 0.0.0.0:8080 in /usr/local/etc/nginx/nginx.conf
+	server {
+        listen       8080;
+		listen       8080;
+        listen       [::]:8080;
+        server_name  localhost;
+    }

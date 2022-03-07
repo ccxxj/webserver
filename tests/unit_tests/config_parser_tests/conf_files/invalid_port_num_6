@@ -1,0 +1,9 @@
+	server {
+listen 8080 1200;
+server_name webservvvvv;
+
+root /var/www/localhost;
+	client_max_body_size 200;
+	error_page 404 /custom-404.html;
+	return 301 https://$server_name$request_uri;
+}
