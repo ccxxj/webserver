@@ -72,7 +72,7 @@ namespace Config
         return _listen;
     }
 
-    std::vector<std::string> ServerBlock::get_server_name() const
+    const std::vector<std::string>& ServerBlock::get_server_name() const
     {
         return _server_name;
     }
