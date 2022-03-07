@@ -14,5 +14,7 @@ namespace Utility {
 	bool check_after_keyword(int last_pos, std::string str);
 	void remove_first_keyword(std::string &line);
 	void remove_white_space(std::string &line);
+	void remove_last_of(char to_find, std::string &line);
+	bool is_positive_integer(const std::string& s);
 	std::vector<std::string> split_string_white_space(const std::string& str);
 }

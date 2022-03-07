@@ -1,4 +1,5 @@
 #include "Utility.hpp"
+#include <algorithm>
 
 namespace Utility
 {
@@ -89,6 +90,12 @@ namespace Utility
         temp.erase(std::remove_if(temp.begin(), temp.end(), ::isspace), temp.end());
     }
 
+    void remove_last_of(char to_find, std::string &line)
+    {
+        size_t pos = line.find_last_of(to_find);
+        line.erase(pos, pos + 1);
+    }
+
     bool check_after_keyword(int last_pos, std::string str)
     {
         std::string tmp = str.substr(last_pos, str.length());
@@ -107,4 +114,12 @@ namespace Utility
             result.push_back(s);
         return result;
     }
+
+    bool is_positive_integer(const std::string& s)
+    {
+        std::string::const_iterator it = s.begin();
+        while (it != s.end() && std::isdigit(*it)) 
+            ++it;
+        return !s.empty() && it == s.end();
+    }   
 } // namespace Utility
