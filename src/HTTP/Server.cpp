@@ -154,9 +154,14 @@ namespace HTTP {
 
 	void Server::run() {
 		const std::vector<Config::ServerBlock> servers = config_data->get_servers();
-		//TODO implemented on the idea that each server block will have on port + check segfault if no port is given
+		//TODO it's listening to any port that we have atm. Wha will hapen when we send a response?
 		for (size_t i = 0; i < servers.size(); i++)
-			_listen_ports.push_back(std::atoi(servers[i].get_listen()[0].c_str()));
+		{
+			std::set<std::string> listen_set = servers[i].get_listen();
+			//TODO [::]:1000's atoi result is 0 since the string starts with non-numerical number. 
+			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) 
+				_listen_ports.push_back(std::atoi((*i).c_str()));
+		}
 		_setup_listening_sockets();
 		_handle_events();
 	}
