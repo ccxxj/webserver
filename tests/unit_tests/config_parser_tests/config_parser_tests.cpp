@@ -220,3 +220,28 @@ TEST_CASE("Invalid listen directives")
 	CHECK_THROWS(parser.parse());
 	}
 }
+
+
+TEST_CASE("Unknown directives")
+{
+	SECTION("Comments except #")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/invalid_directive_1");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("Unknown directive sbfvasfas")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/invalid_directive_2");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+}

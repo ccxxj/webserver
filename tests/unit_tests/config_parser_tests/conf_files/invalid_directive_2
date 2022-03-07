@@ -1,0 +1,8 @@
+server {
+	listen 443 ;
+	listen [::]:443;
+	server_name webservvvvv;
+	root /var/www/localhost;
+
+	sbfvasfas;
+}
