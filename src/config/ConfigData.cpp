@@ -54,50 +54,19 @@ namespace Config
 	{
 		if (_servers.size() == 0)
 			throw std::runtime_error("Invalid-Config: empty file");
-		else
-		{
-			_check_ports();
-		}
-	}
-
-	void ConfigData::_check_ports(void)
-	{
-		std::vector<std::string> ports;
-		for (size_t i = 0; i < _servers.size(); i++)
-		{
-			ports = _servers[i].get_listen();
-			if(ports.size() == 0)
-				throw std::runtime_error("Invalid-Config: listen line"); //TODO what if the second listen line is empty
-			else
-				_check_port_range(_servers[i].get_listen());
-		}
-
-	}
-
-    void ConfigData::_check_port_range(std::vector<std::string> ports)
-	{
-        size_t port_num;
-		std::string ipv6 = "[::]:";
-		std::string str;
-		for (size_t i = 0; i < ports.size(); i++)
-		{
-			size_t pos = ports[i].find(ipv6);
-			if (pos != std::string::npos)
-				ports[i] = ports[i].substr(pos + ipv6.length());
-            port_num = std::atoi(ports[i].c_str());
-            if (port_num < 1 || port_num > 65535)
-                throw std::runtime_error("Listening port out of range or invalid");
-		}
+        for (size_t i = 0; i < _servers.size(); i++)
+        {
+            if(_servers[i].get_listen().size() == 0)
+                throw std::runtime_error("missing listen line");
+        }
 	}
 
 	void ConfigData::print_listen_info(ServerBlock &server)
     {
-        std::vector<std::string> ports = server.get_listen();
+        std::set<std::string> listen_set = server.get_listen();
         std::cout << GREEN << "listening ports: ";
-        for (size_t i = 0; i < ports.size(); i++)
-        {
-            std::cout << i + 1 << ")" << ports[i] << " ";
-        }
+		for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) 
+				std::cout << "X)" << *i << " ";
         std::cout << RESET << std::endl;
     }
 
