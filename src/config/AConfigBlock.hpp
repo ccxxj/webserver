@@ -19,6 +19,7 @@ namespace Config
 		AConfigBlock(const AConfigBlock &other);
 		const AConfigBlock &operator=(const AConfigBlock &other);
 		virtual ~AConfigBlock();
+		void _check_return_syntax(std::string str);
 		/* getters & setters */
 		void set_return_value(std::string str);
 		void set_root_value(std::string str);

@@ -1,3 +1,4 @@
+# error: host not found in "zcZcZcZ" of the "listen" directive
 	server {
 listen zcZcZcZ;
 server_name webservvvvv;
