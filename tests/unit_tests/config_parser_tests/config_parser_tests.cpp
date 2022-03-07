@@ -179,4 +179,44 @@ TEST_CASE("Invalid listen directives")
 	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
 	CHECK_THROWS(parser.parse());
 	}
+	SECTION("Negative port num")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/invalid_port_num_5");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("More than 1 arg")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/invalid_port_num_6");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("Duplicate port ipv4")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/duplicate_port_2");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("Duplicate port ipv6")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/duplicate_port_1");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
 }
