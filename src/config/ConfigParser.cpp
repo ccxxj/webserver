@@ -83,6 +83,10 @@ namespace Config
 			server.set_return_value(line);
 		else if (e_num == ROOT)
 			server.set_root_value(line);
+		//TODO anything specific to valid location block directive outside of server context
+		// else
+		// 	throw std::runtime_error("unknown directive " + line);
+
 	}
 
 	void ConfigParser::parse_location_directive(std::string line, LocationBlock &location, int e_num)
@@ -93,6 +97,8 @@ namespace Config
 			location.set_error_page_value(line);
 		else if (e_num == ROOT)
 			location.set_root_value(line);
+		else if (e_num == BODY_SIZE)
+			location.set_client_max_body_size(line);
 		else if (e_num == ROUTE)
 			location.set_route(line);
 		else if (e_num == RETURN)
@@ -101,6 +107,8 @@ namespace Config
 			location.set_limit_except(line);
 		else if (e_num == AUTOINDEX)
 			location.set_autoindex(line);
+		else
+			throw std::runtime_error("unknown directive " + line);
 	}
 
 	void ConfigParser::parse_server_block(std::string server_token, ServerBlock &server)

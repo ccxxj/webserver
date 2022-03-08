@@ -133,6 +133,7 @@ namespace Config
             std::cout << RED << "\n\tLocation Number " << i + 1 << RESET << std::endl;
             std::cout << GREEN << "\troute: " << locations[i].get_route() << std::endl;
             std::cout << BLUE << "\tauto_index: " << locations[i].get_autoindex() << RESET << std::endl;
+            std::cout << GREEN << "\tclient_max_body_size: " << locations[i].get_client_max_body_size() << RESET << std::endl;
             print_limit_except(locations[i]);
             std::cout << "\t";
             print_root((ServerBlock &)locations[i]);

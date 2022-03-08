@@ -44,6 +44,7 @@ namespace Config
 			throw std::runtime_error("invalid number of arguments in return directive");
 		_check_return_code(return_line[1]);
 	}
+
     /* getters & setters */
     void AConfigBlock::set_return_value(std::string str)
     {
@@ -70,6 +71,19 @@ namespace Config
         Utility::split_value(str, _error_page);
     }
 
+    void AConfigBlock::set_client_max_body_size(std::string str)
+    {
+        Utility::remove_first_keyword(str);
+        int first = str.find_first_not_of("     ;");
+        int last = str.find_first_of("     ;", first + 1);
+        std::string temp = str.substr(first, last - first);
+        _client_max_body_size = atoi(temp.c_str());
+    }
+
+    int AConfigBlock::get_client_max_body_size(void) const
+    {
+        return _client_max_body_size;
+    }
     const std::vector<std::string>& AConfigBlock::get_return(void) const
     {
         return _return;
