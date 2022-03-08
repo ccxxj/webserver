@@ -14,8 +14,6 @@ server {
 	server_name random_name;
 	# server_name irem;
 
-	client_max_body_size 2;
-
 	root /var/www/localhost;
 	error_page 404 /custom-404.html; #put them in the root!
 

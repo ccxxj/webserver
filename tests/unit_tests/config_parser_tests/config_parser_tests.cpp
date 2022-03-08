@@ -52,7 +52,7 @@ TEST_CASE("Parsing basic conf file")
 			CHECK(servers[1].get_server_name().size() == 1);
 			CHECK(servers[1].get_server_name()[0] == "random_name");
 			CHECK(servers[1].get_root() == "/var/www/localhost");
-			CHECK(servers[1].get_client_max_body_size() == 2);
+			CHECK(servers[1].get_client_max_body_size() == 1);
 			CHECK(servers[1].get_error_page().size() == 2);
 			CHECK(servers[1].get_error_page()[0] == "404");
 			CHECK(servers[1].get_error_page()[1] == "/custom-404.html");
@@ -289,4 +289,69 @@ TEST_CASE("Invalid return directives")
 	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
 	CHECK_THROWS(parser.parse());
 	}
+}
+
+
+TEST_CASE("client_max_body_size directive check")
+{
+	SECTION("duplicate directives")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/client_max_body_size_1");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("invalid value 120K")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/client_max_body_size_2");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("invalid size range")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/client_max_body_size_3");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("invalid num of args")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/client_max_body_size_4");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("No args")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/client_max_body_size_5");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	// 	SECTION("No args")
+	// {
+	// Config::ConfigValidator validator("config_parser_tests/conf_files/client_max_body_size_5");
+	// validator.validate();
+	// Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	// tokenizer.tokenize_server_blocks();
+	// Config::ConfigData config;
+	// Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	// CHECK_NOTHROW(parser.parse());
+	// }
 }
