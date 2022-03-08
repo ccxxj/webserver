@@ -344,9 +344,33 @@ TEST_CASE("client_max_body_size directive check")
 	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
 	CHECK_THROWS(parser.parse());
 	}
-	// 	SECTION("No args")
+}
+
+TEST_CASE("limit_except directive check")
+{
+	SECTION("no args")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/limit_except_1");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("invalid method")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/limit_except_2");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	// SECTION("invalid method")
 	// {
-	// Config::ConfigValidator validator("config_parser_tests/conf_files/client_max_body_size_5");
+	// Config::ConfigValidator validator("config_parser_tests/conf_files/limit_except_2");
 	// validator.validate();
 	// Config::ConfigTokenizer tokenizer(validator.get_file_content());
 	// tokenizer.tokenize_server_blocks();

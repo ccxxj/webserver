@@ -1,0 +1,13 @@
+server {
+listen 1000;
+server_name webservvvvv;
+root /var/www/localhost;
+
+	location /whatssssup/ {
+		root /var/www/iremiremirem;
+		autoindex on;
+		limit_except POST GET {
+			deny all xxx;
+		}
+	}
+}

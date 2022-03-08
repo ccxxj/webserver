@@ -130,3 +130,37 @@ TEST_CASE("Location block opening line")
 	CHECK_THROWS(validator5.validate());
 	}
 }
+
+TEST_CASE("limit_except directive")
+{
+	SECTION("inside server block")
+	{
+	Config::ConfigValidator validator1("config_validator_tests/conf_files/limit_except_1");
+	CHECK_THROWS(validator1.validate());
+	}
+	SECTION("unknown directive in limit_except")
+	{
+	Config::ConfigValidator validator1("config_validator_tests/conf_files/limit_except_2");
+	CHECK_THROWS(validator1.validate());
+	}
+	SECTION("unknown directive limit_exceptasd")
+	{
+	Config::ConfigValidator validator1("config_validator_tests/conf_files/limit_except_3");
+	CHECK_THROWS(validator1.validate());
+	}
+	SECTION("wrong deny arg")
+	{
+	Config::ConfigValidator validator1("config_validator_tests/conf_files/limit_except_4");
+	CHECK_THROWS(validator1.validate());
+	}
+	SECTION("invalid number of arguments in deny directive")
+	{
+	Config::ConfigValidator validator1("config_validator_tests/conf_files/limit_except_5");
+	CHECK_THROWS(validator1.validate());
+	}
+	SECTION("unknown directive denyxx all;")
+	{
+	Config::ConfigValidator validator1("config_validator_tests/conf_files/limit_except_6");
+	CHECK_THROWS(validator1.validate());
+	}
+}
