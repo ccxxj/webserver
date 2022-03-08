@@ -245,3 +245,48 @@ TEST_CASE("Unknown directives")
 	CHECK_THROWS(parser.parse());
 	}
 }
+
+TEST_CASE("Invalid return directives")
+{
+	SECTION("More than 2 args: return 301 https://local 355;")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/invalid_return_1");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("No args: return ;")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/invalid_return_2");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+
+	SECTION("invalid code: return 301abc https://localhost;")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/invalid_return_3");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("invalid code range: return -123 https://localhost;")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/invalid_return_4");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+}
