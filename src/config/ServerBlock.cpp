@@ -8,12 +8,13 @@ namespace Config
     ServerBlock::ServerBlock()
     {
         _is_default = false;
-        // std::cout << "ServerBlock construtor" << std::endl;
+        //TODO default client max body size check (nginx default 1M = 1000000 in decimal)
+        _client_max_body_size = 1;
+         _is_size_default = true;
     }
 
     ServerBlock::ServerBlock(const ServerBlock &other)
     {
-        // std::cout << "ServerBlock copy constructor" << std::endl;
         *this = other;
     }
 
@@ -27,14 +28,11 @@ namespace Config
         _root = other._root;
         _return = other._return;
         _error_page = other._error_page;
-        // std::cout << "ServerBlock assign operator" << std::endl;
+        _is_size_default = other._is_size_default;
         return *this;
     }
 
-    ServerBlock::~ServerBlock()
-    {
-        //std::cout  << "ServerBlock destructor" << std::endl;
-    }
+    ServerBlock::~ServerBlock() {}
 
     std::string ServerBlock::_check_and_return_port(const std::string& str)
     {
@@ -77,8 +75,6 @@ namespace Config
         Utility::split_value(str, _server_name);
     }
 
-
-
     void ServerBlock::set_default(bool value)
     {
         _is_default = value;
@@ -88,8 +84,6 @@ namespace Config
     {
         _locations.push_back(location);
     }
-
- 
 
     const std::set<std::string>& ServerBlock::get_listen() const
     {

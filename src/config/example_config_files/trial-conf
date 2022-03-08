@@ -4,7 +4,7 @@ listen 20;
 server_name webservvvvv;
 
 # root /var/www/localhost afsfadad ;
-	client_max_body_size 200;
+client_max_body_size 123;
 	error_page 404 /custom-404.html;
 	return 301 https://$server_name$request_uri ;
 }
@@ -18,7 +18,7 @@ server {
 server_name random_name;
 	# server_name irem;
 
-	client_max_body_size 2;
+	client_max_body_size 20;
 	
 
 	root /var/www/irem;

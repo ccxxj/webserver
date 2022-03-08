@@ -7,14 +7,16 @@
 namespace Config
 {
 
-    LocationBlock::LocationBlock(/* args */)
+    LocationBlock::LocationBlock()
     {
         _autoindex = NOT_SET; //default the diretory listing is off
+        //TODO default client max body size check (nginx default 1M = 1000000 in decimal)
+        _client_max_body_size = 1;
+        _is_size_default = true;
     }
 
     LocationBlock::LocationBlock(const LocationBlock &other)
     {
-        // std::cout << "LocationBlock copy constructor" << std::endl;
         *this = other;
     }
 
@@ -26,7 +28,8 @@ namespace Config
         _root = other._root;
         _return = other._return;
         _error_page = other._error_page;
-        // std::cout << "LocationBlock assign operator" << std::endl;
+        _client_max_body_size = other._client_max_body_size;
+        _is_size_default = other._is_size_default;
         return *this;
     }
 
