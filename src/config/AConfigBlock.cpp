@@ -22,13 +22,27 @@ namespace Config
     }
 
     AConfigBlock::~AConfigBlock() {}
+
+	void AConfigBlock::_check_return_code(std::string code)
+	{
+		int code_num;
+
+		if(Utility::is_positive_integer(code) == false)
+            throw std::runtime_error("invalid return code " + code);
+        code_num = std::atoi(code.c_str());
+        if (code_num < 0 || code_num > 999)
+            throw std::runtime_error("invalid return code " + code);
+	}
+
 	void AConfigBlock::_check_return_syntax(std::string str)
 	{
-		std::vector<std::string> return_line;
-
-		return_line = Utility::split_string_white_space(str);
-		if (return_line.size() < 2 || return_line.size() < 3)
+		std::string tmp = str;
+        Utility::remove_last_of(';', tmp);
+		std::vector<std::string> return_line = Utility::split_string_white_space(tmp);
+		//TODO nginx works with return + 1 arg. Reconsider this.
+		if (return_line.size() < 2 || return_line.size() > 3)
 			throw std::runtime_error("invalid number of arguments in return directive");
+		_check_return_code(return_line[1]);
 	}
     /* getters & setters */
     void AConfigBlock::set_return_value(std::string str)
