@@ -25,6 +25,8 @@ namespace Config
 		void _check_outside_of_server_block(std::string line);
 		void _validate_location_block(std::string line, std::istringstream &stream);
 		void _validate_location_opening(std::string line);
+		void _validate_limit_except(std::string line, std::istringstream &stream);
+		void _validate_deny_directive(std::string line);
 		void _are_brackets_balanced(void);
 		void _check_semi_colon(std::string line);
 		void _check_closing_bracket_line(std::string line);

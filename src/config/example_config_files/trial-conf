@@ -1,12 +1,14 @@
 	server {
 listen [::]:1000;
-listen 20;
-server_name webservvvvv;
+
+#listen 20;
+
+#server_name webservvvvv;
 
 # root /var/www/localhost afsfadad ;
-client_max_body_size 123;
-	error_page 404 /custom-404.html;
-	return 301 https://$server_name$request_uri ;
+#client_max_body_size 123;
+	#error_page 404 /custom-404.html;
+	#return 301 https://$server_name$request_uri ;
 }
 
 
@@ -32,8 +34,9 @@ client_max_body_size 200;
 		# irem;
 
 
-		limit_except POST {
-			deny all;
+		limit_except  GET POST DELETE HEAD {
+			#asdasd;
+			deny xxx;
 }
 
 		return 301 https://localhost;

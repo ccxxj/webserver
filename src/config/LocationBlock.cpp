@@ -37,6 +37,28 @@ namespace Config
     {
     }
 
+    /* check methods */
+    void LocationBlock::_check_limit_except(std::string& str)
+    {
+        size_t size = _limit_except.size();
+        if (size < 1)
+            throw std::runtime_error("invalid number of arguments in limit_except directive");
+        for (size_t i = 0; i < size; i++)
+        {
+            if (_limit_except[i] == "GET")
+                continue ;
+            if (_limit_except[i] == "POST")
+                continue ;
+            if (_limit_except[i] == "HEAD")
+                continue ;
+            if (_limit_except[i] == "DELETE")
+                continue ;
+            else
+            throw std::runtime_error("invalid method " + _limit_except[i]);
+        }   
+    }
+
+    /* getters & setters */
     void LocationBlock::set_route(std::string str)
     {
         Utility::remove_first_keyword(str);
@@ -45,14 +67,11 @@ namespace Config
         _route.assign(str.substr(first, last - first));
     }
 
-    //TODO do we want to validate the Method keywords
     void LocationBlock::set_limit_except(std::string str)
     {
         Utility::remove_first_keyword(str);
         Utility::split_value(str, _limit_except);
-        // int size = _limit_except.size();
-        // (void)size; //TODO unused varibale do we need the int size?
-        // _limit_except.pop_back(); //pop out the "{"
+        _check_limit_except(str);
     }
 
     //TODO add exception handling on the key word other than on or off??

@@ -130,23 +130,50 @@ namespace Config
 			throw std::runtime_error("Invalid-Config: Location opening");
 	}
 
-	void ConfigValidator::_validate_location_block(std::string line, std::istringstream &stream)
+	void ConfigValidator::_validate_deny_directive(std::string line)
 	{
-		bool limit_on;
+		_check_semi_colon(line);
+		Utility::remove_last_of(';', line);
+		std::vector<std::string> deny_split = Utility::split_string_white_space(line);
+		if (deny_split.size() != 2)
+			throw std::runtime_error("invalid number of arguments in deny directive");	
+		if (deny_split[0].compare("deny") != 0)
+			throw std::runtime_error("unknown directive " + deny_split[0]);
+		if (deny_split[1].compare("all") != 0)
+			throw std::runtime_error("invalid parameter " + deny_split[1]);
+	}
 
-		_validate_location_opening(line);
-		limit_on = false;
+	//TODO we decided to have simple limit except limit_except GET { deny all; }. So, no allow line?
+	void ConfigValidator::_validate_limit_except(std::string line, std::istringstream &stream)
+	{
+		std::vector<std::string> limit_except_split = Utility::split_string_white_space(line);
+		if (limit_except_split[0].compare("limit_except") != 0)
+			throw std::runtime_error("unknown directive " + limit_except_split[0]);
 		while (std::getline(stream, line))
 		{
-			if (line.find("limit_except") != std::string::npos)
-				limit_on = true;
+			if (line.find("deny") != std::string::npos)
+				_validate_deny_directive(line);
 			else if (line.find("}") != std::string::npos)
 			{
 				_check_closing_bracket_line(line);
-				if (limit_on == true)
-					limit_on = false;
-				else
-					break;
+				break;
+			}
+			else
+				throw std::runtime_error("unknown directive " + line);	
+		}
+	}
+
+	void ConfigValidator::_validate_location_block(std::string line, std::istringstream &stream)
+	{
+		_validate_location_opening(line);
+		while (std::getline(stream, line))
+		{
+			if (line.find("limit_except") != std::string::npos)
+				_validate_limit_except(line, stream);
+			else if (line.find("}") != std::string::npos)
+			{
+				_check_closing_bracket_line(line);
+				break;
 			}
 			else
 				_check_semi_colon(line);
@@ -173,6 +200,8 @@ namespace Config
 				_check_closing_bracket_line(line);
 				server_on = false;
 			}
+			else if (line.find("limit_except") != std::string::npos && server_on == true)
+				throw std::runtime_error("limit_except directive is not allowed here");
 			else
 				_check_semi_colon(line);
 		}
@@ -184,7 +213,6 @@ namespace Config
 		_remove_comments_and_empty_lines();
 		_are_brackets_balanced();
 		_validate_server_blocks();
-		//TODO validate limit_except line
 	}
 
 	const std::string& ConfigValidator::get_file_content() const

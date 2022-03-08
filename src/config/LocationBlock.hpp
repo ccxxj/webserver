@@ -13,13 +13,17 @@ namespace Config
 		int _autoindex;
 		std::string _route;
 		std::vector<std::string> _limit_except;
+	
+		/* check methods */
+		void _check_limit_except(std::string& str);
 		
 	public:
 		LocationBlock();
 		LocationBlock(const LocationBlock &other);
 		const LocationBlock &operator=(const LocationBlock &other);
 		~LocationBlock();
-
+		
+		/* getters & setters */
 		void set_route(std::string str);
 		void set_limit_except(std::string str);
 		void set_autoindex(std::string str);
