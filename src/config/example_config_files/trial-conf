@@ -36,13 +36,13 @@ client_max_body_size 200;
 
 		limit_except  GET POST DELETE HEAD {
 			#asdasd;
-			deny xxx;
+			deny all;
 }
 
 		return 301 https://localhost;
 	}
 
-	location /whatssssup/ {
+	location /xyz {
 		root /var/www/iremiremirem;
 autoindex on;
 

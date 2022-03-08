@@ -20,6 +20,7 @@ namespace Config
 		/* check methods */
 		std::string _check_and_return_port(const std::string& str);
 		void _check_port_range(const std::string& port);
+		void _check_duplicate_location_route(const std::string& route);
 
 	public:
 		ServerBlock();

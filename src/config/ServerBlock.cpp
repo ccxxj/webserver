@@ -63,6 +63,14 @@ namespace Config
             throw std::runtime_error("host not found in directive listen " + port);
 	}
 
+    void ServerBlock::_check_duplicate_location_route(const std::string& route)
+    {
+        std::vector<LocationBlock> locations = get_location();
+        for (size_t i = 0; i < locations.size(); i++)
+            if (locations[i].get_route() == route)
+                throw std::runtime_error("duplicate location " + route); 
+    }
+
     void ServerBlock::set_listen(std::string str)
     {
         if(!_listen.insert(_check_and_return_port(str)).second)
@@ -82,6 +90,7 @@ namespace Config
 
     void ServerBlock::set_a_location(const LocationBlock &location)
     {
+        _check_duplicate_location_route(location.get_route());
         _locations.push_back(location);
     }
 
