@@ -1,11 +1,11 @@
-#ifndef ConfigParser_HPP
-#define ConfigParser_HPP
+#pragma once
 
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <vector>
+
 #include "ServerBlock.hpp"
 #include "ConfigData.hpp"
 
@@ -47,4 +47,3 @@ namespace Config
 		void parse(void);
 	};
 } // namespace Config
-#endif

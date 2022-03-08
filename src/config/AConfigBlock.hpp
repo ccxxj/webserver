@@ -1,8 +1,9 @@
-#ifndef AConfig_HPP_
-#define AConfig_HPP_
+#pragma once
+
 #include <iostream>
 #include <string>
 #include <vector>
+
 namespace Config
 {
 
@@ -39,4 +40,3 @@ namespace Config
 		const std::vector<std::string>& get_error_page(void) const;
 	};
 } // namespace Config
-#endif

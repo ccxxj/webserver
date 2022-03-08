@@ -11,28 +11,20 @@
 namespace Config
 {
 
-    ConfigData::ConfigData(/* args */)
-    {
-        // std::cout << "ConfigData default construtor" << std::endl;
-    }
+    ConfigData::ConfigData() { }
 
     ConfigData::ConfigData(const ConfigData &other)
     {
-        // std::cout << "ConfigData copy construtor" << std::endl;
         *this = other;
     }
 
     const ConfigData &ConfigData::operator=(const ConfigData &other)
     {
-        // std::cout << "ConfigData assign operator" << std::endl;
         _servers = other._servers;
         return *this;
     }
 
-    ConfigData::~ConfigData()
-    {
-        // std::cout << "ConfigData destructor" << std::endl;
-    }
+    ConfigData::~ConfigData() { }
 
     void ConfigData::make_first_server_default(void)
     {

@@ -1,5 +1,4 @@
-#ifndef ConfigData_HPP
-#define ConfigData_HPP
+#pragma once
 
 #include <vector>
 #include <iostream>
@@ -13,10 +12,6 @@ namespace Config
 	private:
 		/* data */
 		std::vector<ServerBlock> _servers;
-
-		/* methods */
-		// void _check_ports(void);
-		// void _check_port_range(std::vector<std::string> ports);
 
 	public:
 		ConfigData(/* args */);
@@ -43,4 +38,3 @@ namespace Config
 		void print_limit_except(LocationBlock &location);
 	};
 } // namespace Config
-#endif
