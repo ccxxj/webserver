@@ -26,26 +26,16 @@ namespace Config
     AConfigBlock::~AConfigBlock() {}
 
     /* check methods */
-	void AConfigBlock::_check_return_syntax(std::string str)
+	void AConfigBlock::_check_return_syntax(std::vector<std::string>& args) const
 	{
-		std::string tmp = str;
-        Utility::remove_last_of(';', tmp);
-		std::vector<std::string> return_line = Utility::split_string_white_space(tmp);
-		//TODO nginx works with return + 1 arg. Reconsider this.
-		if (return_line.size() < 2 || return_line.size() > 3)
+		//TODO nginx works with return + 1 arg (2). Reconsider this.
+		if (args.size() != 3)
 			throw std::logic_error("invalid number of arguments in return directive");
-		_check_return_code(return_line[1]);
-	}
-
-    void AConfigBlock::_check_return_code(std::string code)
-	{
-		size_t code_num;
-
-		if(Utility::is_positive_integer(code) == false)
-            throw std::logic_error("invalid return code " + code);
-        code_num = std::atoi(code.c_str());
+		if(Utility::is_positive_integer(args[1]) == false)
+            throw std::logic_error("invalid return code " + args[1]);
+        size_t code_num = std::atoi(args[1].c_str());
         if (code_num < 0 || code_num > 999)
-            throw std::out_of_range("invalid return code " + code);
+            throw std::out_of_range("invalid return code " + args[1]);
 	}
   
 	void AConfigBlock::_check_error_page_syntax(std::vector<std::string>& args) const
@@ -91,9 +81,20 @@ namespace Config
     /* setters */
     void AConfigBlock::set_return_value(std::string str)
     {
-		_check_return_syntax(str);
-        Utility::remove_first_keyword(str);
-        Utility::split_value(str, _return);
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> args = Utility::split_string_white_space(str);
+		_check_return_syntax(args);
+        for (size_t i = 1; i < args.size(); i++)
+            _return.push_back(args[i]);
+    }
+
+    void AConfigBlock::set_error_page_value(std::string str)
+    {
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> args = Utility::split_string_white_space(str);
+		_check_error_page_syntax(args);
+        for (size_t i = 1; i < args.size(); i++)
+            _error_page.push_back(args[i]);
     }
 
     void AConfigBlock::set_root_value(std::string str)
@@ -106,15 +107,6 @@ namespace Config
         if(!Utility::check_after_keyword(last, str))
             throw std::logic_error("Invalid: invalid number of arguments in root directive");
         _root = str.substr(first, last - first);
-    }
-
-    void AConfigBlock::set_error_page_value(std::string str)
-    {
-        Utility::remove_last_of(';', str);
-        std::vector<std::string> args = Utility::split_string_white_space(str);
-		_check_error_page_syntax(args);
-        for (size_t i = 1; i < args.size(); i++)
-            _error_page.push_back(args[i]);
     }
 
     void AConfigBlock::set_client_max_body_size(std::string str)
