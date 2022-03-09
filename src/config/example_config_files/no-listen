@@ -1,4 +1,0 @@
-server {
-	server_name third_server;
-	client_max_body_size 200;
-}
