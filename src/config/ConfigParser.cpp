@@ -19,7 +19,7 @@ namespace Config
 		return Utility::check_first_keyword(line, "location");
 	}
 
-	int ConfigParser::find_directive(std::string line)
+	int ConfigParser::find_directive(std::string& line)
 	{
 		const char *directive_list[10] =
 			{"listen", "server_name", "client_max_body_size",
@@ -33,7 +33,7 @@ namespace Config
 		return -1;
 	}
 
-	void parse_limit_except(std::string line, LocationBlock &location, std::istringstream &stream)
+	void ConfigParser::parse_limit_except(std::string& line, LocationBlock &location, std::istringstream &stream)
 	{
 		location.set_limit_except(line);
 		while (std::getline(stream, line))
@@ -47,7 +47,7 @@ namespace Config
 		}
 	}
 
-	void ConfigParser::parse_location_block(std::string line, std::istringstream &stream, ServerBlock &server)
+	void ConfigParser::parse_location_block(std::string& line, std::istringstream &stream, ServerBlock &server)
 	{
 		LocationBlock location;
 		int e_num = -4;
@@ -69,7 +69,7 @@ namespace Config
 		server.set_a_location(location);
 	}
 
-	void ConfigParser::parse_server_directive(std::string line, ServerBlock &server, int e_num)
+	void ConfigParser::parse_server_directive(std::string& line, ServerBlock &server, int e_num)
 	{
 		if (e_num == LISTEN)
 			server.set_listen(line);
@@ -89,14 +89,12 @@ namespace Config
 
 	}
 
-	void ConfigParser::parse_location_directive(std::string line, LocationBlock &location, int e_num)
+	void ConfigParser::parse_location_directive(std::string& line, LocationBlock &location, int e_num)
 	{
 		if (e_num == ROOT)
 			location.set_root_value(line);
 		else if (e_num == ERROR_PAGE)
 			location.set_error_page_value(line);
-		else if (e_num == ROOT)
-			location.set_root_value(line);
 		else if (e_num == BODY_SIZE)
 			location.set_client_max_body_size(line);
 		else if (e_num == ROUTE)
@@ -111,7 +109,7 @@ namespace Config
 			throw std::runtime_error("unknown directive " + line);
 	}
 
-	void ConfigParser::parse_server_block(std::string server_token, ServerBlock &server)
+	void ConfigParser::parse_server_block(std::string& server_token, ServerBlock &server)
 	{
 		std::string line;
 		std::istringstream stream(server_token);

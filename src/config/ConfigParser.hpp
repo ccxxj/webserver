@@ -32,12 +32,13 @@ namespace Config
 		};
 
 		/* methods */
-		void parse_server_block(std::string server_token, ServerBlock &server);
+		void parse_server_block(std::string& server_token, ServerBlock &server);
 		bool find_location(std::string line);
-		int find_directive(std::string line);
-		void parse_location_block(std::string line, std::istringstream &stream, ServerBlock &server);
-		void parse_server_directive(std::string line, ServerBlock &server, int e_num);
-		void parse_location_directive(std::string line, LocationBlock &location, int e_num);
+		int find_directive(std::string& line);
+		void parse_location_block(std::string& line, std::istringstream &stream, ServerBlock &server);
+		void parse_server_directive(std::string& line, ServerBlock &server, int e_num);
+		void parse_location_directive(std::string& line, LocationBlock &location, int e_num);
+		void parse_limit_except(std::string& line, LocationBlock &location, std::istringstream &stream);
 		// TODO ConfigParser(); do we need default constructor?
 
 	public:
