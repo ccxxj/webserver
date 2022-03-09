@@ -36,9 +36,10 @@ TEST_CASE("Parsing basic conf file")
 			CHECK(servers[0].get_server_name()[1] == "webservvvvv");
 			CHECK(servers[0].get_root() == "/var/www/localhost");
 			CHECK(servers[0].get_client_max_body_size() == 200);
-			CHECK(servers[0].get_error_page().size() == 2);
+			CHECK(servers[0].get_error_page().size() == 3);
 			CHECK(servers[0].get_error_page()[0] == "404");
-			CHECK(servers[0].get_error_page()[1] == "/custom-404.html");
+			CHECK(servers[0].get_error_page()[1] == "405");
+			CHECK(servers[0].get_error_page()[2] == "/custom-404.html");
 			CHECK(servers[0].get_return().size() == 2);
 			CHECK(servers[0].get_return()[0] == "301");
 			CHECK(servers[0].get_return()[1] == "https://$server_name$request_uri");
@@ -379,4 +380,68 @@ TEST_CASE("duplicate location route")
 	Config::ConfigData config;
 	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
 	CHECK_THROWS(parser.parse());
+}
+
+TEST_CASE("error_page directive check")
+{
+	SECTION("no args")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/error_page_1");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("1 arg")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/error_page_2");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("more than 2 args - invalid value")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/error_page_3");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("negative invalid value")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/error_page_4");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("error code range between 300 - 599")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/error_page_5");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	// 	SECTION("more than 2 args - invalid value")
+	// {
+	// Config::ConfigValidator validator("config_parser_tests/conf_files/error_page_2");
+	// validator.validate();
+	// Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	// tokenizer.tokenize_server_blocks();
+	// Config::ConfigData config;
+	// Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	// CHECK_NOTHROW(parser.parse());
+	// }
 }
