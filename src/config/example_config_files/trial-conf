@@ -1,3 +1,10 @@
+#WTF with empty file?
+server {
+    listen       8080;
+    server_name  localhost;
+    location / {
+    }
+}
 	server {
 listen [::]:1000 ;
 
@@ -16,7 +23,7 @@ listen [::]:1000 ;
 
 
 server {
-	listen 8080;
+	listen 80;
 	#listen 8080;
 
 server_name random_name;
