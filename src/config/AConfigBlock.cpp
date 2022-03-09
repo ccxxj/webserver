@@ -18,7 +18,7 @@ namespace Config
         _return = other._return;
         _root = other._root;
         _error_page = other._error_page;
-        _client_max_body_size = other.client_max_body_size;
+        _client_max_body_size = other._client_max_body_size;
         _is_size_default = other._is_size_default;
         return *this;
     }
@@ -84,7 +84,7 @@ namespace Config
 	}
 
     /* setters */
-    void AConfigBlock::set_return_value(std::string str)
+    void AConfigBlock::set_return_value(std::string& str)
     {
         Utility::remove_last_of(';', str);
         std::vector<std::string> args = Utility::split_string_white_space(str);
@@ -93,7 +93,7 @@ namespace Config
             _return.push_back(args[i]);
     }
 
-    void AConfigBlock::set_error_page_value(std::string str)
+    void AConfigBlock::set_error_page_value(std::string& str)
     {
         Utility::remove_last_of(';', str);
         std::vector<std::string> args = Utility::split_string_white_space(str);
@@ -102,7 +102,7 @@ namespace Config
             _error_page.push_back(args[i]);
     }
 
-    void AConfigBlock::set_root_value(std::string str)
+    void AConfigBlock::set_root_value(std::string& str)
     {    
         Utility::remove_last_of(';', str);
         std::vector<std::string> args = Utility::split_string_white_space(str);
@@ -110,7 +110,7 @@ namespace Config
         _root = args[1];
     }
 
-    void AConfigBlock::set_client_max_body_size(std::string str)
+    void AConfigBlock::set_client_max_body_size(std::string& str)
     {
 
         Utility::remove_last_of(';', str);

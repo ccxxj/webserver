@@ -102,7 +102,8 @@ namespace Utility
     void remove_last_of(char to_find, std::string &line)
     {
         size_t pos = line.find_last_of(to_find);
-        line.erase(pos, pos + 1);
+        if (pos != std::string::npos)
+            line.erase(pos, pos + 1);
     }
 
     bool check_after_keyword(int last_pos, std::string str)

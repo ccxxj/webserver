@@ -19,7 +19,7 @@ void Webserver::start()
 		tokenizer.tokenize_server_blocks();
 		Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
 		parser.parse();
-		// config.print_servers_info();
+		config.print_servers_info();
 		config.check_parsed_data();
 		HTTP::Server server(&config);
 		server.run();

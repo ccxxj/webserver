@@ -31,10 +31,10 @@ namespace Config
 		virtual ~AConfigBlock();
 
 		/* getters & setters */
-		void set_return_value(std::string str);
-		void set_root_value(std::string str);
-		void set_error_page_value(std::string str);
-		void set_client_max_body_size(std::string str);
+		void set_return_value(std::string& str);
+		void set_root_value(std::string& str);
+		void set_error_page_value(std::string& str);
+		void set_client_max_body_size(std::string& str);
 		int get_client_max_body_size(void) const;
 		bool get_is_size_default(void) const;
 		const std::string& get_root(void) const;
