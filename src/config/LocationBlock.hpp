@@ -15,7 +15,7 @@ namespace Config
 		std::vector<std::string> _limit_except;
 	
 		/* check methods */
-		void _check_limit_except(std::string& str);
+		void _check_limit_except(std::vector<std::string>& args) const;
 		
 	public:
 		LocationBlock();

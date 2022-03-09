@@ -38,23 +38,23 @@ namespace Config
     }
 
     /* check methods */
-    void LocationBlock::_check_limit_except(std::string& str)
+    void LocationBlock::_check_limit_except(std::vector<std::string>& args) const
     {
-        size_t size = _limit_except.size();
-        if (size < 1)
+        size_t size = args.size();
+        if (size < 2)
             throw std::runtime_error("invalid number of arguments in limit_except directive");
-        for (size_t i = 0; i < size; i++)
+        for (size_t i = 1; i < size; i++)
         {
-            if (_limit_except[i] == "GET")
+            if (args[i] == "GET")
                 continue ;
-            if (_limit_except[i] == "POST")
+            if (args[i] == "POST")
                 continue ;
-            if (_limit_except[i] == "HEAD")
+            if (args[i] == "HEAD")
                 continue ;
-            if (_limit_except[i] == "DELETE")
+            if (args[i] == "DELETE")
                 continue ;
             else
-            throw std::runtime_error("invalid method " + _limit_except[i]);
+                throw std::runtime_error("invalid method " + args[i]);
         }   
     }
 
@@ -69,9 +69,11 @@ namespace Config
 
     void LocationBlock::set_limit_except(std::string str)
     {
-        Utility::remove_first_keyword(str);
-        Utility::split_value(str, _limit_except);
-        _check_limit_except(str);
+        Utility::remove_last_of('{', str);
+        std::vector<std::string> args = Utility::split_string_white_space(str);
+		_check_limit_except(args);
+        for (size_t i = 1; i < args.size(); i++)
+            _limit_except.push_back(args[i]);
     }
 
     //TODO add exception handling on the key word other than on or off??
