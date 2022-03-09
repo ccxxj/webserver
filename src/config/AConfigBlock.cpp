@@ -48,11 +48,21 @@ namespace Config
 		_check_return_code(return_line[1]);
 	}
 
+	void AConfigBlock::_check_error_page_syntax(std::string& str)
+	{
+		Utility::remove_last_of(';', str);
+		std::vector<std::string> args = Utility::split_string_white_space(str);
+		//TODO nginx works with return + 1 arg. Reconsider this.
+		if (args.size() != 2)
+			throw std::runtime_error("invalid number of arguments in error_page directive");
+		// _check_return_code(return_line[1]);
+	}
+
     void AConfigBlock::_check_client_max_body_size_syntax(std::string& str)
     {
         std::string tmp = str;
         Utility::remove_last_of(';', tmp);
-		std::vector<std::string> size_line = Utility::split_string_white_space(tmp);        
+		std::vector<std::string> size_line = Utility::split_string_white_space(tmp);
 		if (size_line.size() != 1)
 			throw std::runtime_error("invalid number of arguments in client_max_body_size");
 		_check_size(size_line[0]);
@@ -64,7 +74,7 @@ namespace Config
 
         //TODO assuming we will have M or m. K and G are now invalid.
         if(size[size.size() - 1] == 'M')
-            Utility::remove_last_of('M', size); 
+            Utility::remove_last_of('M', size);
         else if(size[size.size() - 1] == 'm')
             Utility::remove_last_of('m', size);
 		if(Utility::is_positive_integer(size) == false)
@@ -96,6 +106,7 @@ namespace Config
     void AConfigBlock::set_error_page_value(std::string str)
     {
         Utility::remove_first_keyword(str);
+		_check_error_page_syntax(str);
         Utility::split_value(str, _error_page);
     }
 

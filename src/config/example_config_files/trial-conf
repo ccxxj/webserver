@@ -21,7 +21,7 @@ server_name random_name;
 	# server_name irem;
 
 	client_max_body_size 20;
-	
+
 
 	root /var/www/irem;
 		 error_page 404 /custom-404.html; #put them in the root!
@@ -29,7 +29,7 @@ server_name random_name;
 	location /xyz {
 root /var/www/localhost;
 client_max_body_size 200;
-		error_page 301 /custom-301.html;
+		error_page 301; # /custom-301.html;
 		autoindex on;
 		# irem;
 
