@@ -434,14 +434,18 @@ TEST_CASE("error_page directive check")
 	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
 	CHECK_THROWS(parser.parse());
 	}
-	// 	SECTION("more than 2 args - invalid value")
-	// {
-	// Config::ConfigValidator validator("config_parser_tests/conf_files/error_page_2");
-	// validator.validate();
-	// Config::ConfigTokenizer tokenizer(validator.get_file_content());
-	// tokenizer.tokenize_server_blocks();
-	// Config::ConfigData config;
-	// Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
-	// CHECK_NOTHROW(parser.parse());
-	// }
+}
+
+TEST_CASE("server_name directive check")
+{
+		SECTION("no args")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/server_name_1");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
 }

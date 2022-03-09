@@ -1,0 +1,7 @@
+server{
+    listen 1000;
+    server_name ;
+    root /var/www/localhost;
+}
+
+ 
