@@ -1,5 +1,6 @@
 #include "Utility.hpp"
 #include <algorithm>
+#include <iostream>
 
 namespace Utility
 {
@@ -82,7 +83,15 @@ namespace Utility
     {
         int first = line.find_first_not_of("    ");
         int end = line.find_first_of("  ", first + 1);
-        line.erase(first, end - first);
+        line.erase(first, end);
+    }
+
+    void remove_first_word(std::string &line)
+    {
+        line = Utility::leading_trim(line);
+        size_t end = line.find_first_of("  ;"); //TODO what if no space and no ;?
+        if (end != std::string::npos)
+            line.erase(0, end);
     }
 
     void remove_white_space(std::string &temp)
@@ -121,5 +130,25 @@ namespace Utility
         while (it != s.end() && std::isdigit(*it)) 
             ++it;
         return !s.empty() && it == s.end();
-    }   
+    } 
+
+    std::string leading_trim(const std::string &s)
+    {
+        const std::string WHITESPACE = " \n\r\t\f\v";
+        size_t start = s.find_first_not_of(WHITESPACE);
+        return (start == std::string::npos) ? "" : s.substr(start);
+    }
+    
+    std::string trailing_trim(const std::string &s)
+    {
+        const std::string WHITESPACE = " \n\r\t\f\v";
+        size_t end = s.find_last_not_of(WHITESPACE);
+        return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+    }
+    
+    std::string trim_white_space(const std::string &s) 
+    {
+        const std::string WHITESPACE = " \n\r\t\f\v";
+        return trailing_trim(leading_trim(s));
+    }  
 } // namespace Utility
