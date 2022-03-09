@@ -81,6 +81,16 @@ TEST_CASE("Missing semicolon")
 	Config::ConfigValidator validator3("config_validator_tests/conf_files//missing_semicolon_3");
 	CHECK_THROWS(validator3.validate());
 	}
+	SECTION("anything after semicolon listen 100; abc;")
+	{
+	Config::ConfigValidator validator3("config_validator_tests/conf_files//missing_semicolon_4");
+	CHECK_THROWS(validator3.validate());
+	}
+	SECTION("anything after semicolon listen 100; abc")
+	{
+	Config::ConfigValidator validator3("config_validator_tests/conf_files//missing_semicolon_5");
+	CHECK_THROWS(validator3.validate());
+	}
 }
 
 TEST_CASE("Server block opening line")
