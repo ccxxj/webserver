@@ -50,22 +50,14 @@ namespace Utility
 
     bool check_first_keyword(std::string line, std::string keyword)
     {
-        size_t first = line.find_first_not_of(" 	");
+        size_t first = line.find_first_not_of(" \t");
         if (first < 0)
             return false;
-        size_t end = line.find_first_of(" 	;{", first + 1);
+        size_t end = line.find_first_of(" \t;{", first + 1);
         if (line.substr(first, end - first).compare(keyword) == 0)
             return true;
         else
             return false;
-    }
-
-    void remove_first_keyword(std::string &line)
-    {
-        size_t first = line.find_first_not_of("    ");
-        size_t end = line.find_first_of("  ", first + 1);
-        if (end != std::string::npos)
-            line.erase(first, end);
     }
 
     void remove_white_space(std::string &temp)
@@ -102,10 +94,10 @@ namespace Utility
     bool is_positive_integer(const std::string& s)
     {
         std::string::const_iterator it = s.begin();
-        while (it != s.end() && std::isdigit(*it)) 
+        while (it != s.end() && std::isdigit(*it))
             ++it;
         return !s.empty() && it == s.end();
-    } 
+    }
 
     std::string leading_trim(const std::string &s)
     {
@@ -113,17 +105,17 @@ namespace Utility
         size_t start = s.find_first_not_of(WHITESPACE);
         return (start == std::string::npos) ? "" : s.substr(start);
     }
-    
+
     std::string trailing_trim(const std::string &s)
     {
         const std::string WHITESPACE = " \n\r\t\f\v";
         size_t end = s.find_last_not_of(WHITESPACE);
         return (end == std::string::npos) ? "" : s.substr(0, end + 1);
     }
-    
-    std::string trim_white_space(const std::string &s) 
+
+    std::string trim_white_space(const std::string &s)
     {
         const std::string WHITESPACE = " \n\r\t\f\v";
         return trailing_trim(leading_trim(s));
-    }  
+    }
 } // namespace Utility
