@@ -55,7 +55,7 @@ namespace Config
                 continue ;
             else
                 throw std::runtime_error("invalid method " + args[i]);
-        }   
+        }
     }
 
     size_t LocationBlock::_check_autoindex_syntax(std::vector<std::string>& args) const
@@ -73,10 +73,10 @@ namespace Config
     /* getters & setters */
     void LocationBlock::set_route(std::string str)
     {
-        Utility::remove_first_keyword(str);
-        int first = str.find_first_not_of("     ");
-        int last = str.find_first_of("  {", first);
-        _route.assign(str.substr(first, last - first));
+		Utility::remove_last_of('{', str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
+		if(args.size() == 2)
+        	_route.assign(args[1]);
     }
 
     void LocationBlock::set_limit_except(std::string str)
