@@ -1,5 +1,5 @@
 	server {
-listen [::]:1000;
+listen [::]:1000 ;
 
 #listen 20;
 
@@ -32,7 +32,7 @@ server_name random_name;
 root /var/www/localhost;
 client_max_body_size 200;
 		#error_page 301 /custom-301.html;
-		autoindex;
+		autoindex on;
 		# irem;
 
 
