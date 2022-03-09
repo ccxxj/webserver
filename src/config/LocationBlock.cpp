@@ -9,7 +9,7 @@ namespace Config
 
     LocationBlock::LocationBlock()
     {
-        _autoindex = NOT_SET; //default the diretory listing is off
+        _autoindex = NOT_SET; //TODO default the diretory listing is off
         //TODO default client max body size check (nginx default 1M = 1000000 in decimal)
         _client_max_body_size = 1;
         _is_size_default = true;
@@ -58,6 +58,18 @@ namespace Config
         }   
     }
 
+    size_t LocationBlock::_check_autoindex_syntax(std::vector<std::string>& args) const
+    {
+        if (args.size() != 2)
+            throw std::runtime_error("invalid number of arguments in autoindex directive");
+        else if (args[1].compare("on") == 0)
+            return ON;
+        else if (args[1].compare("off") == 0)
+            return OFF;
+        else
+            throw std::runtime_error("invalid method " + args[1] + " in autoindex directive, it must be on or off");
+    }
+
     /* getters & setters */
     void LocationBlock::set_route(std::string str)
     {
@@ -76,21 +88,11 @@ namespace Config
             _limit_except.push_back(args[i]);
     }
 
-    //TODO add exception handling on the key word other than on or off??
     void LocationBlock::set_autoindex(std::string str)
     {
-        Utility::remove_first_keyword(str);
-        int first = str.find_first_not_of("     ");
-        int last = str.find_first_of("  ;", first + 1);
-        std::string keyword = str.substr(first, last - first);
-        if (keyword.compare("on") == 0)
-            _autoindex = ON;
-        else if (keyword.compare("off") == 0)
-            _autoindex = OFF;
-        // else
-        // {
-        /* set as exception */
-        // }
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
+        _autoindex = _check_autoindex_syntax(args);
     }
 
     int LocationBlock::get_autoindex() const

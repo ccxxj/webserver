@@ -16,6 +16,7 @@ namespace Config
 	
 		/* check methods */
 		void _check_limit_except(std::vector<std::string>& args) const;
+		size_t _check_autoindex_syntax(std::vector<std::string>& args) const;
 		
 	public:
 		LocationBlock();
