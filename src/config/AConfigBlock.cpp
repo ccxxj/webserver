@@ -47,23 +47,16 @@ namespace Config
         if (code_num < 0 || code_num > 999)
             throw std::out_of_range("invalid return code " + code);
 	}
-    //TODO & or not. if & split_value fails.
+  
 	void AConfigBlock::_check_error_page_syntax(std::vector<std::string>& args) const
 	{
-		if (args.size() < 2)
+		if (args.size() < 3)
 			throw std::logic_error("invalid number of arguments in error_page directive");
-		_check_error_page_code(args);
-	}
-
-    void AConfigBlock::_check_error_page_code(std::vector<std::string>& args) const
-	{
-		size_t code_num;
-
-        for (size_t i = 0; i < args.size() - 1; i++)
+		for (size_t i = 1; i < args.size() - 1; i++)
         {
             if(Utility::is_positive_integer(args[i]) == false)
                 throw std::logic_error("invalid value " + args[i]);
-            code_num = std::atoi(args[i].c_str());
+            size_t code_num = std::atoi(args[i].c_str());
             if (code_num < 300 || code_num > 599)
                 throw std::out_of_range("value " + args[i] + " must be between 300 and 599");
         }
@@ -117,11 +110,10 @@ namespace Config
 
     void AConfigBlock::set_error_page_value(std::string str)
     {
-        Utility::remove_first_word(str);
         Utility::remove_last_of(';', str);
         std::vector<std::string> args = Utility::split_string_white_space(str);
 		_check_error_page_syntax(args);
-        for (size_t i = 0; i < args.size(); i++)
+        for (size_t i = 1; i < args.size(); i++)
             _error_page.push_back(args[i]);
     }
 
