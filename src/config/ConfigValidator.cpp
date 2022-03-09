@@ -73,9 +73,10 @@ namespace Config
 
 		tmp = line;
 		Utility::remove_white_space(tmp);
+		size_t first = tmp.find_first_of(";");
 		length = tmp.length();
-		if (tmp[length - 1] != ';')
-			throw std::runtime_error("Invalid-Config: Missing semicolon");
+		if (first != length - 1)
+			throw std::runtime_error("missing semicolon or invalid use of semicolon in " + line);
 	}
 
 	void ConfigValidator::_check_closing_bracket_line(std::string line)
