@@ -52,6 +52,14 @@ namespace Config
         }
 	}
 
+    void AConfigBlock::_check_root_syntax(std::vector<std::string>& args) const
+	{
+        if(!_root.empty())
+            throw std::logic_error("root directive is duplicate");
+		if (args.size() != 2)
+		    throw std::logic_error("invalid number of arguments in root directive");
+	}
+
     void AConfigBlock::_check_client_max_body_size_syntax(std::string& str)
     {
         std::string tmp = str;
@@ -98,15 +106,11 @@ namespace Config
     }
 
     void AConfigBlock::set_root_value(std::string str)
-    {
-        if(!_root.empty())
-            throw std::logic_error("Invalid: root directive is duplicate");
-        Utility::remove_first_keyword(str);
-        int first = str.find_first_not_of("     ;");
-        int last = str.find_first_of("     ;", first + 1);
-        if(!Utility::check_after_keyword(last, str))
-            throw std::logic_error("Invalid: invalid number of arguments in root directive");
-        _root = str.substr(first, last - first);
+    {    
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> args = Utility::split_string_white_space(str);
+		_check_root_syntax(args);
+        _root = args[1];
     }
 
     void AConfigBlock::set_client_max_body_size(std::string str)

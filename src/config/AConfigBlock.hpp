@@ -20,6 +20,7 @@ namespace Config
 		/* check methods */
 		void _check_return_syntax(std::vector<std::string>& args) const;
 		void _check_error_page_syntax(std::vector<std::string>& args) const;
+		void _check_root_syntax(std::vector<std::string>& args) const;
 		void _check_client_max_body_size_syntax(std::string& str);
 		void _check_size(std::string& size);
 
