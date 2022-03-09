@@ -9,7 +9,8 @@ BUILD_PATH = $(addprefix $(BUILD_DIR)/, out)
 SRC = main_test.cpp \
 	catch_amalgamated.cpp \
 	request_parser_unit_tests/request_parser_tests.cpp \
-	config_parser_tests/config_parser_tests.cpp \
+	config_parser_tests/valid_config_parser_tests.cpp \
+	config_parser_tests/invalid_config_parser_tests.cpp \
 	config_validator_tests/config_validator_tests.cpp \
 	uri_parser_unit_tests/uri_parser_tests.cpp \
 	data_check_after_parse/data_check_after_parse.cpp
