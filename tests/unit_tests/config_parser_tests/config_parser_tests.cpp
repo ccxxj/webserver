@@ -449,3 +449,37 @@ TEST_CASE("server_name directive check")
 	CHECK_THROWS(parser.parse());
 	}
 }
+
+TEST_CASE("autoindex directive check")
+{
+	SECTION("no args")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/autoindex_2");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("more than 1 arg")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/autoindex_1");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+	SECTION("invalid arg")
+	{
+	Config::ConfigValidator validator("config_parser_tests/conf_files/autoindex_3");
+	validator.validate();
+	Config::ConfigTokenizer tokenizer(validator.get_file_content());
+	tokenizer.tokenize_server_blocks();
+	Config::ConfigData config;
+	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
+	CHECK_THROWS(parser.parse());
+	}
+}
