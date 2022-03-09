@@ -34,18 +34,18 @@ namespace Config
 
     ServerBlock::~ServerBlock() {}
 
-    std::string ServerBlock::_check_and_return_port(const std::string& str)
+    /* check methods */
+    std::string ServerBlock::_check_and_return_port(std::string& str)
     {
-        std::string tmp = str;
-        Utility::remove_last_of(';', tmp);
-        std::vector<std::string> listen_args = Utility::split_string_white_space(tmp);
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> listen_args = Utility::split_string_white_space(str);
         if (listen_args.size() != 2)
-            throw std::runtime_error("invalid number of arguments in listen"); 
+            throw std::logic_error("invalid number of arguments in listen"); 
         _check_port_range(listen_args[1]);
         return listen_args[1];
     }
 
-    void ServerBlock::_check_port_range(const std::string& port)
+    void ServerBlock::_check_port_range(std::string& port)
 	{
         size_t port_num;
 		std::string ipv6 = "[::]:";
@@ -57,10 +57,10 @@ namespace Config
         else
             str = port;
         if(Utility::is_positive_integer(str) == false)
-            throw std::runtime_error("host not found in directive listen " + port);
+            throw std::logic_error("host not found in directive listen " + port);
         port_num = std::atoi(str.c_str());
         if (port_num < 1 || port_num > 65535)
-            throw std::runtime_error("host not found in directive listen " + port);
+            throw std::out_of_range("host not found in directive listen " + port);
 	}
 
     void ServerBlock::_check_duplicate_location_route(const std::string& route)
@@ -68,19 +68,29 @@ namespace Config
         std::vector<LocationBlock> locations = get_location();
         for (size_t i = 0; i < locations.size(); i++)
             if (locations[i].get_route() == route)
-                throw std::runtime_error("duplicate location " + route); 
+                throw std::logic_error("duplicate location " + route); 
     }
 
+    void ServerBlock::_check_server_name_syntax(std::vector<std::string>& args) const
+	{
+		if (args.size() < 2)
+			throw std::logic_error("invalid number of arguments in server_name directive");
+	}
+
+    /* setters */
     void ServerBlock::set_listen(std::string str)
     {
         if(!_listen.insert(_check_and_return_port(str)).second)
-            throw std::runtime_error("a duplicate " + str);
+            throw std::logic_error("a duplicate " + str);
     }
 
     void ServerBlock::set_server_name(std::string str)
     {
-        Utility::remove_first_keyword(str);
-        Utility::split_value(str, _server_name);
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> args = Utility::split_string_white_space(str);
+		_check_server_name_syntax(args);
+        for (size_t i = 1; i < args.size(); i++)
+            _server_name.push_back(args[i]);
     }
 
     void ServerBlock::set_default(bool value)
@@ -94,6 +104,7 @@ namespace Config
         _locations.push_back(location);
     }
 
+    /* getters */
     const std::set<std::string>& ServerBlock::get_listen() const
     {
         return _listen;

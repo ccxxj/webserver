@@ -1,10 +1,11 @@
 #pragma once
 
-#include "AConfigBlock.hpp"
-#include "LocationBlock.hpp"
 #include <vector>
 #include <set>
 #include <string>
+
+#include "AConfigBlock.hpp"
+#include "LocationBlock.hpp"
 
 namespace Config
 {
@@ -18,9 +19,10 @@ namespace Config
 		std::vector<LocationBlock> _locations;
 		
 		/* check methods */
-		std::string _check_and_return_port(const std::string& str);
-		void _check_port_range(const std::string& port);
+		std::string _check_and_return_port(std::string& str);
+		void _check_port_range(std::string& port);
 		void _check_duplicate_location_route(const std::string& route);
+		void _check_server_name_syntax(std::vector<std::string>& args) const;
 
 	public:
 		ServerBlock();
