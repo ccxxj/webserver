@@ -7,7 +7,9 @@ listen [::]:1000;
 
 # root /var/www/localhost afsfadad ;
 #client_max_body_size 123;
-	#error_page 404 /custom-404.html;
+error_page;
+		error_page 404 /custom-404.html;
+		error_page 500 502 503 504 /50x.html;
 	#return 301 https://$server_name$request_uri ;
 }
 
@@ -24,12 +26,13 @@ server_name random_name;
 
 
 	root /var/www/irem;
-		 error_page 404 /custom-404.html; #put them in the root!
+		 #error_page 404 /custom-404.html; #put them in the root!
 
 	location /xyz {
+		server_name x;
 root /var/www/localhost;
 client_max_body_size 200;
-		error_page 301; # /custom-301.html;
+		#error_page 301 /custom-301.html;
 		autoindex on;
 		# irem;
 
@@ -42,7 +45,7 @@ client_max_body_size 200;
 		return 301 https://localhost;
 	}
 
-	location /xyz {
+	location / {
 		root /var/www/iremiremirem;
 autoindex on;
 
@@ -52,4 +55,3 @@ autoindex on;
 		return 505 https://$server_name$request_uri;
 }
 		 	}
-

@@ -20,7 +20,8 @@ namespace Config
 		/* check methods */
 		void _check_return_syntax(std::string str);
 		void _check_return_code(std::string code);
-		void _check_error_page_syntax(std::string& str);
+		void _check_error_page_syntax(std::vector<std::string>& args) const;
+		void _check_error_page_code(std::vector<std::string>& args) const;
 		void _check_client_max_body_size_syntax(std::string& str);
 		void _check_size(std::string& size);
 
@@ -36,6 +37,7 @@ namespace Config
 		void set_error_page_value(std::string str);
 		void set_client_max_body_size(std::string str);
 		int get_client_max_body_size(void) const;
+		bool get_is_size_default(void) const;
 		const std::string& get_root(void) const;
 		const std::vector<std::string>& get_return(void) const;
 		const std::vector<std::string>& get_error_page(void) const;

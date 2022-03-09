@@ -26,17 +26,6 @@ namespace Config
     AConfigBlock::~AConfigBlock() {}
 
     /* check methods */
-	void AConfigBlock::_check_return_code(std::string code)
-	{
-		int code_num;
-
-		if(Utility::is_positive_integer(code) == false)
-            throw std::runtime_error("invalid return code " + code);
-        code_num = std::atoi(code.c_str());
-        if (code_num < 0 || code_num > 999)
-            throw std::runtime_error("invalid return code " + code);
-	}
-
 	void AConfigBlock::_check_return_syntax(std::string str)
 	{
 		std::string tmp = str;
@@ -44,18 +33,40 @@ namespace Config
 		std::vector<std::string> return_line = Utility::split_string_white_space(tmp);
 		//TODO nginx works with return + 1 arg. Reconsider this.
 		if (return_line.size() < 2 || return_line.size() > 3)
-			throw std::runtime_error("invalid number of arguments in return directive");
+			throw std::logic_error("invalid number of arguments in return directive");
 		_check_return_code(return_line[1]);
 	}
 
-	void AConfigBlock::_check_error_page_syntax(std::string& str)
+    void AConfigBlock::_check_return_code(std::string code)
 	{
-		Utility::remove_last_of(';', str);
-		std::vector<std::string> args = Utility::split_string_white_space(str);
-		//TODO nginx works with return + 1 arg. Reconsider this.
-		if (args.size() != 2)
-			throw std::runtime_error("invalid number of arguments in error_page directive");
-		// _check_return_code(return_line[1]);
+		size_t code_num;
+
+		if(Utility::is_positive_integer(code) == false)
+            throw std::logic_error("invalid return code " + code);
+        code_num = std::atoi(code.c_str());
+        if (code_num < 0 || code_num > 999)
+            throw std::out_of_range("invalid return code " + code);
+	}
+    //TODO & or not. if & split_value fails.
+	void AConfigBlock::_check_error_page_syntax(std::vector<std::string>& args) const
+	{
+		if (args.size() < 2)
+			throw std::logic_error("invalid number of arguments in error_page directive");
+		_check_error_page_code(args);
+	}
+
+    void AConfigBlock::_check_error_page_code(std::vector<std::string>& args) const
+	{
+		size_t code_num;
+
+        for (size_t i = 0; i < args.size() - 1; i++)
+        {
+            if(Utility::is_positive_integer(args[i]) == false)
+                throw std::logic_error("invalid value " + args[i]);
+            code_num = std::atoi(args[i].c_str());
+            if (code_num < 300 || code_num > 599)
+                throw std::out_of_range("value " + args[i] + " must be between 300 and 599");
+        }
 	}
 
     void AConfigBlock::_check_client_max_body_size_syntax(std::string& str)
@@ -64,13 +75,13 @@ namespace Config
         Utility::remove_last_of(';', tmp);
 		std::vector<std::string> size_line = Utility::split_string_white_space(tmp);
 		if (size_line.size() != 1)
-			throw std::runtime_error("invalid number of arguments in client_max_body_size");
+			throw std::logic_error("invalid number of arguments in client_max_body_size");
 		_check_size(size_line[0]);
     }
 
     void AConfigBlock::_check_size(std::string& size)
 	{
-		int size_num;
+		size_t size_num;
 
         //TODO assuming we will have M or m. K and G are now invalid.
         if(size[size.size() - 1] == 'M')
@@ -78,12 +89,13 @@ namespace Config
         else if(size[size.size() - 1] == 'm')
             Utility::remove_last_of('m', size);
 		if(Utility::is_positive_integer(size) == false)
-            throw std::runtime_error("client_max_body_size directive invalid value " + size);
+            throw std::logic_error("client_max_body_size directive invalid value " + size);
         size_num = std::atoi(size.c_str());
         if (size_num < 0 || size_num > 8000) //TODO I got thins from MAX_SIZE_BODY. Discuss with teammates.
-            throw std::runtime_error("client_max_body_size directive invalid valuee " + size);
+            throw std::out_of_range("client_max_body_size directive invalid valuee " + size);
 	}
-    /* getters & setters */
+
+    /* setters */
     void AConfigBlock::set_return_value(std::string str)
     {
 		_check_return_syntax(str);
@@ -94,26 +106,29 @@ namespace Config
     void AConfigBlock::set_root_value(std::string str)
     {
         if(!_root.empty())
-            throw std::runtime_error("Invalid: root directive is duplicate");
+            throw std::logic_error("Invalid: root directive is duplicate");
         Utility::remove_first_keyword(str);
         int first = str.find_first_not_of("     ;");
         int last = str.find_first_of("     ;", first + 1);
         if(!Utility::check_after_keyword(last, str))
-            throw std::runtime_error("Invalid: invalid number of arguments in root directive");
+            throw std::logic_error("Invalid: invalid number of arguments in root directive");
         _root = str.substr(first, last - first);
     }
 
     void AConfigBlock::set_error_page_value(std::string str)
     {
-        Utility::remove_first_keyword(str);
-		_check_error_page_syntax(str);
-        Utility::split_value(str, _error_page);
+        Utility::remove_first_word(str);
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> args = Utility::split_string_white_space(str);
+		_check_error_page_syntax(args);
+        for (size_t i = 0; i < args.size(); i++)
+            _error_page.push_back(args[i]);
     }
 
     void AConfigBlock::set_client_max_body_size(std::string str)
     {
         if (_is_size_default == false)
-            throw std::runtime_error("client_max_body_size directive is duplicate");
+            throw std::logic_error("client_max_body_size directive is duplicate");
         Utility::remove_first_keyword(str);
         _check_client_max_body_size_syntax(str);
         int first = str.find_first_not_of("     ;");
@@ -123,10 +138,17 @@ namespace Config
         _is_size_default = false;
     }
 
+    /* getters */
     int AConfigBlock::get_client_max_body_size(void) const
     {
         return _client_max_body_size;
     }
+
+    bool AConfigBlock::get_is_size_default(void) const
+    {
+        return _is_size_default;
+    }
+
     const std::vector<std::string>& AConfigBlock::get_return(void) const
     {
         return _return;
