@@ -48,25 +48,6 @@ namespace Utility
         return std::string(start, end + 1);
     }
 
-    void split_value(std::string line, std::vector<std::string> &vector_to_save)
-    {
-        int i = line.find_first_not_of("     ;{");
-        int found = line.find_first_of("     ;{", i);
-        int len = line.length();
-        while (found < len && found != -1)
-        {
-            std::string sub = line.substr(i, found - i);
-            vector_to_save.push_back(sub);
-            if (line[found] == ';')
-                break;
-            else
-            {
-                i = line.find_first_not_of("     ;{", found + 1);
-                found = line.find_first_of("     ;{", i);
-            }
-        }
-    }
-
     bool check_first_keyword(std::string line, std::string keyword)
     {
         int first = line.find_first_not_of(" 	");
