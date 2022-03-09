@@ -70,7 +70,7 @@ namespace Config
     void LocationBlock::set_limit_except(std::string str)
     {
         Utility::remove_last_of('{', str);
-        std::vector<std::string> args = Utility::split_string_white_space(str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
 		_check_limit_except(args);
         for (size_t i = 1; i < args.size(); i++)
             _limit_except.push_back(args[i]);

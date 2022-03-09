@@ -108,7 +108,7 @@ namespace Config
 		std::vector<std::string> location_split;
 		size_t size;
 
-		location_split = Utility::split_string_white_space(line);
+		location_split = Utility::split_string_by_white_space(line);
 		size = location_split.size();
 		if (size == 3)
 		{
@@ -134,7 +134,7 @@ namespace Config
 	{
 		_check_semi_colon(line);
 		Utility::remove_last_of(';', line);
-		std::vector<std::string> deny_split = Utility::split_string_white_space(line);
+		std::vector<std::string> deny_split = Utility::split_string_by_white_space(line);
 		if (deny_split.size() != 2)
 			throw std::runtime_error("invalid number of arguments in deny directive");	
 		if (deny_split[0].compare("deny") != 0)
@@ -146,7 +146,7 @@ namespace Config
 	//TODO we decided to have simple limit except limit_except GET { deny all; }. So, no allow line?
 	void ConfigValidator::_validate_limit_except(std::string line, std::istringstream &stream)
 	{
-		std::vector<std::string> limit_except_split = Utility::split_string_white_space(line);
+		std::vector<std::string> limit_except_split = Utility::split_string_by_white_space(line);
 		if (limit_except_split[0].compare("limit_except") != 0)
 			throw std::runtime_error("unknown directive " + limit_except_split[0]);
 		while (std::getline(stream, line))

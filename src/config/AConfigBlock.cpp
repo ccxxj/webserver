@@ -87,7 +87,7 @@ namespace Config
     void AConfigBlock::set_return_value(std::string& str)
     {
         Utility::remove_last_of(';', str);
-        std::vector<std::string> args = Utility::split_string_white_space(str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
 		_check_return_syntax(args);
         for (size_t i = 1; i < args.size(); i++)
             _return.push_back(args[i]);
@@ -96,7 +96,7 @@ namespace Config
     void AConfigBlock::set_error_page_value(std::string& str)
     {
         Utility::remove_last_of(';', str);
-        std::vector<std::string> args = Utility::split_string_white_space(str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
 		_check_error_page_syntax(args);
         for (size_t i = 1; i < args.size(); i++)
             _error_page.push_back(args[i]);
@@ -105,7 +105,7 @@ namespace Config
     void AConfigBlock::set_root_value(std::string& str)
     {    
         Utility::remove_last_of(';', str);
-        std::vector<std::string> args = Utility::split_string_white_space(str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
 		_check_root_syntax(args);
         _root = args[1];
     }
@@ -114,7 +114,7 @@ namespace Config
     {
 
         Utility::remove_last_of(';', str);
-        std::vector<std::string> args = Utility::split_string_white_space(str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
         _check_client_max_body_size_syntax(args);
         _client_max_body_size = atoi(args[1].c_str());
         _is_size_default = false;

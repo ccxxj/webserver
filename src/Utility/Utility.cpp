@@ -50,10 +50,10 @@ namespace Utility
 
     bool check_first_keyword(std::string line, std::string keyword)
     {
-        int first = line.find_first_not_of(" 	");
+        size_t first = line.find_first_not_of(" 	");
         if (first < 0)
             return false;
-        int end = line.find_first_of(" 	;{", first + 1);
+        size_t end = line.find_first_of(" 	;{", first + 1);
         if (line.substr(first, end - first).compare(keyword) == 0)
             return true;
         else
@@ -62,17 +62,10 @@ namespace Utility
 
     void remove_first_keyword(std::string &line)
     {
-        int first = line.find_first_not_of("    ");
-        int end = line.find_first_of("  ", first + 1);
-        line.erase(first, end);
-    }
-
-    void remove_first_word(std::string &line)
-    {
-        line = Utility::leading_trim(line);
-        size_t end = line.find_first_of("  ;"); //TODO what if no space and no ;?
+        size_t first = line.find_first_not_of("    ");
+        size_t end = line.find_first_of("  ", first + 1);
         if (end != std::string::npos)
-            line.erase(0, end);
+            line.erase(first, end);
     }
 
     void remove_white_space(std::string &temp)
@@ -87,7 +80,7 @@ namespace Utility
             line.erase(pos, pos + 1);
     }
 
-    bool check_after_keyword(int last_pos, std::string str)
+    bool check_after_keyword(size_t last_pos, std::string str)
     {
         std::string tmp = str.substr(last_pos, str.length());
         remove_white_space(tmp);
@@ -96,7 +89,7 @@ namespace Utility
         return true;
     }
 
-    std::vector<std::string> split_string_white_space(const std::string &str)
+    std::vector<std::string> split_string_by_white_space(const std::string &str)
     {
         std::vector<std::string> result;
         std::istringstream iss(str);

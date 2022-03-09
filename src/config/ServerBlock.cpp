@@ -38,7 +38,7 @@ namespace Config
     std::string ServerBlock::_check_and_return_port(std::string& str)
     {
         Utility::remove_last_of(';', str);
-        std::vector<std::string> listen_args = Utility::split_string_white_space(str);
+        std::vector<std::string> listen_args = Utility::split_string_by_white_space(str);
         if (listen_args.size() != 2)
             throw std::logic_error("invalid number of arguments in listen"); 
         _check_port_range(listen_args[1]);
@@ -87,7 +87,7 @@ namespace Config
     void ServerBlock::set_server_name(std::string str)
     {
         Utility::remove_last_of(';', str);
-        std::vector<std::string> args = Utility::split_string_white_space(str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
 		_check_server_name_syntax(args);
         for (size_t i = 1; i < args.size(); i++)
             _server_name.push_back(args[i]);
