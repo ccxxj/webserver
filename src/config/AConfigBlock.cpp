@@ -1,5 +1,6 @@
 #include "AConfigBlock.hpp"
 #include "../Utility/Utility.hpp"
+#include <cstdlib> // for atoi
 
 namespace Config
 {
@@ -37,7 +38,7 @@ namespace Config
         if (code_num < 0 || code_num > 999)
             throw std::out_of_range("invalid return code " + args[1]);
 	}
-  
+
 	void AConfigBlock::_check_error_page_syntax(std::vector<std::string>& args) const
 	{
 		if (args.size() < 3)
@@ -103,7 +104,7 @@ namespace Config
     }
 
     void AConfigBlock::set_root_value(std::string& str)
-    {    
+    {
         Utility::remove_last_of(';', str);
         std::vector<std::string> args = Utility::split_string_by_white_space(str);
 		_check_root_syntax(args);

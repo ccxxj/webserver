@@ -1,7 +1,7 @@
 #include "ServerBlock.hpp"
 #include "../Utility/Utility.hpp"
+#include <cstdlib> // for atoi
 
-#include <cstdlib>
 namespace Config
 {
 
@@ -40,7 +40,7 @@ namespace Config
         Utility::remove_last_of(';', str);
         std::vector<std::string> listen_args = Utility::split_string_by_white_space(str);
         if (listen_args.size() != 2)
-            throw std::logic_error("invalid number of arguments in listen"); 
+            throw std::logic_error("invalid number of arguments in listen");
         _check_port_range(listen_args[1]);
         return listen_args[1];
     }
@@ -68,7 +68,7 @@ namespace Config
         std::vector<LocationBlock> locations = get_location();
         for (size_t i = 0; i < locations.size(); i++)
             if (locations[i].get_route() == route)
-                throw std::logic_error("duplicate location " + route); 
+                throw std::logic_error("duplicate location " + route);
     }
 
     void ServerBlock::_check_server_name_syntax(std::vector<std::string>& args) const
