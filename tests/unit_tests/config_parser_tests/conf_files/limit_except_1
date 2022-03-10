@@ -1,0 +1,14 @@
+server {
+	listen 1000;
+	server_name irem;
+	server_name webservvvvv;
+	root /var/www/localhost;
+	
+		location /wordpress/ {
+		limit_except {
+			deny all;
+		}
+		return 301 https://localhost;
+	}
+}
+

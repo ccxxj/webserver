@@ -1,7 +1,5 @@
 #include "URIData.hpp"
 
-#include "Utils.hpp"
-
 namespace HTTPRequest {
 
 	URIData::URIData(){}

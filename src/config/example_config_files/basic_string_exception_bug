@@ -1,0 +1,14 @@
+#WTF with empty file?
+server {
+    listen       8080;
+    # listen         8080;
+	listen      [::]:8080;
+    #listen      [::]:8080;
+    server_name  localhost;
+
+
+    location / {
+            root   html;
+            index  index.html index.htm;
+    }
+}

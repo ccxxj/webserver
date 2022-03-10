@@ -31,7 +31,6 @@ SRC = Webserver.cpp \
 	HTTPRequest/RequestMessage.cpp \
 	HTTPRequest/URI/URIData.cpp \
 	HTTPRequest/URI/URIParser.cpp \
-	HTTPRequest/URI/Utils.cpp \
 	HTTP/RequestHandler.cpp \
 	HTTP/Exceptions/RequestException.cpp \
 	HTTP/Connection.cpp \
@@ -43,7 +42,6 @@ SRC = Webserver.cpp \
 	config/AConfigBlock.cpp \
 	config/ServerBlock.cpp \
 	config/LocationBlock.cpp \
-	config/Utils.cpp \
 	config/ConfigValidator.cpp \
 	config/ConfigTokenizer.cpp \
 	Utility/Utility.cpp

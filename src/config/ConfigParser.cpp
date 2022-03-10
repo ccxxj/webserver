@@ -1,5 +1,7 @@
 #include "ConfigParser.hpp"
 #include <stdlib.h>
+#include "../Utility/Utility.hpp"
+
 namespace Config
 {
 
@@ -14,10 +16,10 @@ namespace Config
 
 	bool ConfigParser::find_location(std::string line)
 	{
-		return Utils::check_first_keyword(line, "location");
+		return Utility::check_first_keyword(line, "location");
 	}
 
-	int ConfigParser::find_directive(std::string line)
+	int ConfigParser::find_directive(std::string& line)
 	{
 		const char *directive_list[10] =
 			{"listen", "server_name", "client_max_body_size",
@@ -25,19 +27,19 @@ namespace Config
 			 "autoindex", "location", NULL};
 		for (size_t i = 0; i < 9; i++)
 		{
-			if (Utils::check_first_keyword(line, directive_list[i]))
+			if (Utility::check_first_keyword(line, directive_list[i]))
 				return i;
 		}
 		return -1;
 	}
 
-	void parse_limit_except(std::string line, LocationBlock &location, std::istringstream &stream)
+	void ConfigParser::parse_limit_except(std::string& line, LocationBlock &location, std::istringstream &stream)
 	{
 		location.set_limit_except(line);
 		while (std::getline(stream, line))
 		{
 			std::string temp = line;
-			Utils::remove_white_space(temp);
+			Utility::remove_white_space(temp);
 			if (temp.compare("}") == 0)
 				break;
 			else
@@ -45,9 +47,8 @@ namespace Config
 		}
 	}
 
-	void ConfigParser::parse_location_block(std::string line, std::istringstream &stream, ServerBlock &server)
+	void ConfigParser::parse_location_block(std::string& line, std::istringstream &stream, ServerBlock &server)
 	{
-		//create the location + push back into to the server.getLocation().push_back();
 		LocationBlock location;
 		int e_num = -4;
 		e_num = find_directive(line);
@@ -55,22 +56,21 @@ namespace Config
 		while (std::getline(stream, line))
 		{
 			std::string temp = line;
-			Utils::remove_white_space(temp);
+			Utility::remove_white_space(temp);
 			if (temp.compare("}") == 0)
 				break;
-			if (Utils::check_first_keyword(line, "limit_except"))
+			if (Utility::check_first_keyword(line, "limit_except"))
 				parse_limit_except(line, location, stream);
 			else if ((e_num = find_directive(line)) >= 0)
 				parse_location_directive(line, location, e_num);
 			else
-				throw std::runtime_error("Invalid directive in config");
+				throw std::runtime_error("unknown directive " + line);
 		}
-		server.get_location().push_back(location);
+		server.set_a_location(location);
 	}
 
-	void ConfigParser::parse_server_directive(std::string line, ServerBlock &server, int e_num)
+	void ConfigParser::parse_server_directive(std::string& line, ServerBlock &server, int e_num)
 	{
-		//identify the keyword, remove keyword and use the right set functoion
 		if (e_num == LISTEN)
 			server.set_listen(line);
 		else if (e_num == SERVER_NAME)
@@ -83,17 +83,20 @@ namespace Config
 			server.set_return_value(line);
 		else if (e_num == ROOT)
 			server.set_root_value(line);
+		//TODO anything specific to valid location block directive outside of server context
+		// else
+		// 	throw std::runtime_error("unknown directive " + line);
+
 	}
 
-	void ConfigParser::parse_location_directive(std::string line, LocationBlock &location, int e_num)
+	void ConfigParser::parse_location_directive(std::string& line, LocationBlock &location, int e_num)
 	{
-		//identify the keyword, remove keyword and use the right set functoion
 		if (e_num == ROOT)
 			location.set_root_value(line);
 		else if (e_num == ERROR_PAGE)
 			location.set_error_page_value(line);
-		else if (e_num == ROOT)
-			location.set_root_value(line);
+		else if (e_num == BODY_SIZE)
+			location.set_client_max_body_size(line);
 		else if (e_num == ROUTE)
 			location.set_route(line);
 		else if (e_num == RETURN)
@@ -102,17 +105,16 @@ namespace Config
 			location.set_limit_except(line);
 		else if (e_num == AUTOINDEX)
 			location.set_autoindex(line);
+		else
+			throw std::runtime_error("unknown directive " + line);
 	}
 
-	void ConfigParser::parse_server_block(std::string server_token, ServerBlock &server)
+	void ConfigParser::parse_server_block(std::string& server_token, ServerBlock &server)
 	{
-		// loop inside string find key value pairs & location values
-		// saves them inside the variables of ServerBlock and LocationBlocks!
-		// call ServerBlock & LocationBlock functions based on the line?
-		// what to do with compulsory fields? throw exception!
 		std::string line;
 		std::istringstream stream(server_token);
-		int e_num = -4; //TODO
+		int e_num;
+
 		while (std::getline(stream, line))
 		{
 			if (ConfigParser::find_location(line))
@@ -120,7 +122,7 @@ namespace Config
 			else if ((e_num = find_directive(line)) >= 0)
 				parse_server_directive(line, server, e_num);
 			else
-				throw std::runtime_error("Invalid directive in config");
+				throw std::runtime_error("unknown directive " + line);
 		}
 	}
 
@@ -130,10 +132,8 @@ namespace Config
 		{
 			ServerBlock server;
 			parse_server_block(server_tokens[i], server);
-			config_data->get_servers().push_back(server);
+			config_data->set_a_server(server);
 		}
 		config_data->make_first_server_default();
 	}
-	//TODO after parse checks: empty file, no server block, compulsory fields: listen
-	//TODO detailed after parse checks: i.e. multiple roots  on the same line or multiple lines, return line with more than 2 info (check your list for more)
 } // namespace Config

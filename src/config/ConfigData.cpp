@@ -11,61 +11,61 @@
 namespace Config
 {
 
-    ConfigData::ConfigData(/* args */)
-    {
-        // std::cout << "ConfigData default construtor" << std::endl;
-    }
+    ConfigData::ConfigData() { }
 
     ConfigData::ConfigData(const ConfigData &other)
     {
-        // std::cout << "ConfigData copy construtor" << std::endl;
         *this = other;
     }
 
     const ConfigData &ConfigData::operator=(const ConfigData &other)
     {
-        // std::cout << "ConfigData assign operator" << std::endl;
         _servers = other._servers;
         return *this;
     }
 
-    ConfigData::~ConfigData()
-    {
-        // std::cout << "ConfigData destructor" << std::endl;
-    }
+    ConfigData::~ConfigData() { }
 
-    void ConfigData::make_first_server_default()
+    void ConfigData::make_first_server_default(void)
     {
         if (_servers.size())
             _servers[0].set_default(true);
     }
 
-    std::vector<ServerBlock> &ConfigData::get_servers(void)
+    void ConfigData::set_a_server(const ServerBlock &server)
     {
-        return (_servers);
+        _servers.push_back(server);
     }
+    
+    const std::vector<ServerBlock> &ConfigData::get_servers(void) const
+	{
+		return (_servers);
+	}
 
-    void ConfigData::print_listen_info(ServerBlock &server)
+	void ConfigData::check_parsed_data(void)
+	{
+		if (_servers.size() == 0)
+			throw std::runtime_error("Invalid-Config: empty file");
+        for (size_t i = 0; i < _servers.size(); i++)
+        {
+            if(_servers[i].get_listen().size() == 0)
+                throw std::runtime_error("missing listen line");
+        }
+	}
+
+	void ConfigData::print_listen_info(ServerBlock &server)
     {
-        std::vector<std::string> ports = server.get_listen();
+        std::set<std::string> listen_set = server.get_listen();
         std::cout << GREEN << "listening ports: ";
-        for (size_t i = 0; i < ports.size(); i++)
-        {
-            std::cout << i + 1 << ")" << ports[i] << " ";
-        }
+		for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) 
+				std::cout << "X)" << *i << " ";
         std::cout << RESET << std::endl;
     }
 
-    void ConfigData::print_roots(ServerBlock &server)
+    void ConfigData::print_root(ServerBlock &server)
     {
-
-        std::vector<std::string> roots = server.get_root();
-        std::cout << YELLOW << "roots: ";
-        for (size_t i = 0; i < roots.size(); i++)
-        {
-            std::cout << i + 1 << ")" << roots[i] << " ";
-        }
-        std::cout << RESET << std::endl;
+        std::string root = server.get_root();
+        std::cout << YELLOW << "root: " << root << RESET << std::endl;
     }
 
     void ConfigData::print_returns(ServerBlock &server)
@@ -125,9 +125,10 @@ namespace Config
             std::cout << RED << "\n\tLocation Number " << i + 1 << RESET << std::endl;
             std::cout << GREEN << "\troute: " << locations[i].get_route() << std::endl;
             std::cout << BLUE << "\tauto_index: " << locations[i].get_autoindex() << RESET << std::endl;
+            std::cout << GREEN << "\tclient_max_body_size: " << locations[i].get_client_max_body_size() << RESET << std::endl;
             print_limit_except(locations[i]);
             std::cout << "\t";
-            print_roots((ServerBlock &)locations[i]);
+            print_root((ServerBlock &)locations[i]);
             std::cout << "\t";
             print_returns((ServerBlock &)locations[i]);
             std::cout << "\t";
@@ -145,7 +146,7 @@ namespace Config
             std::cout << RESET << std::endl;
             print_listen_info(_servers[i]);
             print_server_name(_servers[i]);
-            print_roots(_servers[i]);
+            print_root(_servers[i]);
             std::cout << GREEN << "client_max_body_size: " << _servers[i].get_client_max_body_size() << RESET << std::endl;
             print_returns(_servers[i]);
             print_error_pages(_servers[i]);
