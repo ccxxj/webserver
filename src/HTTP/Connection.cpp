@@ -19,7 +19,7 @@ namespace HTTP {
 	}
 
 	void Connection::handle_http_request() {
-		request_handler->handle_http_request();
+		request_handler->handle_http_request(_socket_fd);
 	}
 
 	void Connection::send(const void* buffer, size_t buffer_size) {

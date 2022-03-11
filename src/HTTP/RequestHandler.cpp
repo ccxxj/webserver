@@ -17,7 +17,7 @@ namespace HTTP {
 
 	RequestHandler::~RequestHandler(){}
 
-	void RequestHandler::handle_http_request() {
+	void RequestHandler::handle_http_request(const int connection_socket_fd) { //TODO do i need the socket_fd?
 		char buf[4096];
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
@@ -38,6 +38,8 @@ namespace HTTP {
 			if (!_parser.is_parsing_finished()) {
 				return;
 			}
+			//TODO process the request and connecto ConfigData to here somewhere
+			_process_request_message();
 			std::string status_code = _http_response_message.get_status_code();
 			std::string reason_phrase = _http_response_message.get_reason_phrase();
 			std::string status_line = _http_response_message.get_HTTP_version() + " " + status_code + " " + reason_phrase + "\r\n\r\n";
@@ -60,5 +62,18 @@ namespace HTTP {
 		sstream << code;
 		sstream >> stringified_code;
 		return stringified_code;
+	}
+
+	void RequestHandler::_process_http_request() {
+		// ServerBlock virtual_server = find_virtual_server(); (if no match return the default ServerBlock)
+		// LocationBlock location_conf = get_location_conf(virtual server);
+		// if( !verify_method(location_conf.get_limit_except()))
+			//method not allowed error
+
+		// create_response(); // finalizing_request!
+			// get_http_version();
+			// get_response_headers();
+		//std::string host = _http_request_message.get_header_value("Host");
+		//if (host.empty()) //TODO no host header error?
 	}
 }

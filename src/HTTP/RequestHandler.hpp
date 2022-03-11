@@ -19,10 +19,11 @@ namespace HTTP {
 
         void _handle_request_exception(HTTPResponse::StatusCode code);
         const std::string _convert_status_code_to_string(const int code);
+        void _process_request_message();
         
     public:
         RequestHandler(RequestHandlerDelegate& delegate);
         ~RequestHandler();
-        void handle_http_request();
+        void handle_http_request(const int connection_socket_fd);
     };
 }
