@@ -11,8 +11,10 @@ namespace HTTPResponse {
         std::string _HTTP_version;
         std::string _status_code;
         std::string _reason_phrase;
+		std::string _status_line;
         std::map<std::string, std::string> _request_headers;
         std::string _message_body;
+
 
     public:
         ResponseMessage();
@@ -21,9 +23,11 @@ namespace HTTPResponse {
 
         void set_status_code(const std::string& code);
         void set_reason_phrase(const std::string& reason);
+		void set_status_line(const std::string& line);
         const std::string get_HTTP_version() const;
         const std::string get_status_code() const;
         const std::string get_reason_phrase() const;
+		const std::string get_status_line() const;
     };
 }
 
