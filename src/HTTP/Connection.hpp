@@ -13,9 +13,8 @@ namespace HTTP {
 	{
 	private:
 		int _socket_fd;
-		Utility::SmartPointer<RequestHandler> request_handler;
 		ListenInfo& _listen_info;
-		// std::auto_ptr<RequestHandler> request_handler;
+		Utility::SmartPointer<RequestHandler> request_handler; // should be the last attr because of connection constructor
 
 		// int _listening_socket_fd;
 		//sockaddr_in _client_addr;
