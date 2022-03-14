@@ -63,6 +63,8 @@ namespace HTTP {
 			if (fcntl(_listening_sockfds[i], F_SETFL, O_NONBLOCK) == ERROR) {
 				std::perror("fcntl error");
 			}
+			ListenInfo each_listen("0.0.0.0", _listen_ports[i]); //this struct will hold both ip and port info of running servers
+			_running_servers[_listening_sockfds[i]] = each_listen;
 			std::cout << "***************The server is listening on port: " << _listen_ports[i] <<"***************" << std::endl;
 		}
 	}
@@ -122,6 +124,7 @@ namespace HTTP {
 					std::cout << "FD " << current_event_fd << " is closed and removed from _connections." << std::endl;
 				}
 				else if(_is_in_listen_sockfd_list(current_event_fd)) {
+
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
@@ -134,7 +137,11 @@ namespace HTTP {
 						std::perror("fcntl error");
 					}
 					//TODO:: check if these are needed Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
-					Connection* connection_ptr = new Connection(connection_socket_fd);
+					std::cout << "current con fd: " << current_event_fd << std::endl;
+					std::cout << "IP addr: " << _running_servers[current_event_fd].ip << std::endl;
+					std::cout << "Port: " << _running_servers[current_event_fd].port << std::endl;
+					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd]);
+					// BUG new connection is not added properly connection size is always 1 and it's the first port that got connected
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
@@ -143,7 +150,7 @@ namespace HTTP {
 				}
 				else if (event_fds[i].filter & EVFILT_READ) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
+					if (connection_iter != _connections.end()) { // handling request by the corresponding connectio
 						(connection_iter->second)->handle_http_request();
 						break;
 					}
@@ -154,12 +161,11 @@ namespace HTTP {
 
 	void Server::run() {
 		const std::vector<Config::ServerBlock> servers = config_data->get_servers();
-		//TODO it's listening to any port that we have atm. Wha will hapen when we send a response?
 		for (size_t i = 0; i < servers.size(); i++)
 		{
 			std::set<std::string> listen_set = servers[i].get_listen();
-			//TODO [::]:1000's atoi result is 0 since the string starts with non-numerical number. 
-			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) 
+			//TODO [::]:1000's atoi result is 0 since the string starts with non-numerical number.
+			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++)
 				_listen_ports.push_back(std::atoi((*i).c_str()));
 		}
 		_setup_listening_sockets();
