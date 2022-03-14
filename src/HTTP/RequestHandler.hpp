@@ -27,7 +27,7 @@ namespace HTTP {
         void _process_http_request();
 		const Config::ServerBlock* _find_virtual_server();
 		const Config::ServerBlock* _match_one_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers);
-		const Config::LocationBlock* _match_most_specific_location(Config::ServerBlock *server);
+		const Config::LocationBlock* _match_most_specific_location(const Config::ServerBlock *server);
 
     public:
         RequestHandler(RequestHandlerDelegate& delegate, Config::ConfigData *config_data, ListenInfo& listen_info);

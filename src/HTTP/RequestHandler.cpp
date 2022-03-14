@@ -100,27 +100,28 @@ namespace HTTP {
 
 	const Config::ServerBlock* RequestHandler::_match_one_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
 		std::string host = _http_request_message.get_header_value("Host"); //TODO what do we have as return value
-		//if (host.empty()) //TODO no host header error? ask Olga
+		// if (host.empty()) //TODO no host header error? ask Olga
 		for (std::vector<Config::ServerBlock>::const_iterator it = _config_data->get_servers().begin(); it != _config_data->get_servers().end(); it++) {
-			for (std::set<std::string>::const_iterator srv_name = it->get_server_name().begin(); srv_name != it->get_server_name().end(); srv_name++) {
+			for (std::vector<std::string>::const_iterator srv_name = it->get_server_name().begin(); srv_name != it->get_server_name().end(); srv_name++) {
 				if ((*srv_name).compare(host) == 0)
-					return *it; // FIXME what happens if you 2 matches with find virtual server but no match with server_name?
+					return &(*it); // FIXME is this appropriate to return
 			}
 		}
+		return NULL;// FIXME what happens if you 2 matches with find virtual server but no match with server_name?
 	}
 
-	const Config::LocationBlock* RequestHandler::_match_most_specific_location(Config::ServerBlock *server) {
+	const Config::LocationBlock* RequestHandler::_match_most_specific_location(const Config::ServerBlock *server) {
 		const std::vector<Config::LocationBlock> locs = server->get_location();
-		std::vector<Config::LocationBlock> matched_locations;
+		std::vector<const Config::LocationBlock*> matched_locations;
 		const std::vector<std::string> uri_paths = _http_request_message.get_uri().get_path(); // FIXME or get_request_uri()?
 		for (std::vector<Config::LocationBlock>::const_iterator it = locs.begin(); it != locs.end(); it++) {
 			const std::string loc_route = it->get_route(); // FIXME root + route?
 			std::string searched_uri = ""; //TODO is it const?
 			for (size_t i = 0; i < uri_paths.size(); i++)
 			{
-				searched_uri += path[i];
+				searched_uri += uri_paths[i];
 				if (searched_uri.compare(loc_route) == 0)
-					matched_locations.push_back(*it);
+					matched_locations.push_back(&(*it));
 			}
 		}
 		if (matched_locations.size() == 0) // if no match
@@ -148,13 +149,4 @@ namespace HTTP {
 		// root + route = /var/www/localhost//wordpress/theme/livro
 		// But we separated the request uri and got rid of the /var/www/? IF so, delete it.
 	}
-
-	// bool RequestHandler::_verify_method(const std::vector<std::string> methods) {
-	// 	const std::string request_method = _http_request_message.get_method();
-	// 	for (std::vector<std::string>::const_iterator it = methods.begin(); it != methods.end(); it++) {
-	// 		if (request_method.compare(*it) == 0)
-	// 			return true;
-	// 	}
-	// 	return false;
-	// }
 }
