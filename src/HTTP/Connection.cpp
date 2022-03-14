@@ -9,6 +9,7 @@ namespace HTTP {
 	Connection::Connection(int connection_socket_fd)
 		// Connection::Connection(int connection_socket_fd, int server_listening_sockfd, sockaddr_in& connection_addr, int connection_addr_len)
 		: _socket_fd(connection_socket_fd)
+		, _is_open(true)
 		, request_handler(new RequestHandler(*this))
 	// , _listening_socket_fd(server_listening_sockfd)
 	// , _client_addr(connection_addr)
@@ -20,6 +21,10 @@ namespace HTTP {
 
 	void Connection::handle_http_request() {
 		request_handler->handle_http_request();
+	}
+
+	bool Connection::is_connection_open() const {
+		return _is_open;
 	}
 
 	void Connection::send(const void* buffer, size_t buffer_size) {
@@ -34,6 +39,7 @@ namespace HTTP {
 			std::cout << "Socket closing failed. errno: " << errno << std::endl;
 		} else {
 			std::cout << "Socket " << _socket_fd << " is closed." << std::endl; // for debug
+			_is_open = false;
 		}
 	}
 
