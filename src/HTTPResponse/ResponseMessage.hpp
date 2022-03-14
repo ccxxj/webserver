@@ -15,7 +15,6 @@ namespace HTTPResponse {
         std::map<std::string, std::string> _request_headers;
         std::string _message_body;
 
-
     public:
         ResponseMessage();
         ResponseMessage(const ResponseMessage& other);
