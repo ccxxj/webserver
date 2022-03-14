@@ -38,7 +38,6 @@ namespace HTTP {
 				_handle_request_exception(e.get_error_status_code());
 			}
 			if (!_parser.is_parsing_finished()) {
-				// std::cout << "parsing is finished?" << std::endl;
 				//FIXME this prevent me from moving on to processing the request
 				// return;
 			}
@@ -47,7 +46,7 @@ namespace HTTP {
 			std::string reason_phrase = _http_response_message.get_reason_phrase();
 			std::string status_line = _http_response_message.get_HTTP_version() + " " + status_code + " " + reason_phrase + "\r\n\r\n";
 			// std::cout << "\n\nRESPONSE:\nStatus line: " << status_line << std::endl;
-			_delegate.send(&status_line[0], status_line.size()); //TODO: replace by full response
+			_delegate.send(&status_line[0], status_line.size()); //TODO: replace by _http_response_message.get_complete_response();
 			_delegate.close();
 		}
 	}
@@ -71,21 +70,14 @@ namespace HTTP {
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
 		std::cout << "check ret of find virt serv " << virtual_server->get_client_max_body_size() << std::endl;
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
-		//FIXME if no loc is matched then there is no method limitation, adjust accordingly? or move to creating response and connect there ?
-		if(!_verify_method(location->get_limit_except()))
-			return _http_response_message.create_response(HTTPResponse::MethodNotAllowed);//FIXME method not allowed error added to the response and don't go further
-		_http_response_message.create_response(); //FROM this point onward, it's moving to Response and from there to ResponseHandler
-		// create_response(); // finalizing_request!
-			// get_http_version();
-			// get_response_headers();
-
+		_http_response_message.create_http_response(virtual_server, location); //FROM here, it's moving to Response and from there to ResponseHandler
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
 		std::cout << "...Finding Virtual Server for..." << "\033[31mip: " << _connection_listen_info.ip;
 		std::cout << " port: " << _connection_listen_info.port << "\033[0m\n" << std::endl;
-		// match server based on request ip + port
 		std::vector<const Config::ServerBlock*> matching_servers;
+		// match server based on request ip + port
 		for (std::vector<Config::ServerBlock>::const_iterator it = _config_data->get_servers().begin(); it != _config_data->get_servers().end(); it++) {
 			for (std::set<std::string>::const_iterator port = it->get_listen().begin(); port != it->get_listen().end(); port++) {
 			//TODO Discuss how you are getting this information.
@@ -93,7 +85,7 @@ namespace HTTP {
 				uint32_t server_port = std::atoi((*port).c_str());
 				if (server_port == _connection_listen_info.port) {
 					matching_servers.push_back(&(*it));
-					break; // if one port is matched, there is no need to check other ports of same server block
+					break; // if a port is matched, no need to check other ports of same server block
 				}
 			}
 		}
@@ -101,18 +93,18 @@ namespace HTTP {
 		if (matching_servers.size() == 1) // if only 1 server matches, that's it, return it
 			return matching_servers.front();
 		else if (matching_servers.size() == 0) // if none is matched, return default server
-			return &_config_data->get_servers()[0];
+			return &_config_data->get_servers()[0]; //TODO replace with .front()?
 		else // if more than 1 server is matched, get host name from request header and match based on server names
 			return _match_one_based_on_server_name(matching_servers);
 	}
 
 	const Config::ServerBlock* RequestHandler::_match_one_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
 		std::string host = _http_request_message.get_header_value("Host"); //TODO what do we have as return value
-		//if (host.empty()) //TODO no host header error?
+		//if (host.empty()) //TODO no host header error? ask Olga
 		for (std::vector<Config::ServerBlock>::const_iterator it = _config_data->get_servers().begin(); it != _config_data->get_servers().end(); it++) {
 			for (std::set<std::string>::const_iterator srv_name = it->get_server_name().begin(); srv_name != it->get_server_name().end(); srv_name++) {
 				if ((*srv_name).compare(host) == 0)
-					return *it;
+					return *it; // FIXME what happens if you 2 matches with find virtual server but no match with server_name?
 			}
 		}
 	}
@@ -131,10 +123,9 @@ namespace HTTP {
 					matched_locations.push_back(*it);
 			}
 		}
-		// the last element of matched_locations is the most spefici route.
-		if (matched_locations.size() == 0)
+		if (matched_locations.size() == 0) // if no match
 			return NULL;
-		else
+		else // the last element of matched_locations is the most spefici route.
 			return matched_locations.back();
 
 		// VISUALISATION
@@ -158,12 +149,12 @@ namespace HTTP {
 		// But we separated the request uri and got rid of the /var/www/? IF so, delete it.
 	}
 
-	bool RequestHandler::_verify_method(const std::vector<std::string> methods) {
-		const std::string request_method = _http_request_message.get_method();
-		for (std::vector<std::string>::const_iterator it = methods.begin(); it != methods.end(); it++) {
-			if (request_method.compare(*it) == 0)
-				return true;
-		}
-		return false;
-	}
+	// bool RequestHandler::_verify_method(const std::vector<std::string> methods) {
+	// 	const std::string request_method = _http_request_message.get_method();
+	// 	for (std::vector<std::string>::const_iterator it = methods.begin(); it != methods.end(); it++) {
+	// 		if (request_method.compare(*it) == 0)
+	// 			return true;
+	// 	}
+	// 	return false;
+	// }
 }
