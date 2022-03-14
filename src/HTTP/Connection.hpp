@@ -6,6 +6,7 @@
 #include "RequestHandler.hpp"
 #include "RequestHandlerDelegate.hpp"
 #include "../Utility/SmartPointer.hpp"
+#include "ServerStructs.hpp"
 
 namespace HTTP {
 	class Connection : public RequestHandlerDelegate
@@ -13,13 +14,14 @@ namespace HTTP {
 	private:
 		int _socket_fd;
 		Utility::SmartPointer<RequestHandler> request_handler;
+		ListenInfo& _listen_info;
 		// std::auto_ptr<RequestHandler> request_handler;
 
 		// int _listening_socket_fd;
-		// sockaddr_in _client_addr;
+		//sockaddr_in _client_addr;
 		// int _client_addr_len;
 	public:
-		Connection(int connection_socket_fd);
+		Connection(int connection_socket_fd, Config::ConfigData *config_data, ListenInfo& _listen_info);
 		// Connection(int connection_socket_fd, int server_listening_sockfd, sockaddr_in& connection_addr, int connection_addr_len);
 		~Connection();
 
