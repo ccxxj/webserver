@@ -37,6 +37,7 @@ SRC = Webserver.cpp \
 	HTTP/Server.cpp \
 	HTTPResponse/ResponseMessage.cpp \
 	HTTPResponse/StatusCodes.cpp \
+	HTTPResponse/ResponseHandler.cpp \
 	config/ConfigParser.cpp \
 	config/ConfigData.cpp \
 	config/AConfigBlock.cpp \
