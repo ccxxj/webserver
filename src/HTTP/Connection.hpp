@@ -14,6 +14,7 @@ namespace HTTP {
 	private:
 		int _socket_fd;
 		ListenInfo& _listen_info;
+		bool _is_open;
 		Utility::SmartPointer<RequestHandler> request_handler; // should be the last attr because of connection constructor
 
 		// int _listening_socket_fd;
@@ -25,6 +26,7 @@ namespace HTTP {
 		~Connection();
 
 		void handle_http_request();
+		bool is_connection_open() const;
 		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(const void *buffer, size_t buffer_size);
 		virtual void close();

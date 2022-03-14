@@ -9,6 +9,7 @@
 #include  <cstdlib> // for exit
 #include <cstdio> // for perror
 #include <fcntl.h> // for fcntl
+#include <sys/time.h> // for timeout
 #ifdef _LINUX
 	#include "/usr/include/kqueue/sys/event.h" //linux kqueue
 #else
@@ -105,11 +106,26 @@ namespace HTTP {
 			}
 		}
 		while (true) {
-			//TODO: addding timeout as the last parameter?
-			int new_events = kevent(sock_kqueue, NULL, 0, event_fds, 1, NULL);//look out for events and register to event list; one event per time
+			struct timespec timeout;
+			timeout.tv_sec = 30; // setting the 30s timeout
+			timeout.tv_nsec = 0;
+			int new_events = kevent(sock_kqueue, NULL, 0, event_fds, 1, &timeout); //look out for events and register to event list; one event per time
 			if(new_events == -1) {
 				std::perror("kevent");
 				std::exit(1);
+			}
+			if(new_events == 0) {
+				std::map<int, Connection*>::iterator iter = _connections.begin();
+				while (iter != _connections.end()) {
+					if (iter->second->is_connection_open()) {
+						close(iter->first);
+					}
+					_connections.erase(iter);
+					if (_connections.size() == 0) {
+						break;
+					}
+					iter++;
+				}
 			}
 			for(int i = 0; i < new_events; i++) {
 				int current_event_fd = event_fds[i].ident;
