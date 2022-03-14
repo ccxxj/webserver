@@ -69,8 +69,8 @@ namespace HTTP {
 	void RequestHandler::RequestHandler::_process_http_request() {
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
 		std::cout << "check ret of find virt serv " << virtual_server->get_client_max_body_size() << std::endl;
-		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
-		_http_response_message.create_http_response(virtual_server, location); //FROM here, it's moving to Response and from there to ResponseHandler
+		// const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
+		// _http_response_message.create_http_response(virtual_server, location); //FROM here, it's moving to Response and from there to ResponseHandler
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
