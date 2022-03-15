@@ -82,6 +82,7 @@ namespace HTTP {
 		std::map<int, Connection*>::iterator iter = _connections.begin();
 		while (iter != _connections.end()) {
 			if (iter->first == fd) {
+				delete iter->second;
 				_connections.erase(iter);
 				break;
 			}
@@ -93,6 +94,7 @@ namespace HTTP {
 		std::map<int, Connection*>::iterator iter = _connections.begin();
 		while (iter != _connections.end()) {
 			if (!(iter->second->is_connection_open())) {
+				delete iter->second;
 				_connections.erase(iter);
 			}
 			if (_connections.size() == 0) {
@@ -131,6 +133,7 @@ namespace HTTP {
 					if (iter->second->is_connection_open()) {
 						close(iter->first);
 					}
+					delete iter->second;
 					_connections.erase(iter);
 					if (_connections.size() == 0) {
 						break;
@@ -164,7 +167,7 @@ namespace HTTP {
 						std::perror("fcntl error");
 					}
 					//TODO:: check if these are needed Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
-					Utility::SmartPointer<Connection> connection_ptr = new Connection(connection_socket_fd);
+					Connection* connection_ptr = new Connection(connection_socket_fd);
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
