@@ -34,6 +34,8 @@ namespace HTTP {
 
 	void Server::_setup_listening_sockets() {
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
+			// if(!_bound_ports.insert(_listen_ports[i]).second)
+			// 	continue ;
 			_listening_sockfds.push_back(socket(AF_INET, SOCK_STREAM, 0));
 			if (_listening_sockfds[i] < 0) {
 				std::cout << "Socket failed. errno: " << errno << std::endl;
@@ -48,13 +50,12 @@ namespace HTTP {
 				std::exit(EXIT_FAILURE);
 			}
 			// TODO: adding other socket options like TCP_DEFER_ACCEPT?
-
 			sockaddr_in sockaddr;
 			sockaddr.sin_family = AF_INET;
 			sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);// this is the address for this socket. The special adress for this is 0.0.0.0, defined by symbolic constant INADDR_ANY
 			sockaddr.sin_port = htons(_listen_ports[i]);//htons is necessary to convert a number to network byte order
 			if(bind(_listening_sockfds[i], (struct sockaddr *)&sockaddr, sizeof(sockaddr)) < 0) { //int bind(int sockfd, const sockaddr *addr, socklen_t addrlen); return -1 in case of error, return 0 in case of success;
-				std::cout << "Failed to bind to port " << _listen_ports[i] << "errno: " << errno << std::endl;
+				std::cout << "Failed to bind to port " << _listen_ports[i] << " errno: " << errno << std::endl;
 				std::exit(EXIT_FAILURE);
 			}
 			if (listen(_listening_sockfds[i], 10) < 0) {
@@ -180,8 +181,11 @@ namespace HTTP {
 		{
 			std::set<std::string> listen_set = servers[i].get_listen();
 			//TODO [::]:1000's atoi result is 0 since the string starts with non-numerical number.
-			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++)
-				_listen_ports.push_back(std::atoi((*i).c_str()));
+			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) {
+				int port = std::atoi((*i).c_str());
+				if (std::find(_listen_ports.begin(), _listen_ports.end(), port) == _listen_ports.end()) //does not push duplicate ports
+					_listen_ports.push_back(port); 
+			}		
 		}
 		_setup_listening_sockets();
 		_handle_events();
