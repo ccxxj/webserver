@@ -74,14 +74,10 @@ namespace HTTP {
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
-		std::cout << "...Finding Virtual Server for..." << "\033[31mip: " << _connection_listen_info.ip;
-		std::cout << " port: " << _connection_listen_info.port << "\033[0m\n" << std::endl;
 		std::vector<const Config::ServerBlock*> matching_servers;
-		// match server based on request ip + port
+		// match server based on request ip + port //TODO Discuss how you are getting this information.
 		for (std::vector<Config::ServerBlock>::const_iterator it = _config_data->get_servers().begin(); it != _config_data->get_servers().end(); it++) {
 			for (std::set<std::string>::const_iterator port = it->get_listen().begin(); port != it->get_listen().end(); port++) {
-			//TODO Discuss how you are getting this information.
-			//I tried to convert Connection.ip and addr with ntohs functions but I get a weird integer
 				uint32_t server_port = std::atoi((*port).c_str());
 				if (server_port == _connection_listen_info.port) {
 					matching_servers.push_back(&(*it));
@@ -90,6 +86,7 @@ namespace HTTP {
 			}
 		}
 		std::cout << matching_servers.size() <<  " server block matched based on ip + port" << std::endl;
+		std::cout  << "\033[31m" << _connection_listen_info.ip << " " << _connection_listen_info.port << "\033[0m\n" << std::endl;
 		if (matching_servers.size() == 1) // if only 1 server matches, that's it, return it
 			return matching_servers.front();
 		else if (matching_servers.size() == 0) // if none is matched, return default server

@@ -107,7 +107,7 @@ namespace HTTP {
 		}
 		while (true) {
 			struct timespec timeout;
-			timeout.tv_sec = 30; // setting the 30s timeout
+			timeout.tv_sec = 30;
 			timeout.tv_nsec = 0;
 			int new_events = kevent(sock_kqueue, NULL, 0, event_fds, 1, &timeout); //look out for events and register to event list; one event per time
 			if(new_events == -1) {
@@ -157,7 +157,6 @@ namespace HTTP {
 					std::cout << "IP addr: " << _running_servers[current_event_fd].ip << std::endl;
 					std::cout << "Port: " << _running_servers[current_event_fd].port << std::endl;
 					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd]);
-					// BUG new connection is not added properly connection size is always 1 and it's the first port that got connected
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {

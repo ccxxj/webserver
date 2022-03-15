@@ -10,7 +10,7 @@ server {
 
 server {
 	listen 2000;
-
+	listen 1000;
 	server_name irem;
 	root /var/www/localhost;
 
