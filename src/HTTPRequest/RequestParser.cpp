@@ -201,7 +201,9 @@ namespace HTTPRequest {
             }
         }
         else {
-            _throw_request_exception(HTTPResponse::LengthRequired);
+            if (_http_request_message->get_method() == "POST") {
+                _throw_request_exception(HTTPResponse::LengthRequired);
+            }
         }
     }
 
