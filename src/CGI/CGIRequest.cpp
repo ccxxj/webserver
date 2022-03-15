@@ -5,19 +5,19 @@
 
 CGIRequest::CGIRequest(){
 //initialize the meta_variable map
-	_meta_variables["AUTH_TYPE"];
-	_meta_variables["CONTENT_LENGTH"];
-	_meta_variables["CONTENT_TYPE"];
-	_meta_variables["GATEWAY_INTERFACE"];
-	_meta_variables["PATH_INFO"];
-	_meta_variables["PATH_TRANSLATED"];
-	_meta_variables["QUERY_STRING"];
-	_meta_variables["REMOTE_ADDR"];
-	_meta_variables["REMOTE_HOST"];
+	_meta_variables["AUTH_TYPE"]; //from standard request fields
+	_meta_variables["CONTENT_LENGTH"];//from standard request fields
+	_meta_variables["CONTENT_TYPE"];//from standard request fields
+	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
+	_meta_variables["PATH_INFO"]; //portion of uri, the segment after identify the script itself (run DECODE!!). (cgi/more => /more). can be void
+	_meta_variables["PATH_TRANSLATED"]; // if path_info is null, path_translated is null. otherwise: root + path_info
+	_meta_variables["QUERY_STRING"];//from uri query string map. TODO check if the key is set, is the default value null?
+	_meta_variables["REMOTE_ADDR"];//set to the server network address. can be void
+	_meta_variables["REMOTE_HOST"]; //if not remote_host value provided (hostname), substitute with the remote_address value
 	_meta_variables["REMOTE_IDENT"];
 	_meta_variables["REMOTE_USER"];
-	_meta_variables["REQUEST_METHOD"];
-	_meta_variables["SCRIPT_NAME"];
+	_meta_variables["REQUEST_METHOD"];// from method
+	_meta_variables["SCRIPT_NAME"]; //from uri
 	_meta_variables["SERVER_NAME"];
 	_meta_variables["SERVER_PORT"];
 	_meta_variables["SERVER_PROTOCOL"];
@@ -25,6 +25,11 @@ CGIRequest::CGIRequest(){
 	_meta_variables["scheme"];//not sure if needed, as it will always be http
 	_meta_variables["protocol_var_name"];//not sure if needed
 	_meta_variables["extension_var_name"];//not sure if needed
+
+//initialize the extensions to search for
+	_cgi_extension.push_back(".php");
+	_cgi_extension.push_back(".cgi");
+	_cgi_extension.push_back(".py");
 }
 
 CGIRequest::~CGIRequest()
@@ -67,9 +72,33 @@ void CGIRequest::set_argument(std::string cgi_path)
 	_argument[1] = NULL;//TODO is it always NULL?
 }
 
+void CGIRequest::search_cgi(std::string uri)
+{
+	std::vector<std::string>::iterator it = _cgi_extension.begin();
+	int position_path_info;
+	int position_cgi;
+	while(it != _cgi_extension.end())
+	{
+		position_cgi = uri.find_first_of(*it);
+		if( position_path_info != std::string::npos)
+		{
+			position_path_info = position_cgi + (*it).length();
+			int len = uri.length() - position_path_info;
+			if((*it)[position_path_info] == '/' && len > 0)
+				_meta_variables["PATH_INFO"] = uri.substr(position_path_info, len);//TODO validation on the path_info, also the decoding. 
+			_search_cgi_extension = true;
+			return;
+		}
+		it++;
+	}
+	_search_cgi_extension = false;
+}
 
 void CGIRequest::execute_cgi()
 {
+	search_cgi("uri/.cgi/");
+	if(_search_cgi_extension == false) //input need to change to uri
+		return;
 	int fd[2];
 	if (pipe(fd))
 	{
@@ -93,8 +122,8 @@ void CGIRequest::execute_cgi()
 	else
 	{
 		close(fd[1]);
-		char buf[8000];
-		read(fd[0], buf, 8000);
+		char buf[1000];
+		read(fd[0], buf, 1000);
 		//the buf need to goes into response
 		std::cout << buf << "\n";
 	}

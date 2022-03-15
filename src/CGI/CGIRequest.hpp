@@ -3,6 +3,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <vector>
 
 // #include "../HTTPRequest/RequestMessage.cpp"
 
@@ -35,11 +36,14 @@ private:
 	char *_argument[2];
 	std::map<std::string, std::string> _meta_variables;
 	std::string _uri;
+	std::vector<std::string> _cgi_extension;
+	bool _search_cgi_extension;
 
 public:
 	CGIRequest();
 	~CGIRequest();
 	// void parse_meta_variables(HTTPRequest::RequestMessage request_message);//TODO update later
+	void search_cgi(std::string uri);
 	void parse_meta_variables(void);
 	void set_envp(void);
 	void set_argument(std::string cgi_path);
