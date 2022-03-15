@@ -79,11 +79,26 @@ namespace HTTP {
 		return false;
 	}
 
-	void Server::_remove_closed_connection(int fd) {
+	void Server::_remove_disconnected_client(int fd) {
 		std::map<int, Connection*>::iterator iter = _connections.begin();
 		while (iter != _connections.end()) {
 			if (iter->first == fd) {
+				delete iter->second;
 				_connections.erase(iter);
+				break;
+			}
+			iter++;
+		}
+	}
+
+	void Server::_remove_connection_closed_by_server() {
+		std::map<int, Connection*>::iterator iter = _connections.begin();
+		while (iter != _connections.end()) {
+			if (!(iter->second->is_connection_open())) {
+				delete iter->second;
+				_connections.erase(iter);
+			}
+			if (_connections.size() == 0) {
 				break;
 			}
 			iter++;
@@ -119,6 +134,7 @@ namespace HTTP {
 					if (iter->second->is_connection_open()) {
 						close(iter->first);
 					}
+					delete iter->second;
 					_connections.erase(iter);
 					if (_connections.size() == 0) {
 						break;
@@ -135,11 +151,12 @@ namespace HTTP {
 				else if (event_fds[i].flags & EV_EOF) {
 					std::cout << "The client has disconnected." << std::endl;
 					close(current_event_fd);
-					_remove_closed_connection(current_event_fd);
+					_remove_disconnected_client(current_event_fd);
 					std::cout << "FD " << current_event_fd << " is closed and removed from _connections." << std::endl;
 				}
 				else if(_is_in_listen_sockfd_list(current_event_fd)) {
-
+					// iterate the map of connections and if any connection is closed remov it from the map:
+					_remove_connection_closed_by_server(); // THis iS TEMP solution. TODO: set up a listener
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
@@ -148,7 +165,6 @@ namespace HTTP {
 						std::perror("accept socket error");
 					}
 					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
-
 						std::perror("fcntl error");
 					}
 					//TODO:: check if these are needed Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
