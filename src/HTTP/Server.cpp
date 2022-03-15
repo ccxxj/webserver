@@ -34,8 +34,6 @@ namespace HTTP {
 
 	void Server::_setup_listening_sockets() {
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
-			// if(!_bound_ports.insert(_listen_ports[i]).second)
-			// 	continue ;
 			_listening_sockfds.push_back(socket(AF_INET, SOCK_STREAM, 0));
 			if (_listening_sockfds[i] < 0) {
 				std::cout << "Socket failed. errno: " << errno << std::endl;
