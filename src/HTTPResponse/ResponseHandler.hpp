@@ -12,7 +12,7 @@
 namespace HTTPResponse {
     class ResponseHandler {
     private:
-        // HTTPRequest::RequestMessage _http_request_message;
+        // HTTPRequest::RequestMessage _http_request_message; //TODO have this and cgi as well.
         ResponseMessage _http_response_message; // smart pointer because I want to change the real response msg cmoning from request handler!
 		// Config::ServerBlock ?;
         // Config::LocationBlock ?;
