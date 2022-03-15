@@ -68,9 +68,10 @@ namespace HTTP {
 
 	void RequestHandler::RequestHandler::_process_http_request() {
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
-		std::cout << "check ret of find virt serv " << virtual_server->get_client_max_body_size() << std::endl;
-		// const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
-		// _http_response_message.create_http_response(virtual_server, location); //FROM here, it's moving to Response and from there to ResponseHandler
+		std::cout << virtual_server->get_client_max_body_size() << " is matched" << std::endl;
+		const Config::LocationBlock *location = _match_most_specific_location(virtual_server); //print smething if a loc is matched
+		(void)location;
+		_http_response_message.create_http_response(virtual_server, location); //FROM here, it's moving to Response and from there to ResponseHandler
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
@@ -90,60 +91,54 @@ namespace HTTP {
 		if (matching_servers.size() == 1) // if only 1 server matches, that's it, return it
 			return matching_servers.front();
 		else if (matching_servers.size() == 0) // if none is matched, return default server
-			return &_config_data->get_servers()[0]; //TODO replace with .front()?
+			return &_config_data->get_servers().front(); //TODO replace with .front()?
 		else // if more than 1 server is matched, get host name from request header and match based on server names
-			return _match_one_based_on_server_name(matching_servers);
+			return _match_one_based_on_server_name(matching_servers); //TODO test this with debugger
 	}
 
 	const Config::ServerBlock* RequestHandler::_match_one_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
-		std::string host = _http_request_message.get_header_value("Host"); //TODO what do we have as return value
-		// if (host.empty()) //TODO no host header error? ask Olga
+		std::string host = _http_request_message.get_header_value("Host");
+		// if (host.empty()) //TODO no host header error? 
 		for (std::vector<Config::ServerBlock>::const_iterator it = _config_data->get_servers().begin(); it != _config_data->get_servers().end(); it++) {
 			for (std::vector<std::string>::const_iterator srv_name = it->get_server_name().begin(); srv_name != it->get_server_name().end(); srv_name++) {
 				if ((*srv_name).compare(host) == 0)
-					return &(*it); // FIXME is this appropriate to return
+					return &(*it); // the first one is used even if there might be multiple matches // FIXME this does keep looping although it returns WTF?
 			}
 		}
-		return NULL;// FIXME what happens if you 2 matches with find virtual server but no match with server_name?
+		return matching_servers.front(); //if you have muliple matches with find virtual server but no match with server_name, return the default one for that ip + port match which is the first matching block
 	}
 
 	const Config::LocationBlock* RequestHandler::_match_most_specific_location(const Config::ServerBlock *server) {
 		const std::vector<Config::LocationBlock> locs = server->get_location();
 		std::vector<const Config::LocationBlock*> matched_locations;
-		const std::vector<std::string> uri_paths = _http_request_message.get_uri().get_path(); // FIXME or get_request_uri()?
+		const std::vector<std::string> uri_paths = _http_request_message.get_uri().get_path();
 		for (std::vector<Config::LocationBlock>::const_iterator it = locs.begin(); it != locs.end(); it++) {
-			const std::string loc_route = it->get_route(); // FIXME root + route?
-			std::string searched_uri = ""; //TODO is it const?
+			const std::string loc_route = it->get_route();
+			std::string searched_uri = "";
 			for (size_t i = 0; i < uri_paths.size(); i++)
 			{
-				searched_uri += uri_paths[i];
-				if (searched_uri.compare(loc_route) == 0)
+				searched_uri += uri_paths[i] + "/";
+				if (loc_route.compare(searched_uri) == 0)
+				{
 					matched_locations.push_back(&(*it));
+					break; // no need to look further
+				}		
 			}
 		}
 		if (matched_locations.size() == 0) // if no match
 			return NULL;
-		else // the last element of matched_locations is the most spefici route.
-			return matched_locations.back();
-
-		// VISUALISATION
-		// uri    : https://wordpress.com/theme/livro
-		// uri_paths
-		//	  [0] : wordpress // FIXME ask Xiaojing about if .com is there
-		//	  [1] : theme
-		//	  [2] : livro
-
-		// CONF LOCS //FIXME discuss the subject : it says no regex! also modifiers in location block?
-		// route1 : /    // FIXME this is somehow speacial because it is an umbrella route for every uri?
-		// route2 : /wordpress/
-		// route3 : /wordpress/theme
-		// route5 : /wordpress/theme/livro
-		// route6 : /wordpress/theme/livro/support
-		// route7 : /wordpress/domains
-
-		// What about root + route?
-		// root = /var/www/localhost;
-		// root + route = /var/www/localhost//wordpress/theme/livro
-		// But we separated the request uri and got rid of the /var/www/? IF so, delete it.
+		else //find the longest route that matches
+		{
+			const Config::LocationBlock* match;
+			size_t length = 0;
+			for (std::vector<const Config::LocationBlock*>::iterator it = matched_locations.begin(); it != matched_locations.end(); it++) {
+				if((*it)->get_route().length() > length)
+				{
+					length = (*it)->get_route().length();
+					match = (*it);
+				}		
+			}
+			return match;
+		} 		
 	}
 }
