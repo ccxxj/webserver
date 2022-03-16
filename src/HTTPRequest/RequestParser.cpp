@@ -183,8 +183,8 @@ namespace HTTPRequest {
         std::map<std::string, std::string> headers_map = _http_request_message->get_headers();
         std::map<std::string, std::string>::iterator transfer_encoding_iter = headers_map.find("Transfer-Encoding");
         std::map<std::string, std::string>::iterator content_length_iter = headers_map.find("Content-Length");
-        if (content_length_iter != headers_map.end()) {
-            if (transfer_encoding_iter == headers_map.end()) {
+        if (content_length_iter != headers_map.end()) { // if headers contain Content-Length
+            if (transfer_encoding_iter == headers_map.end()) { // and headers don't contain Transfer-Encoding
                 _message_body_length = CONTENT_LENGTH;
             }
             else {
@@ -194,7 +194,7 @@ namespace HTTPRequest {
                 }
             }
         }
-        else if (transfer_encoding_iter != headers_map.end()) {
+        else if (transfer_encoding_iter != headers_map.end()) { // if headers contain Transfer-Encoding without Content-length
             _parse_transfer_encoding(transfer_encoding_iter->second);
             if (_message_body_length != CHUNCKED) {
                 _throw_request_exception(HTTPResponse::LengthRequired);
