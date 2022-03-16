@@ -16,10 +16,6 @@ namespace HTTPResponse {
 
     ResponseMessage::~ResponseMessage() {}
 
-    void ResponseMessage::create_http_response(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location) {
-
-    }
-
     void ResponseMessage::set_status_code(const std::string& code) {
         _status_code = code;
     }

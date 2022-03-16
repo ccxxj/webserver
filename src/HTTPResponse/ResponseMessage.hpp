@@ -3,9 +3,6 @@
 #include <string>
 #include <map>
 
-#include "../config/ServerBlock.hpp"
-#include "../config/LocationBlock.hpp"
-
 namespace HTTPResponse {
     class ResponseMessage {
 
@@ -18,13 +15,10 @@ namespace HTTPResponse {
         std::string _message_body;
         std::string _complete_response;
         
-
     public:
         ResponseMessage();
         ResponseMessage(const ResponseMessage& other);
         ~ResponseMessage();
-
-        void create_http_response(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
 
         void set_status_code(const std::string& code);
         void set_reason_phrase(const std::string& reason);
