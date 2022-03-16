@@ -69,9 +69,9 @@ namespace HTTP {
 		std::cout << virtual_server->get_client_max_body_size() << " is matched" << std::endl;
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
 		if(location)
-			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;
+			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;	
 		response_handler.set_server_and_location(virtual_server, location);
-        response_handler.create_http_response(); //FROM here, it's moving to ResponseHandler
+        // response_handler.create_http_response(); //FROM here, it's moving to ResponseHandler
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
@@ -107,10 +107,9 @@ namespace HTTP {
 	}
 
 	const Config::LocationBlock* RequestHandler::_match_most_specific_location(const Config::ServerBlock *server) {
-		const std::vector<Config::LocationBlock> locs = server->get_location();
 		std::vector<const Config::LocationBlock*> matched_locations;
 		const std::vector<std::string> uri_paths = _http_request_message.get_uri().get_path();
-		for (std::vector<Config::LocationBlock>::const_iterator it = locs.begin(); it != locs.end(); it++) {
+		for (std::vector<Config::LocationBlock>::const_iterator it = server->get_location().begin(); it != server->get_location().end(); it++) {
 			const std::string loc_route = it->get_route();
 			std::string searched_uri = "";
 			for (size_t i = 0; i < uri_paths.size(); i++)
