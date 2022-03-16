@@ -1,19 +1,20 @@
 #include "ServerBlock.hpp"
-#include "Utils.hpp"
+#include "../Utility/Utility.hpp"
+#include <cstdlib> // for atoi
 
-#include <cstdlib>
 namespace Config
 {
 
-    ServerBlock::ServerBlock(/* args */)
+    ServerBlock::ServerBlock()
     {
         _is_default = false;
-        // std::cout << "ServerBlock construtor" << std::endl;
+        //TODO default client max body size check (nginx default 1M = 1000000 in decimal)
+        _client_max_body_size = 1;
+         _is_size_default = true;
     }
 
     ServerBlock::ServerBlock(const ServerBlock &other)
     {
-        // std::cout << "ServerBlock copy constructor" << std::endl;
         *this = other;
     }
 
@@ -27,34 +28,69 @@ namespace Config
         _root = other._root;
         _return = other._return;
         _error_page = other._error_page;
-        // std::cout << "ServerBlock assign operator" << std::endl;
+        _is_size_default = other._is_size_default;
         return *this;
     }
 
-    ServerBlock::~ServerBlock()
+    ServerBlock::~ServerBlock() {}
+
+    /* check methods */
+    std::string ServerBlock::_check_and_return_port(std::string& str)
     {
-        //std::cout  << "ServerBlock destructor" << std::endl;
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> listen_args = Utility::split_string_by_white_space(str);
+        if (listen_args.size() != 2)
+            throw std::logic_error("invalid number of arguments in listen");
+        _check_port_range(listen_args[1]);
+        return listen_args[1];
     }
 
+    void ServerBlock::_check_port_range(std::string& port)
+	{
+        size_t port_num;
+		std::string ipv6 = "[::]:";
+		std::string str;
+
+		size_t pos = port.find(ipv6);
+		if (pos != std::string::npos)
+			str = port.substr(pos + ipv6.length());
+        else
+            str = port;
+        if(Utility::is_positive_integer(str) == false)
+            throw std::logic_error("host not found in directive listen " + port);
+        port_num = std::atoi(str.c_str());
+        if (port_num < 1 || port_num > 65535)
+            throw std::out_of_range("host not found in directive listen " + port);
+	}
+
+    void ServerBlock::_check_duplicate_location_route(const std::string& route)
+    {
+        std::vector<LocationBlock> locations = get_location();
+        for (size_t i = 0; i < locations.size(); i++)
+            if (locations[i].get_route() == route)
+                throw std::logic_error("duplicate location " + route);
+    }
+
+    void ServerBlock::_check_server_name_syntax(std::vector<std::string>& args) const
+	{
+		if (args.size() < 2)
+			throw std::logic_error("invalid number of arguments in server_name directive");
+	}
+
+    /* setters */
     void ServerBlock::set_listen(std::string str)
     {
-        Utils::remove_first_keyword(str);
-        Utils::split_value(str, _listen);
+        if(!_listen.insert(_check_and_return_port(str)).second)
+            throw std::logic_error("a duplicate " + str);
     }
 
     void ServerBlock::set_server_name(std::string str)
     {
-        Utils::remove_first_keyword(str);
-        Utils::split_value(str, _server_name);
-    }
-
-    void ServerBlock::set_client_max_body_size(std::string str)
-    {
-        Utils::remove_first_keyword(str);
-        int first = str.find_first_not_of("     ;");
-        int last = str.find_first_of("     ;", first + 1);
-        std::string temp = str.substr(first, last - first);
-        _client_max_body_size = atoi(temp.c_str());
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
+		_check_server_name_syntax(args);
+        for (size_t i = 1; i < args.size(); i++)
+            _server_name.push_back(args[i]);
     }
 
     void ServerBlock::set_default(bool value)
@@ -62,22 +98,24 @@ namespace Config
         _is_default = value;
     }
 
-    int ServerBlock::get_client_max_body_size(void) const
+    void ServerBlock::set_a_location(const LocationBlock &location)
     {
-        return _client_max_body_size;
+        _check_duplicate_location_route(location.get_route());
+        _locations.push_back(location);
     }
 
-    std::vector<std::string> ServerBlock::get_listen() const
+    /* getters */
+    const std::set<std::string>& ServerBlock::get_listen() const
     {
         return _listen;
     }
 
-    std::vector<std::string> ServerBlock::get_server_name() const
+    const std::vector<std::string>& ServerBlock::get_server_name() const
     {
         return _server_name;
     }
 
-    std::vector<LocationBlock> &ServerBlock::get_location(void)
+    const std::vector<LocationBlock> &ServerBlock::get_location(void) const
     {
         return _locations;
     }

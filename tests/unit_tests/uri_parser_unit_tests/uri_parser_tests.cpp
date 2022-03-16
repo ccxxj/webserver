@@ -7,7 +7,6 @@
 
 #include "../../../src/HTTPRequest/URI/URIParser.hpp"
 #include "../../../src/HTTPRequest/URI/URIData.hpp"
-#include "../../../src/HTTPRequest/URI/Utils.hpp"
 #include "../../../src/HTTP/Exceptions/RequestException.hpp"
 
 namespace tests {

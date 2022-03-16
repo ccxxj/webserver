@@ -2,7 +2,7 @@
 
 #include <ctype.h>
 
-#include "Utils.hpp"
+#include "../../Utility/Utility.hpp"
 #include "../../HTTP/Exceptions/RequestException.hpp"
 
 namespace HTTPRequest {
@@ -118,7 +118,7 @@ namespace HTTPRequest {
 		size_t len;
 		if(query_string.size() > 0)
 		{
-			query = Utils::_split_line(query_string, '&');
+			query = Utility::_split_line(query_string, '&');
 			int size = query.size();
 			for(int i = 0; i < size; i++)
 			{

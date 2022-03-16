@@ -64,7 +64,7 @@ namespace Config
 		}
 	}
 
-	std::vector<std::string> ConfigTokenizer::get_server_tokens(void) const
+	const std::vector<std::string>& ConfigTokenizer::get_server_tokens(void) const
 	{
 		return _server_tokens;
 	}

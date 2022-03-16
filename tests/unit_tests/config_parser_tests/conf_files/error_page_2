@@ -1,0 +1,7 @@
+server{
+    listen 1000;
+    server_name webservvvvv;
+    root /var/www/localhost;
+    error_page 404;
+}
+

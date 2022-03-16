@@ -35,10 +35,13 @@ CGIRequest::CGIRequest(){
 CGIRequest::~CGIRequest()
 {
 //free all the _envp[21] (cuz I used strdup for every elements)
-	for(int i = 0; i < 21; i++)
+	if(_search_cgi_extension)
 	{
-		if(_envp[i])
-			free(_envp[i]);
+		for(int i = 0; i < 20; i++)
+		{
+			if(_envp[i])
+				free(_envp[i]);
+		}
 	}
 }
 
@@ -63,6 +66,7 @@ void CGIRequest::set_envp(void)
 		_envp[i] = strdup(temp.c_str());
 		i++;
 	}
+	std::cout << "i is " << i << std::endl;
 	_envp[i] = NULL;
 }
 
@@ -79,8 +83,9 @@ void CGIRequest::search_cgi(std::string uri)
 	int position_cgi;
 	while(it != _cgi_extension.end())
 	{
-		position_cgi = uri.find_first_of(*it);
-		if( position_path_info != std::string::npos)
+		position_cgi = uri.find(*it);
+		std::cout << position_cgi <<std::endl;
+		if( position_cgi != std::string::npos)
 		{
 			position_path_info = position_cgi + (*it).length();
 			int len = uri.length() - position_path_info;
@@ -92,11 +97,13 @@ void CGIRequest::search_cgi(std::string uri)
 		it++;
 	}
 	_search_cgi_extension = false;
+	std::cout << _search_cgi_extension;
 }
 
 void CGIRequest::execute_cgi()
 {
-	search_cgi("uri/.cgi/");
+	search_cgi("uri/./");
+	std::cout << "the result of search: " << _search_cgi_extension << std::endl;
 	if(_search_cgi_extension == false) //input need to change to uri
 		return;
 	int fd[2];
@@ -105,10 +112,11 @@ void CGIRequest::execute_cgi()
 		std::cout << "pipe failed\n"; //TODO decide exception to throw later
 	}
 	pid_t pid;
-	pid = fork();
 	set_argument("cgi_tester");
 	parse_meta_variables();
 	set_envp();
+	pid = fork();
+
 	if(pid == (pid_t)0)
 	{
 		dup2(fd[1], 1);

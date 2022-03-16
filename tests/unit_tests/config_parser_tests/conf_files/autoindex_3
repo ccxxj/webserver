@@ -1,0 +1,39 @@
+server {
+	listen 8080;
+	#listen 8080;
+
+server_name random_name;
+	# server_name irem;
+
+	client_max_body_size 20;
+
+
+	root /var/www/irem;
+		 #error_page 404 /custom-404.html; #put them in the root!
+
+	location /xyz {
+root /var/www/localhost;
+client_max_body_size 200;
+		#error_page 301 /custom-301.html;
+		autoindex onx;
+		# irem;
+
+
+		limit_except  GET POST DELETE HEAD {
+			#asdasd;
+			deny all;
+}
+
+		return 301 https://localhost;
+	}
+
+	location / {
+		root /var/www/iremiremirem;
+autoindex on;
+
+				limit_except POST GET {
+			deny all;
+}
+		return 505 https://$server_name$request_uri;
+}
+		 	}
