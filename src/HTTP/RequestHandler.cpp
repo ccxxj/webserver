@@ -42,10 +42,7 @@ namespace HTTP {
 				// return;
 			}
 			_process_http_request();
-			std::string status_code = _http_response_message.get_status_code();
-			std::string reason_phrase = _http_response_message.get_reason_phrase();
-			std::string status_line = _http_response_message.get_HTTP_version() + " " + status_code + " " + reason_phrase + "\r\n\r\n";
-			// std::cout << "\n\nRESPONSE:\nStatus line: " << status_line << std::endl;
+			std::string status_line = _http_response_message.get_HTTP_version() + " " + _http_response_message.get_status_code(); + " " + _http_response_message.get_reason_phrase(); + "\r\n\r\n";
 			_delegate.send(&status_line[0], status_line.size()); //TODO: replace by _http_response_message.get_complete_response();
 			_delegate.close();
 		}
@@ -69,8 +66,9 @@ namespace HTTP {
 	void RequestHandler::RequestHandler::_process_http_request() {
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
 		std::cout << virtual_server->get_client_max_body_size() << " is matched" << std::endl;
-		const Config::LocationBlock *location = _match_most_specific_location(virtual_server); //print smething if a loc is matched
-		(void)location;
+		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
+		if(location)
+			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;
 		_http_response_message.create_http_response(virtual_server, location); //FROM here, it's moving to Response and from there to ResponseHandler
 	}
 
@@ -91,18 +89,18 @@ namespace HTTP {
 		if (matching_servers.size() == 1) // if only 1 server matches, that's it, return it
 			return matching_servers.front();
 		else if (matching_servers.size() == 0) // if none is matched, return default server
-			return &_config_data->get_servers().front(); //TODO replace with .front()?
+			return &_config_data->get_servers().front();
 		else // if more than 1 server is matched, get host name from request header and match based on server names
-			return _match_one_based_on_server_name(matching_servers); //TODO test this with debugger
+			return _match_one_based_on_server_name(matching_servers);
 	}
 
 	const Config::ServerBlock* RequestHandler::_match_one_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
 		std::string host = _http_request_message.get_header_value("Host");
-		// if (host.empty()) //TODO no host header error? 
-		for (std::vector<Config::ServerBlock>::const_iterator it = _config_data->get_servers().begin(); it != _config_data->get_servers().end(); it++) {
-			for (std::vector<std::string>::const_iterator srv_name = it->get_server_name().begin(); srv_name != it->get_server_name().end(); srv_name++) {
+		// if (host.empty()) //TODO no host header error?
+		for (std::vector<const Config::ServerBlock*>::iterator it = matching_servers.begin(); it != matching_servers.end(); it++) {
+			for (std::vector<std::string>::const_iterator srv_name = (*it)->get_server_name().begin(); srv_name != (*it)->get_server_name().end(); srv_name++) {
 				if ((*srv_name).compare(host) == 0)
-					return &(*it); // the first one is used even if there might be multiple matches // FIXME this does keep looping although it returns WTF?
+					return *it; // the first one is used even if there might be multiple matches // FIXME this does keep looping although it returns WTF?
 			}
 		}
 		return matching_servers.front(); //if you have muliple matches with find virtual server but no match with server_name, return the default one for that ip + port match which is the first matching block
@@ -122,7 +120,7 @@ namespace HTTP {
 				{
 					matched_locations.push_back(&(*it));
 					break; // no need to look further
-				}		
+				}
 			}
 		}
 		if (matched_locations.size() == 0) // if no match
@@ -136,9 +134,9 @@ namespace HTTP {
 				{
 					length = (*it)->get_route().length();
 					match = (*it);
-				}		
+				}
 			}
 			return match;
-		} 		
+		}
 	}
 }
