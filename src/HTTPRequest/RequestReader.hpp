@@ -13,13 +13,12 @@ namespace HTTPRequest {
 		std::string _accumulator;
 		static size_t _length_counter;
 		
-		bool _is_end_of_line(char *current_string, char* message_end);
+		bool _is_end_of_line(char character);
 
 	public:
 		RequestReader();
 		~RequestReader();
-		
-		std::string read_line(char** buffer, char* buffer_end, bool* can_be_parsed);
+
+		std::string read_line(char* buffer, size_t bytes_read, size_t* bytes_parsed, bool* can_be_parsed);
 	};
 }
-

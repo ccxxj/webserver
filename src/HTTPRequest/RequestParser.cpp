@@ -59,12 +59,12 @@ namespace HTTPRequest {
     }
 
     void RequestParser::parse_HTTP_request(char* buffer, size_t bytes_read) {
-        char* buffer_end = buffer + bytes_read;
         size_t content_length = 0;
-        while (buffer != buffer_end || _current_parsing_state != FINISHED)
+        size_t bytes_parsed = 0;
+        while (bytes_parsed != bytes_read || _current_parsing_state != FINISHED)
         {
             bool can_be_parsed = false;
-            std::string line = _request_reader.read_line(&buffer, buffer_end, &can_be_parsed);
+            std::string line = _request_reader.read_line(buffer, bytes_read, &bytes_parsed, &can_be_parsed);
             if (_current_parsing_state == MESSAGE_BODY && line.size() == content_length) {
                 can_be_parsed = true;
             }
@@ -77,11 +77,9 @@ namespace HTTPRequest {
                     _define_message_body_length();
                     if (_message_body_length == CONTENT_LENGTH) {
                         content_length = _set_content_length();
-                        buffer_end = buffer + content_length;
                     }
                     //TODO: validate request line
                     //TODO: validate headers
-                    //TODO: what if content-length is less than bytes read? Do we close the connection or need to support keep-alive?
                 }
             }
         }
