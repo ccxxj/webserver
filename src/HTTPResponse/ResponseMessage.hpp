@@ -5,11 +5,8 @@
 
 #include "../config/ServerBlock.hpp"
 #include "../config/LocationBlock.hpp"
-#include "../Utility/SmartPointer.hpp"
-
 
 namespace HTTPResponse {
-    class ResponseHandler;
     class ResponseMessage {
 
     private:
@@ -20,7 +17,7 @@ namespace HTTPResponse {
         std::map<std::string, std::string> _response_headers;
         std::string _message_body;
         std::string _complete_response;
-        Utility::SmartPointer<ResponseHandler> response_handler; // should be the last attr because of constructor 
+        
 
     public:
         ResponseMessage();
