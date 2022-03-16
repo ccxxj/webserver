@@ -2,17 +2,17 @@
 #include "ResponseHandler.hpp"
 
 namespace HTTPResponse {
-    ResponseMessage::ResponseMessage() 
+    ResponseMessage::ResponseMessage()
         : _HTTP_version("HTTP/1.1")
         , _status_code("")
         , _reason_phrase("")
-        , response_handler(new ResponseHandler(*this))
+        , response_handler(new ResponseHandler(*this)) //TODO does this mean res_msg refers to res_msg in the request_handler
         {} //TODO add every other attribute?
 
-    ResponseMessage::ResponseMessage(const ResponseMessage& other) 
+    ResponseMessage::ResponseMessage(const ResponseMessage& other)
         : _HTTP_version("HTTP/1.1")
         , _status_code(other._status_code)
-        , _reason_phrase(other._reason_phrase) 
+        , _reason_phrase(other._reason_phrase)
         , response_handler(other.response_handler) //FIXME check the handler's copy const. is everything copied?
         {
         } //TODO my head is about to explode with all the pointers pointo each other and copying themmm OMG leave me alone already

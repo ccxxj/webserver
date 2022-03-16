@@ -7,11 +7,11 @@
 // #include "../config/ServerBlock.hpp"
 
 namespace HTTPResponse {
-	ResponseHandler::ResponseHandler(ResponseMessage& response_message)
+	ResponseHandler::ResponseHandler(ResponseMessage* response_message)
 	// : _http_request_message()
 	: _http_response_message(response_message)
 	{
-	}
+	} //TODO do i need a copy const?
 
 	ResponseHandler::~ResponseHandler(){}
 
@@ -20,8 +20,17 @@ namespace HTTPResponse {
 		(void)location;
         // if (!location)
         //     _verify_method(location->get_limit_except()); //HTTPResponse::MethodNotAllowed ? how to move from here?
-        // checks & building the response 
+        // checks & building the response
     }
+
+	void ResponseHandler::set_server(Config::ServerBlock* server) {
+		_server = server;
+	}
+
+	void ResponseHandler::set_location(Config::LocationBlock* location) {
+		_location = location;
+
+	}
 
 	// bool ResponseHandler::_verify_method(const std::vector<std::string> methods) {
 	// 	const std::string request_method = _http_request_message.get_method();
