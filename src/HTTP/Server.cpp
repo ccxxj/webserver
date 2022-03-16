@@ -190,7 +190,7 @@ namespace HTTP {
 	}
 
 	void Server::run() {
-		const std::vector<Config::ServerBlock> servers = config_data->get_servers();
+		const std::vector<Config::ServerBlock> servers = config_data->get_servers(); //TODO write a function for this
 		for (size_t i = 0; i < servers.size(); i++)
 		{
 			std::set<std::string> listen_set = servers[i].get_listen();
@@ -198,8 +198,8 @@ namespace HTTP {
 			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) {
 				int port = std::atoi((*i).c_str());
 				if (std::find(_listen_ports.begin(), _listen_ports.end(), port) == _listen_ports.end()) //does not push duplicate ports
-					_listen_ports.push_back(port); 
-			}		
+					_listen_ports.push_back(port);
+			}
 		}
 		_setup_listening_sockets();
 		_handle_events();
