@@ -1,6 +1,7 @@
 #include "RequestParser.hpp"
 #include <algorithm> // for std::distance
 #include <cstdlib> // for atoi
+#include <cctype> // for ::toupper
 
 #include "../HTTP/Exceptions/RequestException.hpp"
 #include "../Utility/Utility.hpp"
@@ -38,7 +39,7 @@ namespace HTTPRequest {
     }
 
     int RequestParser::_set_content_length() {
-        std::string content_length_value = _http_request_message->get_headers().find("Content-Length")->second;
+        std::string content_length_value = _http_request_message->get_headers().find("CONTENT_LENGTH")->second;
         if (content_length_value.find_first_of(',', 0) != std::string::npos) {
             std::vector<std::string> values = Utility::_split_line(content_length_value, ',');
             std::string first_value = Utility::_trim(values[0]);
@@ -136,6 +137,12 @@ namespace HTTPRequest {
         return longest_size;
     }
 
+    std::string RequestParser::_convert_header_name_touppercase(std::string& header_name) {
+        std::transform(header_name.begin(), header_name.end(),header_name.begin(), ::toupper);
+        std::replace_if (header_name.begin(), header_name.end(), Utility::is_hyphen, '_');
+        return header_name;
+    }
+
     void RequestParser::_parse_header(std::string& line) {
         if (line == "\r\n" || line == "") {
             _current_parsing_state = MESSAGE_BODY;
@@ -145,7 +152,8 @@ namespace HTTPRequest {
         if (Utility::contains_whitespace(segments[0])) {
             _throw_request_exception(HTTPResponse::BadRequest);
         }
-        std::pair<std::string, std::string> header_field(segments[0], Utility::_trim(segments[1]));
+        std::string uppercased_header_name = _convert_header_name_touppercase(segments[0]);
+        std::pair<std::string, std::string> header_field(uppercased_header_name, Utility::_trim(segments[1]));
         _http_request_message->set_header_field(header_field);
     }
 
@@ -159,7 +167,7 @@ namespace HTTPRequest {
     }
 
     void RequestParser::_delete_obolete_content_length_header() {
-        _http_request_message->get_headers().erase("Content-Length");
+        _http_request_message->get_headers().erase("CONTENT_LENGTH");
     }
 
     void RequestParser::_parse_transfer_encoding(std::string coding_names_list) {
@@ -181,10 +189,10 @@ namespace HTTPRequest {
 
     void RequestParser::_define_message_body_length() {
         std::map<std::string, std::string> headers_map = _http_request_message->get_headers();
-        std::map<std::string, std::string>::iterator transfer_encoding_iter = headers_map.find("Transfer-Encoding");
-        std::map<std::string, std::string>::iterator content_length_iter = headers_map.find("Content-Length");
-        if (content_length_iter != headers_map.end()) {
-            if (transfer_encoding_iter == headers_map.end()) {
+        std::map<std::string, std::string>::iterator transfer_encoding_iter = headers_map.find("TRANSFER_ENCODING");
+        std::map<std::string, std::string>::iterator content_length_iter = headers_map.find("CONTENT_LENGTH");
+        if (content_length_iter != headers_map.end()) { // if headers contain Content-Length
+            if (transfer_encoding_iter == headers_map.end()) { // and headers don't contain Transfer-Encoding
                 _message_body_length = CONTENT_LENGTH;
             }
             else {
@@ -194,7 +202,7 @@ namespace HTTPRequest {
                 }
             }
         }
-        else if (transfer_encoding_iter != headers_map.end()) {
+        else if (transfer_encoding_iter != headers_map.end()) { // if headers contain Transfer-Encoding without Content-length
             _parse_transfer_encoding(transfer_encoding_iter->second);
             if (_message_body_length != CHUNCKED) {
                 _throw_request_exception(HTTPResponse::LengthRequired);

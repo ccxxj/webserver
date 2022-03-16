@@ -18,4 +18,5 @@ namespace Utility {
 	std::string trailing_trim(const std::string &s);
 	std::string trim_white_space(const std::string &s);
 	std::vector<std::string> split_string_by_white_space(const std::string& str);
+	bool is_hyphen(char c);
 }

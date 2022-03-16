@@ -61,11 +61,11 @@ namespace tests {
                 
                     SECTION("Headers must be split by ':' and headers map must be filled") {
                         CHECK(_http_request_message.get_headers().size() == 7);
-                        CHECK(_http_request_message.get_header_value("Accept-Language") == "en-us");
+                        CHECK(_http_request_message.get_header_value("ACCEPT_LANGUAGE") == "en-us");
                     }
 
                     SECTION("Any number of spaces are allowed in header_values (after ''), they must be trimmed") {
-                        CHECK(_http_request_message.get_header_value("Content-Type") == "application/x-www-form-urlencoded");
+                        CHECK(_http_request_message.get_header_value("CONTENT_TYPE") == "application/x-www-form-urlencoded");
                     }
             }
             delete[] buf;
@@ -87,7 +87,7 @@ namespace tests {
             HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
             char* buf = create_writable_buf(http_requests[2]);
             parser.parse_HTTP_request(buf, strlen(buf));  
-            CHECK(_http_request_message.get_header_value("Accept") == "text/plain, text/html");
+            CHECK(_http_request_message.get_header_value("ACCEPT") == "text/plain, text/html");
             delete[] buf;
         }
 
@@ -110,11 +110,11 @@ namespace tests {
                 
                     SECTION("Headers must be split by ':' and headers map must be filled") {
                         CHECK(_http_request_message.get_headers().size() == 7);
-                        CHECK(_http_request_message.get_header_value("Accept-Language") == "en-us");
+                        CHECK(_http_request_message.get_header_value("ACCEPT_LANGUAGE") == "en-us");
                     }
 
                     SECTION("Any number of spaces are allowed in header_values (after ''), they must be trimmed") {
-                        CHECK(_http_request_message.get_header_value("Content-Type") == "application/x-www-form-urlencoded");
+                        CHECK(_http_request_message.get_header_value("CONTENT_TYPE") == "application/x-www-form-urlencoded");
                     }
             }
             delete[] buf;

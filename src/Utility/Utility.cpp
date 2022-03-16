@@ -118,4 +118,8 @@ namespace Utility
         const std::string WHITESPACE = " \n\r\t\f\v";
         return trailing_trim(leading_trim(s));
     }
+
+    bool is_hyphen(char c) {
+        return c == '-';
+    }
 } // namespace Utility
