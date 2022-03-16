@@ -8,7 +8,6 @@
 #include "../HTTPRequest/RequestParser.hpp"
 #include "../HTTPResponse/StatusCodes.hpp"
 #include "../config/ConfigData.hpp"
-#include "../config/ServerBlock.hpp"
 #include "ServerStructs.hpp"
 
 namespace HTTP {
@@ -26,9 +25,8 @@ namespace HTTP {
         const std::string _convert_status_code_to_string(const int code);
         void _process_http_request();
 		const Config::ServerBlock* _find_virtual_server();
-		const Config::ServerBlock* _match_one_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers);
+		const Config::ServerBlock* _match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers);
 		const Config::LocationBlock* _match_most_specific_location(const Config::ServerBlock *server);
-        const Config::LocationBlock* _find_the_longest_route(std::vector<const Config::LocationBlock*>& matched);
 
     public:
         RequestHandler(RequestHandlerDelegate& delegate, Config::ConfigData *config_data, ListenInfo& listen_info);

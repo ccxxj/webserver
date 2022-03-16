@@ -91,19 +91,17 @@ namespace HTTP {
 		else if (matching_servers.size() == 0) // if none is matched, return default server
 			return &_config_data->get_servers().front();
 		else // if more than 1 server is matched, get host name from request header and match based on server names
-			return _match_one_based_on_server_name(matching_servers);
+			return _match_server_based_on_server_name(matching_servers);
 	}
 
-	const Config::ServerBlock* RequestHandler::_match_one_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
+	const Config::ServerBlock* RequestHandler::_match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
 		std::string host = _http_request_message.get_header_value("Host");
 		// if (host.empty()) //TODO no host header error?
-		for (std::vector<const Config::ServerBlock*>::iterator it = matching_servers.begin(); it != matching_servers.end(); it++) {
-			for (std::vector<std::string>::const_iterator srv_name = (*it)->get_server_name().begin(); srv_name != (*it)->get_server_name().end(); srv_name++) {
+		for (std::vector<const Config::ServerBlock*>::iterator it = matching_servers.begin(); it != matching_servers.end(); it++)
+			for (std::vector<std::string>::const_iterator srv_name = (*it)->get_server_name().begin(); srv_name != (*it)->get_server_name().end(); srv_name++)
 				if ((*srv_name).compare(host) == 0)
-					return *it; // the first one is used even if there might be multiple matches // FIXME this does keep looping although it returns WTF?
-			}
-		}
-		return matching_servers.front(); //if you have muliple matches with find virtual server but no match with server_name, return the default one for that ip + port match which is the first matching block
+					return *it; // the first one is used even if there might be multiple matches
+		return matching_servers.front(); //returns the default one for that ip + port if multiple servers match ip+port but no match with server_name,
 	}
 
 	const Config::LocationBlock* RequestHandler::_match_most_specific_location(const Config::ServerBlock *server) {
