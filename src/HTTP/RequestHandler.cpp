@@ -14,6 +14,7 @@ namespace HTTP {
 	, _parser(&_http_request_message, &_http_response_message)
 	, _config_data(config_data)
 	, _connection_listen_info(listen_info)
+	, response_handler(&_http_request_message, &_http_response_message)
 	{
 	}
 
@@ -69,7 +70,8 @@ namespace HTTP {
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
 		if(location)
 			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;
-		_http_response_message.create_http_response(virtual_server, location); //FROM here, it's moving to Response and from there to ResponseHandler
+		response_handler.set_server_and_location(virtual_server, location);
+        response_handler.create_http_response(); //FROM here, it's moving to ResponseHandler
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {

@@ -7,6 +7,7 @@
 #include "../HTTPResponse/ResponseMessage.hpp"
 #include "../HTTPRequest/RequestParser.hpp"
 #include "../HTTPResponse/StatusCodes.hpp"
+#include "../HTTPResponse/ResponseHandler.hpp"
 #include "../config/ConfigData.hpp"
 #include "ServerStructs.hpp"
 
@@ -20,6 +21,7 @@ namespace HTTP {
         HTTPRequest::RequestParser _parser;
 		Config::ConfigData *_config_data;
 		ListenInfo& _connection_listen_info; //added for host port match
+        HTTPResponse::ResponseHandler response_handler;
 
         void _handle_request_exception(HTTPResponse::StatusCode code);
         const std::string _convert_status_code_to_string(const int code);
