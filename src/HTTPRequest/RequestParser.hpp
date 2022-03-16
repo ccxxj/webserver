@@ -47,6 +47,7 @@ namespace HTTPRequest {
 
         bool _is_method_supported(const std::string &method);
         size_t _longest_method_size();
+        std::string _convert_header_name_touppercase(std::string& header_name);
         void _throw_request_exception(HTTPResponse::StatusCode error_status);
         
         struct Dispatch {
