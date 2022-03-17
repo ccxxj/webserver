@@ -20,6 +20,7 @@ namespace HTTPResponse
 		// void _handle_request_exception(StatusCode code);
 		// const std::string _convert_status_code_to_string(const int code);
 		bool _verify_method(const std::vector<std::string> methods);
+		const std::string& _create_allowed_methods_line(const std::vector<std::string> methods);
 
 	public:
 		ResponseHandler(HTTPRequest::RequestMessage *request_message, ResponseMessage *response_message);

@@ -17,6 +17,17 @@ namespace HTTPResponse {
 
 	ResponseHandler::~ResponseHandler(){}
 
+	const std::string& ResponseHandler::_create_allowed_methods_line(const std::vector<std::string> methods) { //FIXME can this be put somewhere else?
+		std::vector<std::string>::const_iterator it = methods.begin();
+		while (it != methods.end()) {
+			_http_response_message->append_methods(*it);
+			it++;
+			if (it != methods.end())
+				_http_response_message->append_methods(", ");
+		}
+		return _http_response_message->get_methods();
+	}
+
 	void ResponseHandler::create_http_response() {
 		std::cout << "inside create" << std::endl;
 		if (_location) {
@@ -24,6 +35,8 @@ namespace HTTPResponse {
 			if(!_verify_method(_location->get_limit_except())) {
 				handle_status_line(MethodNotAllowed);
 				std::cout << _http_response_message->get_status_line() << std::endl;
+				std::pair<std::string, std::string> header_field("Allow", _create_allowed_methods_line(_location->get_limit_except()));
+				_http_response_message->set_header_element(header_field);
 			}
 		}
 		// checks & building the response
