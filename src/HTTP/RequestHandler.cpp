@@ -69,9 +69,9 @@ namespace HTTP {
 		std::cout << virtual_server->get_client_max_body_size() << " is matched" << std::endl;
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
 		if(location)
-			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;	
-		response_handler.set_server_and_location(virtual_server, location);
-        // response_handler.create_http_response(); //FROM here, it's moving to ResponseHandler
+			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;
+		response_handler.set_config_rules(virtual_server, location);
+		response_handler.create_http_response(); //FROM here, it's moving to ResponseHandler
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
