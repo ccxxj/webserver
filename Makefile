@@ -22,6 +22,7 @@ HEADERS = Webserver.hpp \
 	HTTPResponse/StatusCodes.hpp \
 	HTTPResponse/ResponseHandler.hpp \
 	HTTPResponse/ResponseMessage.hpp \
+	HTTPResponse/SpecifiedConfig.hpp \
 	Utility/Utility.hpp \
 	Utility/SmartPointer.hpp
 
@@ -39,6 +40,7 @@ SRC = Webserver.cpp \
 	HTTPResponse/StatusCodes.cpp \
 	HTTPResponse/ResponseHandler.cpp \
 	HTTPResponse/ResponseMessage.cpp \
+	HTTPResponse/SpecifiedConfig.cpp \
 	config/ConfigParser.cpp \
 	config/ConfigData.cpp \
 	config/AConfigBlock.cpp \
