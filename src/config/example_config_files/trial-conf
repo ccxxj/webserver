@@ -10,14 +10,16 @@ server {
 	location /wordpress/ {
 		root /var/www/localhost;
 		error_page 301 /custom-301.html;
-		autoindex on;
-		#limit_except POST {
-		#	deny all;
-		#}
+		limit_except POST {
+			deny all;
+		}
 		return 301 https://localhost;
 	}
 
 	location / {
+		limit_except POST {
+			deny all;
+		}
 		autoindex off;
 		error_page 301 /custom-301.html; #put them in the root!
 		return 301 https://localhost;
