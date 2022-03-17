@@ -32,13 +32,15 @@ namespace HTTPResponse {
 		std::cout << "inside create" << std::endl;
 		if (_location) {
 			std::cout << "we have locccc matched" << std::endl;
-			if(!_verify_method(_location->get_limit_except())) {
+			if(!_verify_method(_location->get_limit_except())) { //TODO have this in one separate function?
 				handle_status_line(MethodNotAllowed);
 				std::cout << _http_response_message->get_status_line() << std::endl;
 				std::pair<std::string, std::string> header_field("Allow", _create_allowed_methods_line(_location->get_limit_except()));
 				_http_response_message->set_header_element(header_field);
 			}
 		}
+		if (!_check_client_body_size())
+			handle_status_line(ContentTooLarge);
 		// checks & building the response
 	}
 
@@ -49,6 +51,13 @@ namespace HTTPResponse {
 				return true;
 		}
 		return false;
+	}
+
+	bool ResponseHandler::_check_client_body_size() {
+		size_t body_size = _http_request_message->get_message_body().size();
+		if (body_size > _server->get_client_max_body_size())
+			return false;
+		return true;
 	}
 
 	void ResponseHandler::handle_status_line(HTTPResponse::StatusCode code) {
