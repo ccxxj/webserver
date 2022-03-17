@@ -1,4 +1,5 @@
 #include "ResponseHandler.hpp"
+#include "../Utility/Utility.hpp"
 
 #include <sstream> // for converting int to string
 
@@ -11,25 +12,21 @@ namespace HTTPResponse {
 	: _http_request_message(request_message)
 	, _http_response_message(response_message)
 	{
-		(void)_http_request_message; //TODO to silence flags. remove it.
-		(void)_http_response_message; //TODO to silence flags. remove it.
 	} //TODO do i need a copy const?
 
 	ResponseHandler::~ResponseHandler(){}
 
 	void ResponseHandler::create_http_response() {
-		std::cout << "inside create" << std::endl;
 		if (_config.has_specific_location()) {
-			std::cout << "we have locccc matched" << std::endl;
 			if(!_verify_method(_config.get_limit_except())) { //TODO have this in one separate function?
 				handle_status_line(MethodNotAllowed);
 				std::cout << _http_response_message->get_status_line() << std::endl;
-				std::pair<std::string, std::string> header_field("Allow", _config.get_methods_line());
-				_http_response_message->set_header_element(header_field);
+				_http_response_message->set_header_element("Allow", _config.get_methods_line());
 			}
 		}
 		if (!_check_client_body_size())
 			handle_status_line(ContentTooLarge);
+		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
 		// checks & building the response
 	}
 
