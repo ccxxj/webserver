@@ -40,8 +40,9 @@ namespace HTTPResponse {
         _complete_response +=  response_part;
     }
 
-	void ResponseMessage::set_header_element(std::pair<std::string, std::string>& header_field)
+	void ResponseMessage::set_header_element(std::string header, std::string value)
 	{
+		std::pair<std::string, std::string> header_field(header, value);
 		_response_headers.insert(header_field);
 	}
 

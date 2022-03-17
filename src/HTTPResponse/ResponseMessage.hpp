@@ -26,7 +26,7 @@ namespace HTTPResponse {
         void set_message_body(const std::string& body);
         void set_complete_response(const std::string& response);
         void append_complete_response(const std::string& response_part);
-		void set_header_element(std::pair<std::string, std::string>& header_field);
+		void set_header_element(std::string header, std::string value);
         const std::string& get_HTTP_version() const;
         const std::string& get_status_code() const;
         const std::string& get_reason_phrase() const;
