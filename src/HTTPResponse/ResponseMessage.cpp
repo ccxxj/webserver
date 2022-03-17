@@ -40,6 +40,15 @@ namespace HTTPResponse {
         _complete_response +=  response_part;
     }
 
+	void ResponseMessage::append_methods(const std::string& method) {
+		_methods += method;
+	}
+
+	void ResponseMessage::set_header_element(std::pair<std::string, std::string>& header_field)
+	{
+		_response_headers.insert(header_field);
+	}
+
     const std::string& ResponseMessage::get_HTTP_version() const {
         return _HTTP_version;
     }
@@ -63,4 +72,12 @@ namespace HTTPResponse {
     const std::string& ResponseMessage::get_complete_response() const {
         return _complete_response;
     }
+
+	const std::string& ResponseMessage::get_methods() const {
+        return _methods;
+    }
+
+	const std::map<std::string, std::string>& ResponseMessage::get_response_headers() const {
+		return _response_headers;
+	}
 }
