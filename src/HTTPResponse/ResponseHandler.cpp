@@ -17,20 +17,36 @@ namespace HTTPResponse {
 	ResponseHandler::~ResponseHandler(){}
 
 	void ResponseHandler::create_http_response() {
-		if (_config.has_specific_location()) {
-			if(!_verify_method(_config.get_limit_except())) { //TODO have this in one separate function?
+		//set Server header with werbserv/1.0 (inside build reponse push to the front of map?)
+		//set Date here or inside build response
+		// checks 
+		if(!_verify_method(_config.get_limit_except())) { //TODO have this in one separate function?
 				handle_status_line(MethodNotAllowed);
 				std::cout << _http_response_message->get_status_line() << std::endl;
 				_http_response_message->set_header_element("Allow", _config.get_methods_line());
-			}
 		}
-		if (!_check_client_body_size())
+		else if (!_check_client_body_size())
 			handle_status_line(ContentTooLarge);
-		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
-		// checks & building the response
+		else //building the response
+			//handle_methods?; inside get_and_head, is_cgi, post, delete
+
+
+		// if(status_code > 300 ?)
+			//build error page (when building first check if error_page exist else build_default_error_page)
+		// if(not_redirectied)
+			//build response
+		_http_response_message->set_header_element("Date", Utility::get_formatted_date()); //TODO move the section where response if build	
 	}
 
+	//build response
+		// build status line & add it complete_response
+			//check status codes and build accordingly
+		// set date header
+		// get all the headers and add them to complete_response + add "\r\n"  to finish headers
+		// if body is not empty add it to  response + calculate body size?
 	bool ResponseHandler::_verify_method(const std::vector<std::string> methods) {
+		if (methods.empty())
+    		return true;
 		const std::string request_method = _http_request_message->get_method();
 		for (std::vector<std::string>::const_iterator it = methods.begin(); it != methods.end(); it++)
 			if (request_method.compare(*it) == 0)
