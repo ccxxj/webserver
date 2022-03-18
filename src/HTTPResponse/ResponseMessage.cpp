@@ -46,6 +46,10 @@ namespace HTTPResponse {
 		_response_headers.insert(header_field);
 	}
 
+    void ResponseMessage::set_is_redirected(bool value) {
+        _is_redirected = value;
+    }
+
     const std::string& ResponseMessage::get_HTTP_version() const {
         return _HTTP_version;
     }
@@ -73,4 +77,8 @@ namespace HTTPResponse {
 	const std::map<std::string, std::string>& ResponseMessage::get_response_headers() const {
 		return _response_headers;
 	}
+
+    bool ResponseMessage::get_is_redirected(void) const {
+        return _is_redirected;
+    }
 }
