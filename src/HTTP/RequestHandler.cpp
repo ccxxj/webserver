@@ -43,8 +43,8 @@ namespace HTTP {
 				// return;
 			}
 			_process_http_request();
-			std::string status_line = _http_response_message.get_HTTP_version() + " " + _http_response_message.get_status_code(); + " " + _http_response_message.get_reason_phrase(); + "\r\n\r\n";
-			_delegate.send(&status_line[0], status_line.size()); //TODO: replace by _http_response_message.get_complete_response();
+			std::string response = _http_response_message.get_complete_response();
+			_delegate.send(&response[0], response.size());
 			_delegate.close();
 		}
 	}
