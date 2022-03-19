@@ -17,36 +17,78 @@ namespace HTTPResponse {
 	ResponseHandler::~ResponseHandler(){}
 
 	void ResponseHandler::create_http_response() {
-		//set Server header with werbserv/1.0 (inside build reponse push to the front of map?)
-		//set Date here or inside build response
-		// checks 
-		if(!_verify_method(_config.get_limit_except())) { //TODO have this in one separate function?
-				handle_status_line(MethodNotAllowed);
-				std::cout << _http_response_message->get_status_line() << std::endl;
-				_http_response_message->set_header_element("Allow", _config.get_methods_line());
-		}
-		else if (!_check_client_body_size())
-			handle_status_line(ContentTooLarge);
-		else //building the response
+		//FIXME what to do when we catch request parser errors like bad request? Do we serve an error page back as a response? If so check the status code here?
+
+		// checks before normal HTTP method handling
+		if(!_verify_method(_config.get_limit_except()))
+			return(_handle_error(MethodNotAllowed));
+
+		if (!_check_client_body_size())
+			return(_handle_error(ContentTooLarge));
+		//else //building the response
 			//handle_methods?; inside get_and_head, is_cgi, post, delete
 
 
-		// if(status_code > 300 ?)
+		// if(status_code > 300 ?) //this errors are catched after handling methods?
 			//build error page (when building first check if error_page exist else build_default_error_page)
 		// if(not_redirectied)
 			//build response
-		_http_response_message->set_header_element("Date", Utility::get_formatted_date()); //TODO move the section where response if build	
+		return ;
 	}
 
-	//build response
-		// build status line & add it complete_response
-			//check status codes and build accordingly
-		// set date header
-		// get all the headers and add them to complete_response + add "\r\n"  to finish headers
-		// if body is not empty add it to  response + calculate body size?
+	void ResponseHandler::_handle_error(HTTPResponse::StatusCode code)
+	{
+		_http_response_message->set_status_code(convert_status_code_to_string(static_cast<int>(code)));
+		_http_response_message->set_reason_phrase(HTTPResponse::get_reason_phrase(code));
+
+		if (code == MethodNotAllowed)
+			_http_response_message->set_header_element("Allow", _config.get_methods_line());
+
+		//handle custom error pages
+
+		// generate error page
+		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_message_body(std::string("<h1>")
+								+ _http_response_message->get_status_code() + "</h1><p>"
+								+ _http_response_message->get_reason_phrase() + "</p>");
+
+		_build_final_response();
+	}
+
+	void ResponseHandler::_build_final_response()
+	{
+		std::string response;
+		std::string msg_body = _http_response_message->get_message_body();
+
+		// set any remaining headers
+		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
+		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
+		// _http_response_message->set_header_element("Content-Length", msg_body.size().c_str()); //FIXME
+
+		// build status line
+		response += _http_response_message->get_HTTP_version() + " ";
+		response += _http_response_message->get_status_code() + " ";
+		response += _http_response_message->get_reason_phrase() + "\r\n";
+
+		// add all the headers to response. Format is {Header}: {Header value} \r\n
+		for (std::map<std::string, std::string>::const_iterator it = _http_response_message->get_response_headers().begin(); it != _http_response_message->get_response_headers().end(); it++) {
+			if (!it->first.empty())
+				response += it->first + ": " + it->second;
+			response += "\r\n";
+		}
+
+		// if body is not empty add it to  response. Format: \r\n {body}
+		response += "\r\n";
+		if(!msg_body.empty()) //TODO don't forget to clear body if method is HEAD
+			response += msg_body;
+
+		//final step
+		_http_response_message->append_complete_response(response);
+	}
+
 	bool ResponseHandler::_verify_method(const std::vector<std::string> methods) {
 		if (methods.empty())
-    		return true;
+			return true;
 		const std::string request_method = _http_request_message->get_method();
 		for (std::vector<std::string>::const_iterator it = methods.begin(); it != methods.end(); it++)
 			if (request_method.compare(*it) == 0)
@@ -59,15 +101,6 @@ namespace HTTPResponse {
 		if (body_size > _config.get_client_max_body_size())
 			return false;
 		return true;
-	}
-
-	void ResponseHandler::handle_status_line(HTTPResponse::StatusCode code) {
-		_http_response_message->set_status_code(convert_status_code_to_string(static_cast<int>(code)));
-		_http_response_message->set_reason_phrase(HTTPResponse::get_reason_phrase(code));
-		std::string status_line = _http_response_message->get_HTTP_version() + " ";
-		status_line += _http_response_message->get_status_code() + " ";
-		status_line += _http_response_message->get_reason_phrase(); + "\r\n\r\n";
-		_http_response_message->set_status_line(status_line);
 	}
 
 	const std::string ResponseHandler::convert_status_code_to_string(const int code) {

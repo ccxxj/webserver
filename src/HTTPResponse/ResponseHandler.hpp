@@ -14,21 +14,20 @@ namespace HTTPResponse
 	{
 	private:
 		HTTPRequest::RequestMessage *_http_request_message;
-		ResponseMessage *_http_response_message; // TODO check if you change the real response msg cmoning from request handler!
+		ResponseMessage *_http_response_message;
 		SpecifiedConfig _config;
 
-		// void _handle_request_exception(StatusCode code);
-		// const std::string _convert_status_code_to_string(const int code);
 		bool _verify_method(const std::vector<std::string> methods);
 		const std::string& _create_allowed_methods_line(const std::vector<std::string> methods);
 		bool _check_client_body_size();
+		void _handle_error(HTTPResponse::StatusCode code);
+		void _build_final_response();
 
 	public:
 		ResponseHandler(HTTPRequest::RequestMessage *request_message, ResponseMessage *response_message);
 		~ResponseHandler();
 
 		void create_http_response();
-		void handle_status_line(HTTPResponse::StatusCode code);
 		const std::string convert_status_code_to_string(const int code);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
 		// TODO do i need getter if I think i wont need it  at all outside of the class?
