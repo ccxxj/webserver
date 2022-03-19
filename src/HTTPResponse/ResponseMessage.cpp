@@ -24,10 +24,6 @@ namespace HTTPResponse {
         _reason_phrase = reason;
     }
 
-	void ResponseMessage::set_status_line(const std::string& line) {
-        _status_line = line;
-    }
-
     void ResponseMessage::set_message_body(const std::string& body) {
         _message_body = body;
     }
@@ -60,10 +56,6 @@ namespace HTTPResponse {
 
     const std::string& ResponseMessage::get_reason_phrase() const {
         return _reason_phrase;
-    }
-
-	const std::string& ResponseMessage::get_status_line() const {
-        return _status_line;
     }
 
     const std::string& ResponseMessage::get_message_body() const {

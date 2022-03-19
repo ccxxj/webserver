@@ -14,7 +14,7 @@ namespace HTTPResponse
 	{
 	private:
 		HTTPRequest::RequestMessage *_http_request_message;
-		ResponseMessage *_http_response_message;
+		ResponseMessage *_http_response_messa
 		SpecifiedConfig _config;
 
 		bool _verify_method(const std::vector<std::string> methods);
