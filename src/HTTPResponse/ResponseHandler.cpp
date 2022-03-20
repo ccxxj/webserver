@@ -1,11 +1,8 @@
 #include "ResponseHandler.hpp"
 #include "../Utility/Utility.hpp"
+#include "../globals.hpp"
 
 #include <sstream> // for converting int to string
-
-#include "../globals.hpp"
-// #include "../config/ConfigData.hpp"
-// #include "../config/ServerBlock.hpp"
 
 namespace HTTPResponse {
 	ResponseHandler::ResponseHandler(HTTPRequest::RequestMessage* request_message, ResponseMessage* response_message)
@@ -19,26 +16,43 @@ namespace HTTPResponse {
 	void ResponseHandler::create_http_response() {
 		//FIXME what to do when we catch request parser errors like bad request? Do we serve an error page back as a response? If so check the status code here?
 
-		// checks before normal HTTP method handling
+		// checks before moving on with methods
 		if(!_verify_method(_config.get_limit_except()))
 			return(_handle_error(MethodNotAllowed));
-
 		if (!_check_client_body_size())
 			return(_handle_error(ContentTooLarge));
-		//else //building the response
-			//handle_methods?; inside get_and_head, is_cgi, post, delete
 
+		//HTTP method handling
+		_handle_methods(); //inside get_and_head, is_cgi, post, delete
 
-		// if(status_code > 300 ?) //this errors are catched after handling methods?
-			//build error page (when building first check if error_page exist else build_default_error_page)
-		// if(not_redirectied)
-			//build response
+		// if(status_code > 300 ?) //some errors are catched after handling methods?
+			//_handle_error(status_code);
+		// if(not_redirected)
+			//build_final_response
 		return ;
 	}
 
+	void ResponseHandler::_handle_methods(void) {
+		//FILE file; -> get file path (root + URIpaths)  "/var/www/localhost/wordpress/index.html/"
+		std::string file = _config.get_root();
+		const std::vector<std::string> uri_paths = _http_request_message->get_uri().get_path();
+		for (std::vector<std::string>::const_iterator it = uri_paths.begin(); it != uri_paths.end(); it++)
+			file += (*it) + "/"; //what about the / in the end?
+		// if (_http_request_message->get_method() == DELETE)
+		// 	delete_file();
+		// else if (_http_request_message->get_method() == PUT)
+		// 	upload_file();
+		// else //GET || HEAD
+		// 	serve_file();
+	}
+
+	// void ResponseHandler::_serve_file(void) {
+
+	// }
+
 	void ResponseHandler::_handle_error(HTTPResponse::StatusCode code)
 	{
-		_http_response_message->set_status_code(convert_status_code_to_string(static_cast<int>(code)));
+		_http_response_message->set_status_code(Utility::to_string(static_cast<int>(code)));
 		_http_response_message->set_reason_phrase(HTTPResponse::get_reason_phrase(code));
 
 		if (code == MethodNotAllowed)
@@ -48,9 +62,11 @@ namespace HTTPResponse {
 
 		// generate error page
 		_http_response_message->set_header_element("Content-Type", "text/html");
-		_http_response_message->set_message_body(std::string("<h1>")
-								+ _http_response_message->get_status_code() + "</h1><p>"
-								+ _http_response_message->get_reason_phrase() + "</p>");
+		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
+								+ _http_response_message->get_status_code() + "</h1><center>"
+								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
+								+ "<hr><center> HungerWeb 1.0 </center>\r\n"
+								+ "</html>\r\n");
 
 		_build_final_response();
 	}
@@ -63,7 +79,7 @@ namespace HTTPResponse {
 		// set any remaining headers
 		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
 		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
-		// _http_response_message->set_header_element("Content-Length", msg_body.size().c_str()); //FIXME
+		_http_response_message->set_header_element("Content-Length", Utility::to_string(msg_body.length())); //FIXME length or size?
 
 		// build status line
 		response += _http_response_message->get_HTTP_version() + " ";
@@ -103,14 +119,6 @@ namespace HTTPResponse {
 		return true;
 	}
 
-	const std::string ResponseHandler::convert_status_code_to_string(const int code) {
-		std::string stringified_code;
-		std::stringstream sstream;
-		sstream << code;
-		sstream >> stringified_code;
-		return stringified_code;
-	}
-
 	void ResponseHandler::set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location) {
 
 		_config.set_root_value(virtual_server->get_root());
@@ -128,7 +136,7 @@ namespace HTTPResponse {
 			_config.set_return_value(location->get_return()); // does this add to values or replaces them
 			_config.set_error_page_value(location->get_error_page());
 			if (!location->get_is_size_default())
-				_config.set_client_max_body_size(location->get_client_max_body_size()); //TODO how do we know if loc has clientmax
+				_config.set_client_max_body_size(location->get_client_max_body_size());
 		}
 	}
 }

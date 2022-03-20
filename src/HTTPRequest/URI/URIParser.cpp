@@ -38,7 +38,7 @@ namespace HTTPRequest {
 		int decimal_value;
 		std::string temp = target;
 		target.erase(0, len);
-		//TODO what if the %uj which is not % + HEX + HEX? do we throw an exception? 
+		//TODO what if the %uj which is not % + HEX + HEX? do we throw an exception?
 		for(int i = 0; i < len; i++)
 		{
 			if(temp[i] == '%' && len > i + 2)
@@ -57,7 +57,7 @@ namespace HTTPRequest {
 			else if(temp[i] == '%' && len <= (i + 2))
 				throw Exception::RequestException(HTTPResponse::BadRequest);//TODO is this the write error code to throw in case the provided %hh is not complete
 			else
-				target += temp[i];		
+				target += temp[i];
 		}
 	}
 
