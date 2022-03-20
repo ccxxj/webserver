@@ -124,6 +124,14 @@ namespace Utility
         return c == '-';
     }
 
+	const std::string to_string(const int code) {
+		std::string stringified_code;
+		std::stringstream sstream;
+		sstream << code;
+		sstream >> stringified_code;
+		return stringified_code;
+	}
+
 	std::string get_formatted_date() {
 		struct timeval tv;
 		char buf[32];
