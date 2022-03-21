@@ -1,6 +1,6 @@
 #include "Webserver.hpp"
 #include <iostream>
-#define DEFAULT_CONFIG "src/config/example_config_files/default-conf"
+#define DEFAULT_CONFIG "config/default-conf"
 
 int main(int argc, char **argv) {
 	std::string file_path;
@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
 	if (argc > 2)
 	{
 		std::cerr << "Invalid number of arguments" << std::endl;
-		return (1); //TODO return EXIT_FAILURE?
+		std::exit(EXIT_FAILURE);
 	}
 	if (argc == 1)
 		file_path = DEFAULT_CONFIG;

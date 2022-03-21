@@ -63,6 +63,9 @@
 -   [CGI : Getting Started](http://www.mnuwer.dbasedeveloper.co.uk/dlearn/web/session01.htm)
 -   [CGI 1.1 Documentation](http://www.wijata.com/cgi/cgispec.html#4.0)
 
+-   **Nginx Process Request Info**
+-   [Phases of Request Processing] (http://nginx.org/en/docs/dev/development_guide.html)
+
 **Tools**
 
 -   [Super Mega Site pour tester les Headers !](https://reqbin.com/)

@@ -1,0 +1,54 @@
+server {
+	listen 1000;
+	# listen [::]:1000 ;
+	server_name localhost;
+	root www;
+	client_max_body_size 0;
+	error_page 500 501 /custom-50x.html;
+	# return 301 https://$server_name$request_uri;
+
+	location /methoderror/ { #to test method not allowed + error_page directive + location block matching
+		root www/errors;
+		error_page 405 /custom-405.html;
+		limit_except POST {
+			deny all;
+		}
+	}
+
+	location /max-body-error/ { #max body size test + generating error page when none exists
+		client_max_body_size 0;
+	}
+
+	location /directory-listing-off/ {
+		root www/no-index-page;
+		autoindex off;
+	}
+
+	location /directory-listing-on/ {
+		root no-index-page;
+		autoindex on;
+	}
+}
+
+server {
+	listen 2000;
+	listen 1000;
+	server_name irem;
+	root /var/www/localhost;
+
+	location /wordpress/ {
+		root /var/www/localhost;
+		error_page 301 /custom-301.html;
+		autoindex on;
+		#limit_except POST {
+		#	deny all;
+		#}
+		return 301 https://localhost;
+	}
+
+	location / {
+		autoindex off;
+		error_page 301 /custom-301.html; #put them in the root!
+		return 301 https://localhost;
+	}
+}

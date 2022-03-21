@@ -5,6 +5,7 @@
 #include <unistd.h> // for close
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <string.h> // strerror TODO: remove
 #include  <cstdlib> // for exit
 #include <cstdio> // for perror
@@ -48,13 +49,12 @@ namespace HTTP {
 				std::exit(EXIT_FAILURE);
 			}
 			// TODO: adding other socket options like TCP_DEFER_ACCEPT?
-
 			sockaddr_in sockaddr;
 			sockaddr.sin_family = AF_INET;
 			sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);// this is the address for this socket. The special adress for this is 0.0.0.0, defined by symbolic constant INADDR_ANY
 			sockaddr.sin_port = htons(_listen_ports[i]);//htons is necessary to convert a number to network byte order
 			if(bind(_listening_sockfds[i], (struct sockaddr *)&sockaddr, sizeof(sockaddr)) < 0) { //int bind(int sockfd, const sockaddr *addr, socklen_t addrlen); return -1 in case of error, return 0 in case of success;
-				std::cout << "Failed to bind to port " << _listen_ports[i] << "errno: " << errno << std::endl;
+				std::cout << "Failed to bind to port " << _listen_ports[i] << " errno: " << errno << std::endl;
 				std::exit(EXIT_FAILURE);
 			}
 			if (listen(_listening_sockfds[i], 10) < 0) {
@@ -64,6 +64,8 @@ namespace HTTP {
 			if (fcntl(_listening_sockfds[i], F_SETFL, O_NONBLOCK) == ERROR) {
 				std::perror("fcntl error");
 			}
+			ListenInfo each_listen("0.0.0.0", _listen_ports[i]); //this struct will hold both ip and port info of running servers
+			_running_servers[_listening_sockfds[i]] = each_listen;
 			std::cout << "***************The server is listening on port: " << _listen_ports[i] <<"***************" << std::endl;
 		}
 	}
@@ -119,7 +121,7 @@ namespace HTTP {
 		}
 		while (true) {
 			struct timespec timeout;
-			timeout.tv_sec = 30; // setting the 30s timeout
+			timeout.tv_sec = 30;
 			timeout.tv_nsec = 0;
 			int new_events = kevent(sock_kqueue, NULL, 0, event_fds, 1, &timeout); //look out for events and register to event list; one event per time
 			if(new_events == -1) {
@@ -165,8 +167,7 @@ namespace HTTP {
 					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
 						std::perror("fcntl error");
 					}
-					//TODO:: check if these are needed Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
-					Connection* connection_ptr = new Connection(connection_socket_fd);
+					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd]);
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
@@ -175,7 +176,7 @@ namespace HTTP {
 				}
 				else if (event_fds[i].filter & EVFILT_READ) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
+					if (connection_iter != _connections.end()) { // handling request by the corresponding connectio
 						(connection_iter->second)->handle_http_request();
 						break;
 					}
@@ -186,13 +187,15 @@ namespace HTTP {
 
 	void Server::run() {
 		const std::vector<Config::ServerBlock> servers = config_data->get_servers();
-		//TODO it's listening to any port that we have atm. Wha will hapen when we send a response?
 		for (size_t i = 0; i < servers.size(); i++)
 		{
 			std::set<std::string> listen_set = servers[i].get_listen();
-			//TODO [::]:1000's atoi result is 0 since the string starts with non-numerical number. 
-			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) 
-				_listen_ports.push_back(std::atoi((*i).c_str()));
+			//TODO [::]:1000's atoi result is 0 since the string starts with non-numerical number.
+			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) {
+				int port = std::atoi((*i).c_str());
+				if (std::find(_listen_ports.begin(), _listen_ports.end(), port) == _listen_ports.end()) //does not push duplicate ports
+					_listen_ports.push_back(port);
+			}
 		}
 		_setup_listening_sockets();
 		_handle_events();
