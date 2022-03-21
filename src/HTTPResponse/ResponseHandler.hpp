@@ -5,6 +5,7 @@
 #include "StatusCodes.hpp"
 #include "../config/ServerBlock.hpp"
 #include "../HTTPRequest/RequestMessage.hpp"
+#include "../Utility/File.hpp"
 #include "ResponseMessage.hpp"
 #include "SpecifiedConfig.hpp"
 
@@ -16,6 +17,7 @@ namespace HTTPResponse
 		HTTPRequest::RequestMessage *_http_request_message;
 		ResponseMessage *_http_response_message;
 		SpecifiedConfig _config;
+		Utility::File _file;
 
 		bool _verify_method(const std::vector<std::string> methods);
 		const std::string& _create_allowed_methods_line(const std::vector<std::string> methods);
