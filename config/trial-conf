@@ -20,7 +20,7 @@ server {
 	}
 
 	location /directory-listing-off/ {
-		root no-index-page;
+		root www/no-index-page;
 		autoindex off;
 	}
 
