@@ -5,6 +5,7 @@
 #include <stdlib.h> //for atoi
 
 #include "Exceptions/RequestException.hpp"
+#include "../Utility/Utility.hpp"
 #include "../globals.hpp"
 
 namespace HTTP {
@@ -38,16 +39,13 @@ namespace HTTP {
 			catch(const Exception::RequestException& e)
 			{
 				_handle_request_exception(e.get_error_status_code());
-				response_handler.handle_error(e.get_error_status_code());
-				std::string response = _http_response_message.get_complete_response();
-				_delegate.send(&response[0], response.size());
-				_delegate.close();
-				
+				response_handler.handle_error(e.get_error_status_code()); //error response is built, and will be sent below			
 			}
 			if (!_parser.is_parsing_finished()) {
 				return;
 			}
-			_process_http_request();
+			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
+				_process_http_request();
 			std::string response = _http_response_message.get_complete_response();
 			_delegate.send(&response[0], response.size());
 			_delegate.close();
@@ -57,8 +55,6 @@ namespace HTTP {
 	void RequestHandler::_handle_request_exception(HTTPResponse::StatusCode code) {
 		_http_response_message.set_status_code(_convert_status_code_to_string(static_cast<int>(code)));
 		_http_response_message.set_reason_phrase(HTTPResponse::get_reason_phrase(code));
-		std::cout << "\n\nstatus code: " << _http_response_message.get_status_code() << std::endl;
-		std::cout << "\n\nreason phrase: " << _http_response_message.get_reason_phrase() << std::endl;
 	}
 
 	const std::string RequestHandler::_convert_status_code_to_string(const int code) {
@@ -69,10 +65,10 @@ namespace HTTP {
 		return stringified_code;
 	}
 
-	void RequestHandler::RequestHandler::_process_http_request() {
+	void RequestHandler::RequestHandler::_process_http_request() { //TODO Logger to say which server & block is matched with the port info
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
-		std::cout << virtual_server->get_client_max_body_size() << " is matched" << std::endl;
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
+		std::cout << "Connecting from port " <<  _connection_listen_info.port << std::endl;
 		if(location)
 			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;
 		response_handler.set_config_rules(virtual_server, location);
@@ -81,7 +77,6 @@ namespace HTTP {
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
 		std::vector<const Config::ServerBlock*> matching_servers;
-		// match server based on request ip + port //TODO Discuss how you are getting this information.
 		for (std::vector<Config::ServerBlock>::const_iterator it = _config_data->get_servers().begin(); it != _config_data->get_servers().end(); it++) {
 			for (std::set<std::string>::const_iterator port = it->get_listen().begin(); port != it->get_listen().end(); port++) {
 				int server_port = std::atoi((*port).c_str());
@@ -91,8 +86,6 @@ namespace HTTP {
 				}
 			}
 		}
-		std::cout << matching_servers.size() <<  " server block matched based on ip + port" << std::endl;
-		std::cout  << "\033[31m" << _connection_listen_info.ip << " " << _connection_listen_info.port << "\033[0m\n" << std::endl;
 		if (matching_servers.size() == 1) // if only 1 server matches, that's it, return it
 			return matching_servers.front();
 		else if (matching_servers.size() == 0) // if none is matched, return default server
@@ -103,7 +96,7 @@ namespace HTTP {
 
 	const Config::ServerBlock* RequestHandler::_match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
 		std::string host = _http_request_message.get_header_value("Host");
-		// if (host.empty()) //TODO no host header error?
+		// if (host.empty()) //TODO empty host header
 		for (std::vector<const Config::ServerBlock*>::iterator it = matching_servers.begin(); it != matching_servers.end(); it++)
 			for (std::vector<std::string>::const_iterator srv_name = (*it)->get_server_name().begin(); srv_name != (*it)->get_server_name().end(); srv_name++)
 				if ((*srv_name).compare(host) == 0)

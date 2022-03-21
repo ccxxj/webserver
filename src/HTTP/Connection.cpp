@@ -13,7 +13,7 @@ namespace HTTP {
 		: _socket_fd(connection_socket_fd)
 		, _listen_info(listen_info)
 		, _is_open(true)
-		, request_handler(new RequestHandler(*this, config_data, listen_info))
+		, request_handler(new RequestHandler(*this, config_data, _listen_info))
 	// , _listening_socket_fd(server_listening_sockfd)
 	//	, _client_addr(connection_addr)
 	// , _client_addr_len(connection_addr_len)
@@ -23,11 +23,6 @@ namespace HTTP {
 	}
 
 	void Connection::handle_http_request() {
-		// TODO this conversion failed. Trying another solution atm.
-		// uint32_t port = ntohs(_client_addr.sin_port);
-		// // uint32_t addr = ntohl(_client_addr.sin_addr);
-		std::cout << "\n\033[31mIP addr: " << _listen_info.ip << std::endl;
-		std::cout << "Port: " << _listen_info.port << "\033[0m\n" << std::endl;
 		request_handler->handle_http_request();
 	}
 

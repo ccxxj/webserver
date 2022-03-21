@@ -168,9 +168,6 @@ namespace HTTP {
 					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
 						std::perror("fcntl error");
 					}
-					std::cout << "current con fd: " << current_event_fd << std::endl;
-					std::cout << "IP addr: " << _running_servers[current_event_fd].ip << std::endl;
-					std::cout << "Port: " << _running_servers[current_event_fd].port << std::endl;
 					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd]);
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
