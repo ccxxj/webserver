@@ -5,6 +5,7 @@
 #include <unistd.h> // for close
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <string.h> // strerror TODO: remove
 #include  <cstdlib> // for exit
 #include <cstdio> // for perror
