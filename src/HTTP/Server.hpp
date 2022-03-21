@@ -21,7 +21,7 @@ namespace HTTP {
 		bool _is_in_listen_sockfd_list(int fd);
 
 		void _remove_disconnected_client(int fd);
-		void _remove_connection_closed_by_server();
+		void _remove_connection_closed_by_server(int sock_kqueue);
 
 		std::vector<int> _listen_ports;
 		std::vector<int> _listening_sockfds;

@@ -92,13 +92,18 @@ namespace HTTP {
 		}
 	}
 
-	void Server::_remove_connection_closed_by_server() {
+	void Server::_remove_connection_closed_by_server(int sock_kqueue) {
 		std::map<int, Connection*>::iterator iter = _connections.begin();
 		std::map<int, Connection*>::iterator temp_iter;
 		while (iter != _connections.end()) {
 			temp_iter = iter;
 			iter++;
 			if (!(temp_iter->second->is_connection_open())) {
+#ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
+				struct kevent kev;
+				EV_SET(&kev, temp_iter->first, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+				kevent(sock_kqueue, &kev, 1, NULL, 0, NULL);
+#endif
 				delete temp_iter->second;
 				_connections.erase(temp_iter);
 			}
@@ -156,7 +161,7 @@ namespace HTTP {
 				}
 				else if(_is_in_listen_sockfd_list(current_event_fd)) {
 					// iterate the map of connections and if any connection is closed remov it from the map:
-					_remove_connection_closed_by_server(); // THis iS TEMP solution. TODO: set up a listener
+					_remove_connection_closed_by_server(sock_kqueue); // THis iS TEMP solution. TODO: set up a listener
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
