@@ -94,15 +94,14 @@ namespace HTTP {
 
 	void Server::_remove_connection_closed_by_server() {
 		std::map<int, Connection*>::iterator iter = _connections.begin();
+		std::map<int, Connection*>::iterator temp_iter;
 		while (iter != _connections.end()) {
-			if (!(iter->second->is_connection_open())) {
-				delete iter->second;
-				_connections.erase(iter);
-			}
-			if (_connections.size() == 0) {
-				break;
-			}
+			temp_iter = iter;
 			iter++;
+			if (!(temp_iter->second->is_connection_open())) {
+				delete temp_iter->second;
+				_connections.erase(temp_iter);
+			}
 		}
 	}
 
