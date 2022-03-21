@@ -24,15 +24,16 @@ namespace HTTPResponse
 		bool _check_client_body_size();
 		void _handle_methods(void);
 		void _serve_file(void);
-		void _handle_error(HTTPResponse::StatusCode code);
 		void _build_final_response();
 
 	public:
 		ResponseHandler(HTTPRequest::RequestMessage *request_message, ResponseMessage *response_message);
+		ResponseHandler(const ResponseHandler& other);
+		const ResponseHandler &operator=(const ResponseHandler &other);
 		~ResponseHandler();
 
 		void create_http_response();
+		void handle_error(HTTPResponse::StatusCode code);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
-		// TODO do i need getter if I think i wont need it  at all outside of the class?
 	};
 }

@@ -5,14 +5,19 @@ namespace HTTPResponse {
         : _HTTP_version("HTTP/1.1")
         , _status_code("")
         , _reason_phrase("")
-        {} //TODO add every other attribute?
+        , _is_redirected(false)
+        {}
 
     ResponseMessage::ResponseMessage(const ResponseMessage& other)
         : _HTTP_version("HTTP/1.1")
         , _status_code(other._status_code)
-        , _reason_phrase(other._reason_phrase) //FIXME check the handler's copy const. is everything copied?
+        , _reason_phrase(other._reason_phrase) 
+        , _message_body(other._message_body)
+        , _complete_response(other._complete_response)
+        , _response_headers(other._response_headers)
+        , _is_redirected(other._is_redirected)
         {
-        } //TODO my head is about to explode with all the pointers pointo each other and copying themmm OMG leave me alone already
+        } 
 
     ResponseMessage::~ResponseMessage() {}
 
