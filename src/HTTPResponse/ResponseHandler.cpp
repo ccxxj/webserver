@@ -37,18 +37,74 @@ namespace HTTPResponse {
 		std::string file = _config.get_root();
 		const std::vector<std::string> uri_paths = _http_request_message->get_uri().get_path();
 		for (std::vector<std::string>::const_iterator it = uri_paths.begin(); it != uri_paths.end(); it++)
-			file += (*it) + "/"; //what about the / in the end?
-		// if (_http_request_message->get_method() == DELETE)
-		// 	delete_file();
-		// else if (_http_request_message->get_method() == PUT)
-		// 	upload_file();
-		// else //GET || HEAD
-		// 	serve_file();
+			file += (*it) + "/"; //FIXME what about the / in the end?
+		if (_http_request_message->get_method() == DELETE)
+			//delete_file();
+		else if (_http_request_message->get_method() == PUT)
+			//upload_file();
+		else //GET || HEAD
+			serve_file();
 	}
 
-	// void ResponseHandler::_serve_file(void) {
+	void ResponseHandler::_serve_file(void) {
+		//we need the file path here
 
-	// }
+		//TODO CGI check? where?
+		//is_directory()
+			//if (search_for_index_page())
+				//serve the file?
+			//else //no index page -> means directory listing
+				//autoindex check
+					//of -> 403 or 404 error
+					//on -> serve directory
+						//content-type = get mime type (".html") = we will create this file?
+						//create the file content with what's in the directory (into response body)
+						// status code = 200
+						//build_final_response
+		//if not directory -> means its a file
+			//check if (!file exists)
+				//return(_handle_error(NotFound));
+			// find the file in dir
+				// get file directory path (last of / ?)
+				// open directory
+				// readdir into dirent
+				// match files and push to matched vectors
+				// close dir
+			//serve the file?
+				//check if (!file opens)
+					//return(_handle_error(Forbidden))
+				//content-type = get mime type (file name)
+				// put file content into response body
+				// status code = 200
+				// build_final_response
+		//CGI check?
+	}
+
+	void ResponseHandler::_upload_file(void) {
+		//error check
+		//regular file check
+
+		//create the file
+			//open with O_WRONLY | O_CREAT | O_TRUNC
+				//check for failure
+				//set up response for uploading
+				//status code 200
+	}
+
+	void ResponseHandler::_delete_file(void) {
+		//get file data check for errors with stat
+
+		//check if regular file (allowing normal files to be removed)
+			//403 error
+
+		//remove the file
+			//unlinke
+			//check result of unlink for errors (500)
+
+		//status_code = 200
+		//create html response to indicate you removed the  file
+		//build_final_response
+	}
 
 	void ResponseHandler::_handle_error(HTTPResponse::StatusCode code)
 	{

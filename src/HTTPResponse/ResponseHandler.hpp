@@ -21,6 +21,7 @@ namespace HTTPResponse
 		const std::string& _create_allowed_methods_line(const std::vector<std::string> methods);
 		bool _check_client_body_size();
 		void _handle_methods(void);
+		void _serve_file(void);
 		void _handle_error(HTTPResponse::StatusCode code);
 		void _build_final_response();
 
