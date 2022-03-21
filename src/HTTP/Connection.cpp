@@ -1,18 +1,21 @@
 #include "Connection.hpp"
+#include "../config/ConfigData.hpp"
 
 #include <string>
 #include <iostream>
 #include <unistd.h>
 #include <errno.h>
 
+
 namespace HTTP {
-	Connection::Connection(int connection_socket_fd)
+	Connection::Connection(int connection_socket_fd, Config::ConfigData *config_data, ListenInfo& listen_info)
 		// Connection::Connection(int connection_socket_fd, int server_listening_sockfd, sockaddr_in& connection_addr, int connection_addr_len)
 		: _socket_fd(connection_socket_fd)
+		, _listen_info(listen_info)
 		, _is_open(true)
-		, request_handler(new RequestHandler(*this))
+		, request_handler(new RequestHandler(*this, config_data, _listen_info))
 	// , _listening_socket_fd(server_listening_sockfd)
-	// , _client_addr(connection_addr)
+	//	, _client_addr(connection_addr)
 	// , _client_addr_len(connection_addr_len)
 		{}
 

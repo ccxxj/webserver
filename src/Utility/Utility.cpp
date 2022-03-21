@@ -1,6 +1,7 @@
 #include "Utility.hpp"
 #include <algorithm>
 #include <iostream>
+#include <sys/time.h>
 
 namespace Utility
 {
@@ -122,4 +123,24 @@ namespace Utility
     bool is_hyphen(char c) {
         return c == '-';
     }
+
+	const std::string to_string(const int code) {
+		std::string stringified_code;
+		std::stringstream sstream;
+		sstream << code;
+		sstream >> stringified_code;
+		return stringified_code;
+	}
+
+	std::string get_formatted_date() {
+		struct timeval tv;
+		char buf[32];
+		struct tm *time;
+
+		gettimeofday(&tv, NULL);
+		time = gmtime(&tv.tv_sec);
+		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
+		std::string ret_val(buf);
+		return ret_val;
+	}
 } // namespace Utility
