@@ -15,8 +15,7 @@ namespace HTTPResponse {
  		*this = other;
 	}
 
-	const ResponseHandler &ResponseHandler::operator=(const ResponseHandler  &other)
-    {
+	const ResponseHandler &ResponseHandler::operator=(const ResponseHandler  &other) {
 		_http_request_message = other._http_request_message;
 		_http_response_message = other._http_response_message;
 		_config = other._config;
@@ -45,47 +44,49 @@ namespace HTTPResponse {
 	void ResponseHandler::_handle_methods(void) {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
 
-		// if (_http_request_message->get_method() == DELETE)
+		// if (_http_request_message->get_method() == "DELETE")
 		// 	//delete_file();
-		// else if (_http_request_message->get_method() == POST)
+		// else if (_http_request_message->get_method() == "POST")
 		// 	//upload_file();
 		// else //GET || HEAD
-		// 	serve_file();
+		_serve_file();
 	}
 
-	// void ResponseHandler::_serve_file(void) {
-	// 	//we need the file path here
+	void ResponseHandler::_serve_file(void) {
+		//TODO CGI check? where?
+		if (!_file.exists()) //get file existence info 
+			return handle_error(NotFound);
 
-	// 	//TODO CGI check? where?
-	// 	//Not Found check in the beginning -> get file existence info?
-	// 	if(_file.is_directory())
-	// 		//if (search_for_index_page())
-	// 			//serve the file?
-	// 		//else //no index page -> means directory listing
-	// 			//autoindex check
-	// 				//of -> 403 (forbidden) or 404 (not found) error
-	// 				//on -> serve directory
-	// 					//content-type = get mime type (".html") = we will create this file?
-	// 					//create the file content with what's in the directory (into response body)
-	// 					// status code = 200
-	// 					//build_final_response
-	// 	if(!_file.is_directory()) // means its a file
-	// 		//check if (!file exists)
-	// 			//return(_handle_error(NotFound));
-	// 		// find the file in dir
-	// 			// get file directory path (last of / ?)
-	// 			// open directory
-	// 			// readdir into dirent
-	// 			// match files and push to matched vectors
-	// 			// close dir
-	// 		//serve the file?
-	// 			//check if (!file opens)
-	// 				//return(_handle_error(Forbidden))
-	// 			//content-type = get mime type (file name)
-	// 			// put file content into response body
-	// 			// status code = 200
-	// 			// build_final_response
-	// }
+		if (_file.is_directory()) {
+			//if (search_for_index_page())
+				//serve the file?
+			//else //no index page -> means directory listing
+				if (_config.get_autoindex() == ON) {
+					//of -> 403 (forbidden) or 404 (not found) error
+					//on -> serve directory
+						//content-type = get mime type (".html") = we will create this file?
+						//create the file content with what's in the directory (into response body)
+						// status code = 200
+						//build_final_response
+				}
+		}
+
+		// if (!_file.is_directory()) { // means its a file
+		// 	// find the file in dir
+		// 		// get file directory path (last of / ?)
+		// 		// open directory
+		// 		// readdir into dirent
+		// 		// match files and push to matched vectors
+		// 		// close dir
+		// 	//serve the file?
+		// 		//check if (!file opens)
+		// 			//return(_handle_error(Forbidden))
+		// 		//content-type = get mime type (file name)
+		// 		// put file content into response body
+		// 		// status code = 200
+		// 		// build_final_response
+		// }
+	}
 
 	// void ResponseHandler::_upload_file(void) {
 	// 	//error check
