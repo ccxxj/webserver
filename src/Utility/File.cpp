@@ -25,6 +25,7 @@ namespace Utility
 			std::cout << s.st_mode << std::endl;
 			return S_ISDIR(s.st_mode);
 		}
+		return false; //FIXME
 	}
 
 }
