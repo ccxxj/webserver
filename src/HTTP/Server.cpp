@@ -167,7 +167,6 @@ namespace HTTP {
 					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
 						std::perror("fcntl error");
 					}
-					//TODO:: check if these are needed Connection connection(connection_socket_fd, current_event_fd, connection_addr, connection_addr_len);
 					std::cout << "current con fd: " << current_event_fd << std::endl;
 					std::cout << "IP addr: " << _running_servers[current_event_fd].ip << std::endl;
 					std::cout << "Port: " << _running_servers[current_event_fd].port << std::endl;
@@ -190,7 +189,7 @@ namespace HTTP {
 	}
 
 	void Server::run() {
-		const std::vector<Config::ServerBlock> servers = config_data->get_servers(); //TODO write a function for this
+		const std::vector<Config::ServerBlock> servers = config_data->get_servers();
 		for (size_t i = 0; i < servers.size(); i++)
 		{
 			std::set<std::string> listen_set = servers[i].get_listen();
