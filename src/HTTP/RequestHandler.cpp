@@ -37,10 +37,14 @@ namespace HTTP {
 			catch(const Exception::RequestException& e)
 			{
 				_handle_request_exception(e.get_error_status_code());
+				response_handler.handle_error(e.get_error_status_code());
+				std::string response = _http_response_message.get_complete_response();
+				_delegate.send(&response[0], response.size());
+				_delegate.close();
+				
 			}
 			if (!_parser.is_parsing_finished()) {
-				//FIXME this prevent me from moving on to processing the request
-				// return;
+				return;
 			}
 			_process_http_request();
 			std::string response = _http_response_message.get_complete_response();
