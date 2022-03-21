@@ -4,10 +4,10 @@
 
 struct ListenInfo {
 	std::string ip;
-	uint32_t port;
+	int port;
 
 	ListenInfo() : ip(""), port(0) {};
-	ListenInfo(std::string ip, uint32_t port) : ip(ip), port(port) {};
+	ListenInfo(std::string ip, int port) : ip(ip), port(port) {};
 };
 
 inline bool operator==(const ListenInfo &lhs, const ListenInfo &rhs) {

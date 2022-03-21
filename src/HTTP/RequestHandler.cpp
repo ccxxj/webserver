@@ -2,6 +2,7 @@
 
 #include <sstream> // for converting int to string
 #include <stdio.h> // for perror
+#include <stdlib.h> //for atoi
 
 #include "Exceptions/RequestException.hpp"
 #include "../globals.hpp"
@@ -83,7 +84,7 @@ namespace HTTP {
 		// match server based on request ip + port //TODO Discuss how you are getting this information.
 		for (std::vector<Config::ServerBlock>::const_iterator it = _config_data->get_servers().begin(); it != _config_data->get_servers().end(); it++) {
 			for (std::set<std::string>::const_iterator port = it->get_listen().begin(); port != it->get_listen().end(); port++) {
-				uint32_t server_port = std::atoi((*port).c_str());
+				int server_port = std::atoi((*port).c_str());
 				if (server_port == _connection_listen_info.port) {
 					matching_servers.push_back(&(*it));
 					break; // if a port is matched, no need to check other ports of same server block
