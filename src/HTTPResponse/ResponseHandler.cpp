@@ -68,21 +68,20 @@ namespace HTTPResponse {
 			}
 		}
 
-		// if (!_file.is_directory()) { // means its a file
-		// 	// find the file in dir
-		// 		// get file directory path (last of / ?)
-		// 		// open directory
-		// 		// readdir into dirent
-		// 		// match files and push to matched vectors
-		// 		// close dir
-		// 	//serve the file?
-		// 		//check if (!file opens)
-		// 			//return(_handle_error(Forbidden))
-		// 		//content-type = get mime type (file name)
-		// 		// put file content into response body
-		// 		// status code = 200
-		// 		// build_final_response
-		// }
+		if (!_file.is_directory()) { // means its a file
+			return ;
+			// find the file in dir
+				// get file directory path (last of / ?)
+				// open directory
+				// readdir into dirent
+				// match files and push to matched vectors
+				// close dir
+			//serve the file?
+				//check if (!file opens)
+					//return(_handle_error(Forbidden))
+				
+				//_serve_found_file(file_name?)
+		}
 	}
 
 

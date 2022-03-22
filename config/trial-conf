@@ -20,12 +20,12 @@ server {
 	}
 
 	location /directory-listing-off/ {
-		root www/no-index-page;
+		root www/serve-dir-no-index;
 		autoindex off;
 	}
 
 	location /directory-listing-on/ { 
-		root www/no-index-page;
+		root www/serve-dir-no-index;
 		autoindex on;
 	}
 }
