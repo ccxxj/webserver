@@ -58,11 +58,11 @@ namespace HTTPResponse {
 			return handle_error(NotFound);
 
 		if (_file.is_directory()) {
-			if (false) //(search_for_index_page())
-				return ;//serve the file?
-			else { //no index page -> means directory listing
+			if (_file.find_index_page()) 
+				return(_serve_found_file(_file.get_path() + "/" + _file.get_index_page())); 
+			else { // directory listing
 				if (_config.get_autoindex() == OFF)
-					return (handle_error(Forbidden)); //TODO add to  test list
+					return (handle_error(Forbidden));
 				else
 					return (_serve_directory());
 			}
@@ -85,14 +85,29 @@ namespace HTTPResponse {
 		// }
 	}
 
+
 	void ResponseHandler::_serve_directory(void) {
 		//list the directory into response body
 		_http_response_message->set_message_body(_file.list_directory());
 		if (_http_response_message->get_message_body().empty())
-			return (handle_error(InternalServerError)); // catches list_directory() errors
+			return (handle_error(InternalServerError));
 		
 		//set necessary headers
 		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_status_code("200");
+		_http_response_message->set_reason_phrase("OK");
+		_build_final_response();
+	}
+
+	void ResponseHandler::_serve_found_file(const std::string &str) {
+		//TODO redirection
+		//TODO CGI check again, everytime you find a file?
+		_http_response_message->set_message_body(_file.get_content(str));
+		if (_http_response_message->get_message_body().empty())
+			return (handle_error(InternalServerError));
+		
+		//set necessary headers
+		//_http_response_message->set_header_element("Content-Type", file.get_mime_type());
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
 		_build_final_response();
@@ -216,7 +231,7 @@ namespace HTTPResponse {
 			_config.set_autoindex(location->get_autoindex());
 			_config.set_route(location->get_route());
 			_config.set_root_value(location->get_root());
-			_config.set_return_value(location->get_return()); //FIXME move this text somewhere in create response.
+			_config.set_return_value(location->get_return());
 		}
 	}
 }
