@@ -46,8 +46,8 @@ namespace HTTPResponse {
 
 		if (_http_request_message->get_method() == "DELETE")
 			_delete_file();
-		// else if (_http_request_message->get_method() == "POST")
-		// 	//upload_file();
+		else if (_http_request_message->get_method() == "POST")
+			_upload_file();
 		else //GET || HEAD
 			_serve_file();
 	}
@@ -109,16 +109,17 @@ namespace HTTPResponse {
 		_build_final_response();
 	}
 
-	// void ResponseHandler::_upload_file(void) {
-	// 	//error check
-	// 	//regular file check
-
-	// 	//create the file
-	// 		//open with O_WRONLY | O_CREAT | O_TRUNC
-	// 			//check for failure
-	// 			//set up response for uploading
-	// 			//status code 200
-	// }
+	void ResponseHandler::_upload_file(void) {
+		//error check
+		//regular file check
+		// if (!_file.is_regular()) //allowing normal files to be posted
+		// 	return handle_error(Forbidden);
+		//create the file
+			//open with O_WRONLY | O_CREAT | O_TRUNC
+				//check for failure
+				//set up response for uploading
+				//status code 200	
+	}
 
 	void ResponseHandler::_delete_file(void) {
 		//get file data check for errors with stat
@@ -133,6 +134,7 @@ namespace HTTPResponse {
 
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
+		_http_response_message->set_header_element("Content-Type", "text/html");
 		_http_response_message->set_message_body("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
 		_build_final_response();
 	}
