@@ -1,6 +1,8 @@
 #include "File.hpp"
 #include <sys/stat.h> //for stat that retrives information about a file
 #include <dirent.h> // for dir functions
+#include <fcntl.h> // open files
+#include <unistd.h>
 
 //stat path check: relative to the current working directory of the calling process
 namespace Utility
@@ -62,5 +64,52 @@ namespace Utility
 		_dir += "</ul>";
 		closedir(dir_p);
 		return _dir;
+	}
+
+	bool File::find_index_page() {
+		DIR *dir_p;
+		struct dirent *entry;
+		std::string	index = "index.html";
+
+		dir_p = opendir(_path.c_str());
+		if (!dir_p) 
+			return false;
+		while ((entry = readdir(dir_p))) {
+			if (entry->d_name == index) {
+				_index_page = std::string(entry->d_name);
+				closedir(dir_p);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	std::string File::get_content(const std::string &str) {
+		std::string file_content;
+		char buf[4096 + 1];
+  		int ret;
+
+		int fd = open(str.c_str(), O_RDONLY);
+		if (fd == -1)
+			return "";
+		while ((ret = read(fd, buf, 4096)) != 0) {
+			if (ret == -1)
+				return "";
+			buf[ret] = '\0';
+			file_content.insert(file_content.length(), buf, ret);
+		}
+		return file_content;
+	}
+
+	void File::set_index_page(const std::string &str) {
+		_index_page = str;
+	}
+
+	const std::string & File::get_index_page(void) {
+		return _index_page;
+	}
+
+	const std::string & File::get_path(void) {
+		return _path;
 	}
 }
