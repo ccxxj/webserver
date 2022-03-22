@@ -59,7 +59,7 @@ namespace HTTPResponse {
 
 		if (_file.is_directory()) {
 			if (false) //(search_for_index_page())
-				//serve the file?
+				return ;//serve the file?
 			else { //no index page -> means directory listing
 				if (_config.get_autoindex() == OFF)
 					return (handle_error(Forbidden)); //TODO add to  test list
@@ -87,12 +87,15 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_serve_directory(void) {
 		//list the directory into response body
-		_http_response_message->set_message_body(file.list_directory());
-
-		//content-type = get mime type (".html") = because we are serving an html file
+		_http_response_message->set_message_body(_file.list_directory());
+		if (_http_response_message->get_message_body().empty())
+			return (handle_error(InternalServerError)); // catches list_directory() errors
+		
+		//set necessary headers
+		_http_response_message->set_header_element("Content-Type", "text/html");
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
-		//build_final_response
+		_build_final_response();
 	}
 
 	// void ResponseHandler::_upload_file(void) {
