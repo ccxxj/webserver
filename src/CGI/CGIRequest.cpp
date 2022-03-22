@@ -45,13 +45,32 @@ CGIRequest::~CGIRequest()
 	}
 }
 
-// void CGIRequest::parse_meta_variables(HTTPRequest::RequestMessage request_message)
-void CGIRequest::parse_meta_variables(void)
+void CGIRequest::parse_meta_variables(HTTPRequest::RequestMessage &request_message, Config::ConfigData &config_data)
+// void CGIRequest::parse_meta_variables(void)
 {
 	//check with Olga to map to the request message class
 	//TODO this need to be updated to the actual env variable, for now I am setting up myself for the basic to run cgi
 	_meta_variables["SERVER_PROTOCOL"] = "HTTP/1.0";
 	_meta_variables["REQUEST_METHOD"] = "GET";
+
+//actual data
+	_meta_variables["AUTH_TYPE"] = request_message.get_header_value("AUTHORIZATION");
+	_meta_variables["CONTENT_LENGTH"] = request_message.get_header_value("CONTENT_LENGTH");
+	_meta_variables["CONTENT_TYPE"] = request_message.get_header_value("CONTENT_TYPE");
+	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
+	_meta_variables["PATH_INFO"]; //portion of uri, the segment after identify the script itself (run DECODE!!). (cgi/more => /more). can be void
+	_meta_variables["PATH_TRANSLATED"]; // if path_info is null, path_translated is null. otherwise: root + path_info
+	_meta_variables["QUERY_STRING"];//from uri query string map. TODO check if the key is set, is the default value null?
+	_meta_variables["REMOTE_ADDR"];//set to the server network address. can be void
+	_meta_variables["REMOTE_HOST"]; //if not remote_host value provided (hostname), substitute with the remote_address value
+	_meta_variables["REMOTE_IDENT"];
+	_meta_variables["REMOTE_USER"];
+	_meta_variables["REQUEST_METHOD"] = request_message.get_method();// from method
+	_meta_variables["SCRIPT_NAME"]; //from uri
+	_meta_variables["SERVER_NAME"];//from config
+	_meta_variables["SERVER_PORT"];//from config
+	_meta_variables["SERVER_PROTOCOL"];
+	_meta_variables["SERVER_SOFTWARE"];
 }
 
 void CGIRequest::set_envp(void)
@@ -131,7 +150,7 @@ void CGIRequest::execute_cgi()
 	{
 		close(fd[1]);
 		char buf[1000];
-		read(fd[0], buf, 1000);
+		read(fd[0], buf, 1000);//TODO find a better function
 		//the buf need to goes into response
 		std::cout << buf << "\n";
 	}
