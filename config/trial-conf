@@ -24,8 +24,8 @@ server {
 		autoindex off;
 	}
 
-	location /directory-listing-on/ {
-		root no-index-page;
+	location /directory-listing-on/ { 
+		root www/no-index-page;
 		autoindex on;
 	}
 }
