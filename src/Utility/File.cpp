@@ -27,9 +27,9 @@ namespace Utility
 		//so the path is now "www/wordpress/index.html/"
 	}
 
-	bool File::exists(void) {
+	bool File::exists(void) { 
 		struct stat buffer;
-		return stat(_path.c_str(), &buffer) == 0;
+		return  stat(_path.c_str(), &buffer) == 0;
 	}
 
 	bool File::is_directory(void) {
@@ -38,22 +38,29 @@ namespace Utility
 		return S_ISDIR(buffer.st_mode);
 	}
 
-	const std::string & File::list_directory(void) {
+	const std::string & File::list_directory(void) { //TODO if you want more add last modified and size option to html
 		DIR *dir_p;
 		struct dirent *entry;
+		std::string	tmp;
 
 		dir_p = opendir(_path.c_str());
-		if (!dir_p) {
-			std::cout << errno << std::endl;
-			return NULL;
-		}
-		std::cout << "dir opened" << std::endl;
+		if (!dir_p) 
+			return _dir;
+		_dir += "<html>\r\n<h2>" + _path + "</h2><ul>";
 		while ((entry = readdir(dir_p))) {
-			std::cout << entry->d_name << std::endl;
-			_dir += "<p>" + //entry->d_name //toString() + "<\p>"
+			// tmp = _path + "/" + entry->d_name;
+			// _dir += "<li><a href=\"";  
+			// _dir += tmp + "\">"; //TODO do we need to add links to files?
+			_dir += "<li><a>";  
+			if (entry->d_type == DT_DIR)
+				_dir += "Dir  : ";
+			else
+				_dir += "File : ";
+			_dir += entry->d_name;
+			_dir +=  "</a></li>";;
 		}
+		_dir += "</ul>";
 		closedir(dir_p);
-		return NULL;
-
+		return _dir;
 	}
 }
