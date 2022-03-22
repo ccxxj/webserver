@@ -38,7 +38,7 @@ namespace HTTPResponse {
 		// if(status_code > 300 ?) //some errors are catched after handling methods?
 			//_handle_error(status_code);
 		// if(not_redirected)
-			//build_final_response
+			//build_final_response (atm I'm calling build response from serve functions. review?)
 	}
 
 	void ResponseHandler::_handle_methods(void) {
@@ -69,18 +69,14 @@ namespace HTTPResponse {
 		}
 
 		if (!_file.is_directory()) { // means its a file
-			return ;
-			// find the file in dir
+			_serve_found_file(_file.get_path());
+			//TODO look into Content negotiation
+				// find the file in dir
 				// get file directory path (last of / ?)
 				// open directory
 				// readdir into dirent
 				// match files and push to matched vectors
 				// close dir
-			//serve the file?
-				//check if (!file opens)
-					//return(_handle_error(Forbidden))
-				
-				//_serve_found_file(file_name?)
 		}
 	}
 
@@ -93,6 +89,7 @@ namespace HTTPResponse {
 		
 		//set necessary headers
 		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info());
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
 		_build_final_response();
@@ -103,10 +100,11 @@ namespace HTTPResponse {
 		//TODO CGI check again, everytime you find a file?
 		_http_response_message->set_message_body(_file.get_content(str));
 		if (_http_response_message->get_message_body().empty())
-			return (handle_error(InternalServerError));
+			return (handle_error(Forbidden));
 		
 		//set necessary headers
 		//_http_response_message->set_header_element("Content-Type", file.get_mime_type());
+		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
 		_build_final_response();
@@ -149,13 +147,14 @@ namespace HTTPResponse {
 		//handle custom error pages //TODO needs works with redirection which will be done afterwards
 
 		// generate error page
+		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
 		_http_response_message->set_header_element("Content-Type", "text/html");
 		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
 								+ "<hr><center> HungerWeb 1.0 </center>\r\n"
 								+ "</html>\r\n");
-
+	
 		_build_final_response();
 	}
 
@@ -163,12 +162,12 @@ namespace HTTPResponse {
 	{
 		std::string response;
 		std::string msg_body = _http_response_message->get_message_body();
-
+ 
 		// set any remaining headers
 		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
 		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
-		_http_response_message->set_header_element("Content-Length", Utility::to_string(msg_body.length()));
-		//get the last-modified info from the File utility and add it to headers
+		if(_http_request_message->get_method() != "HEAD")
+			_http_response_message->set_header_element("Content-Length", Utility::to_string(msg_body.length()));
 
 		// build status line
 		response += _http_response_message->get_HTTP_version() + " ";
@@ -184,7 +183,7 @@ namespace HTTPResponse {
 
 		// if body is not empty add it to  response. Format: \r\n {body}
 		response += "\r\n";
-		if(!msg_body.empty()) //TODO don't forget to clear body if method is HEAD
+		if(!msg_body.empty() && _http_request_message->get_method() != "HEAD")
 			response += msg_body;
 
 		//final step
