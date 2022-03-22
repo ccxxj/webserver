@@ -9,16 +9,19 @@ jobs:
             - run:
                   name: Install clang, make, libkqueue, nodejs, npm # nodejs & npm are needed for integration tests
                   command: |
-                      apt update && DEBIAN_FRONTEND='noninteractive' apt install -y clang make libkqueue-dev nodejs npm git
+                      apt update && DEBIAN_FRONTEND='noninteractive' apt install -y clang make libkqueue-dev git python3-pip
             - run:
                   name: Reset git (workaround for CircleCI bug)
                   command: git reset --hard
             - run:
                   name: Install dependencies
-                  command: npm install
+                  command: pip install -r requirements.txt
             - run:
                   name: Build webserver
                   command: make
             - run:
                   name: Run unit tests
                   command: cd tests/unit_tests && make && ./unit_tests
+            - run:
+                  name: Run integration tests
+                  command: ./run_integration_tests.sh

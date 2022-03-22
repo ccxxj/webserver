@@ -1,15 +1,14 @@
 #include "LocationBlock.hpp"
 #include "../Utility/Utility.hpp"
+#include "../globals.hpp"
 
-#define NOT_SET -1
-#define OFF 0
-#define ON 1
+
 namespace Config
 {
 
     LocationBlock::LocationBlock()
     {
-        _autoindex = NOT_SET; //TODO default the diretory listing is off
+        _autoindex = OFF; //default nginx
         //TODO default client max body size check (nginx default 1M = 1000000 in decimal)
         _client_max_body_size = 1;
         _is_size_default = true;
