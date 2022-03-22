@@ -175,7 +175,8 @@ namespace HTTPResponse {
 		response += _http_response_message->get_reason_phrase() + "\r\n";
 
 		// add all the headers to response. Format is {Header}: {Header value} \r\n
-		for (std::map<std::string, std::string>::const_iterator it = _http_response_message->get_response_headers().begin(); it != _http_response_message->get_response_headers().end(); it++) {
+		std::map<std::string, std::string>::const_iterator it;
+		for (it = _http_response_message->get_response_headers().begin(); it != _http_response_message->get_response_headers().end(); it++) {
 			if (!it->first.empty())
 				response += it->first + ": " + it->second;
 			response += "\r\n";
