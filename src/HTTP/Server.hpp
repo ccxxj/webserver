@@ -22,6 +22,7 @@ namespace HTTP {
 
 		void _remove_disconnected_client(int fd);
 		void _remove_connection_closed_by_server();
+		void _destroy_connection(std::map<int, Connection*>::iterator iterator);
 
 		std::vector<int> _listen_ports;
 		std::vector<int> _listening_sockfds;
