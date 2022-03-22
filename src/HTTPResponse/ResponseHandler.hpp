@@ -24,6 +24,7 @@ namespace HTTPResponse
 		bool _check_client_body_size();
 		void _handle_methods(void);
 		void _serve_file(void);
+		void _serve_directory(void);
 		void _build_final_response();
 
 	public:

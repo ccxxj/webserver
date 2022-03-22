@@ -54,21 +54,18 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_serve_file(void) {
 		//TODO CGI check? where?
-		if (!_file.exists()) //get file existence info 
+		if (!_file.exists()) //get file existence info
 			return handle_error(NotFound);
 
 		if (_file.is_directory()) {
-			//if (search_for_index_page())
+			if (false) //(search_for_index_page())
 				//serve the file?
-			//else //no index page -> means directory listing
-				if (_config.get_autoindex() == ON) {
-					//of -> 403 (forbidden) or 404 (not found) error
-					//on -> serve directory
-						//content-type = get mime type (".html") = we will create this file?
-						//create the file content with what's in the directory (into response body)
-						// status code = 200
-						//build_final_response
-				}
+			else { //no index page -> means directory listing
+				if (_config.get_autoindex() == OFF)
+					return (handle_error(Forbidden)); //TODO add to  test list
+				else
+					return (_serve_directory());
+			}
 		}
 
 		// if (!_file.is_directory()) { // means its a file
@@ -86,6 +83,16 @@ namespace HTTPResponse {
 		// 		// status code = 200
 		// 		// build_final_response
 		// }
+	}
+
+	void ResponseHandler::_serve_directory(void) {
+		//list the directory into response body
+		_http_response_message->set_message_body(file.list_directory());
+
+		//content-type = get mime type (".html") = because we are serving an html file
+		_http_response_message->set_status_code("200");
+		_http_response_message->set_reason_phrase("OK");
+		//build_final_response
 	}
 
 	// void ResponseHandler::_upload_file(void) {
@@ -123,7 +130,7 @@ namespace HTTPResponse {
 			_http_response_message->set_header_element("Allow", _config.get_methods_line());
 
 		//handle custom error pages //TODO needs works with redirection which will be done afterwards
-		
+
 		// generate error page
 		_http_response_message->set_header_element("Content-Type", "text/html");
 		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
@@ -188,7 +195,7 @@ namespace HTTPResponse {
 		//directive values between levels are generally inherited or replaced, but not added
 		//i.e. only if there are no error_page directives defined on the current level, outer level's are inherited
 		if (location && location->get_error_page().size())
-			_config.set_error_page_value(location->get_error_page()); 
+			_config.set_error_page_value(location->get_error_page());
 		else
 			_config.set_error_page_value(virtual_server->get_error_page());
 		if (location && !location->get_is_size_default()) //we decided to overwrite irrespective of the relationship between levels
@@ -197,7 +204,7 @@ namespace HTTPResponse {
 			_config.set_client_max_body_size(virtual_server->get_client_max_body_size());
 		if (!location)
 			_config.set_root_value(virtual_server->get_root());
-		
+
 		_config.set_return_value(virtual_server->get_return()); //returns are appended within levels
 		if(location) { //location specific config rules, appends and overwrites
 			_config.set_specific_location(true);
@@ -206,7 +213,7 @@ namespace HTTPResponse {
 			_config.set_autoindex(location->get_autoindex());
 			_config.set_route(location->get_route());
 			_config.set_root_value(location->get_root());
-			_config.set_return_value(location->get_return()); //FIXME move this text somewhere in create response.  
-		}		
+			_config.set_return_value(location->get_return()); //FIXME move this text somewhere in create response.
+		}
 	}
 }
