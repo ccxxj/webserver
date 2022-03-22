@@ -98,6 +98,11 @@ namespace HTTP {
 			temp_iter = iter;
 			iter++;
 			if (!(temp_iter->second->is_connection_open())) {
+#ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
+				struct kevent kev;
+				EV_SET(&kev, temp_iter->first, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+				kevent(sock_kqueue, &kev, 1, NULL, 0, NULL);
+#endif
 				_destroy_connection(temp_iter);
 			}
 		}
