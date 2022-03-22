@@ -34,6 +34,12 @@ namespace Utility
 		return  stat(_path.c_str(), &buffer) == 0;
 	}
 
+	bool File::is_regular(void) {
+		struct stat buffer;
+		stat(_path.c_str(), &buffer);
+		return S_ISREG(buffer.st_mode);
+	}
+
 	bool File::is_directory(void) {
 		struct stat buffer;
 		stat(_path.c_str(), &buffer);
@@ -99,6 +105,12 @@ namespace Utility
 			file_content.insert(file_content.length(), buf, ret);
 		}
 		return file_content;
+	}
+
+	bool File::un_link(const std::string &str) {
+		if (unlink(str.c_str()) == -1)
+			return false;
+		return true;
 	}
 
 	std::string File::last_modified_info() {

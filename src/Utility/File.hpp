@@ -22,9 +22,11 @@ namespace Utility
 		const std::string& get_index_page(void);
 		std::string get_content(const std::string &str);
 		bool exists(void);
+		bool is_regular(void);
 		bool is_directory(void);
 		const std::string& list_directory(void);
 		bool find_index_page();
+		bool un_link(const std::string &str);
 		std::string last_modified_info(const std::string &path);
 		std::string last_modified_info();
 	};

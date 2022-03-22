@@ -44,12 +44,12 @@ namespace HTTPResponse {
 	void ResponseHandler::_handle_methods(void) {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
 
-		// if (_http_request_message->get_method() == "DELETE")
-		// 	//delete_file();
+		if (_http_request_message->get_method() == "DELETE")
+			_delete_file();
 		// else if (_http_request_message->get_method() == "POST")
 		// 	//upload_file();
-		// else //GET || HEAD
-		_serve_file();
+		else //GET || HEAD
+			_serve_file();
 	}
 
 	void ResponseHandler::_serve_file(void) {
@@ -79,7 +79,6 @@ namespace HTTPResponse {
 				// close dir
 		}
 	}
-
 
 	void ResponseHandler::_serve_directory(void) {
 		//list the directory into response body
@@ -121,20 +120,22 @@ namespace HTTPResponse {
 	// 			//status code 200
 	// }
 
-	// void ResponseHandler::_delete_file(void) {
-	// 	//get file data check for errors with stat
+	void ResponseHandler::_delete_file(void) {
+		//get file data check for errors with stat
+		if (!_file.exists()) //get file existence info
+			return handle_error(NotFound);
+		if (!_file.is_regular()) //allowing normal files to be removed
+			return handle_error(Forbidden);
 
-	// 	//check if regular file (allowing normal files to be removed)
-	// 		//403 error
+		//remove the file
+		if (!_file.un_link(_file.get_path()))
+			return (handle_error(InternalServerError));
 
-	// 	//remove the file
-	// 		//unlinke
-	// 		//check result of unlink for errors (500)
-
-	// 	//status_code = 200
-	// 	//create html response to indicate you removed the  file
-	// 	//build_final_response
-	// }
+		_http_response_message->set_status_code("200");
+		_http_response_message->set_reason_phrase("OK");
+		_http_response_message->set_message_body("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
+		_build_final_response();
+	}
 
 	void ResponseHandler::handle_error(HTTPResponse::StatusCode code)
 	{
