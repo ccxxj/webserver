@@ -25,6 +25,8 @@ namespace Utility
 		bool is_directory(void);
 		const std::string& list_directory(void);
 		bool find_index_page();
+		std::string last_modified_info(const std::string &path);
+		std::string last_modified_info();
 	};
 
 }

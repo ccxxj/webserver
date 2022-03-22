@@ -101,6 +101,30 @@ namespace Utility
 		return file_content;
 	}
 
+	std::string File::last_modified_info() {
+		struct stat statbuf;
+		struct tm	*time;
+		char buf[32];
+
+		stat(_path.c_str(), &statbuf);
+		time = gmtime(&statbuf.st_mtime);
+		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
+		std::string ret_val(buf);
+		return ret_val;
+	}
+
+	std::string File::last_modified_info(const std::string &path) {
+		struct stat statbuf;
+		struct tm	*time;
+		char buf[32];
+
+		stat(path.c_str(), &statbuf);
+		time = gmtime(&statbuf.st_mtime);
+		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
+		std::string ret_val(buf);
+		return ret_val;
+	}
+
 	void File::set_index_page(const std::string &str) {
 		_index_page = str;
 	}
