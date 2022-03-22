@@ -24,40 +24,6 @@ namespace HTTPRequest {
 
     RequestParser::~RequestParser(){}
 
-    void RequestParser::_handle_request_message_part(std::string& line) {
-        Dispatch *message = _dispatch_table;
-        for (size_t i = 0; message[i].parsing_state != FINISHED; ++i) {
-            if (message[i].parsing_state == _current_parsing_state) {
-                (this->*(message[i].ptr))(line);
-                return;
-            }
-        }
-    }
-
-    bool RequestParser::is_parsing_finished() {
-        return _current_parsing_state == FINISHED;
-    }
-
-    int RequestParser::_set_content_length() {
-        std::string content_length_value = _http_request_message->get_headers().find("CONTENT_LENGTH")->second;
-        if (content_length_value.find_first_of(',', 0) != std::string::npos) {
-            std::vector<std::string> values = Utility::_split_line(content_length_value, ',');
-            std::string first_value = Utility::_trim(values[0]);
-            for (size_t i = 1; i < values.size(); ++i) {
-                if (first_value != Utility::_trim(values[i])) {
-                    _throw_request_exception(HTTPResponse::BadRequest);
-                }
-            }
-            content_length_value = first_value;
-        }
-        for (std::string::iterator it = content_length_value.begin(); it != content_length_value.end(); ++it) {
-            if (!isdigit(*it)) {
-                _throw_request_exception(HTTPResponse::BadRequest); // should throw for negative values as well
-            }
-        }
-        return std::atoi(content_length_value.c_str());
-    }
-
     void RequestParser::parse_HTTP_request(char* buffer, size_t bytes_read) {
         size_t content_length = 0;
         size_t bytes_parsed = 0;
@@ -85,11 +51,44 @@ namespace HTTPRequest {
         }
     }
 
+    void RequestParser::_handle_request_message_part(std::string& line) {
+        Dispatch *message = _dispatch_table;
+        for (size_t i = 0; message[i].parsing_state != FINISHED; ++i) {
+            if (message[i].parsing_state == _current_parsing_state) {
+                (this->*(message[i].ptr))(line);
+                return;
+            }
+        }
+    }
+
+    int RequestParser::_set_content_length() {
+        std::string content_length_value = _http_request_message->get_headers().find("CONTENT_LENGTH")->second;
+        if (content_length_value.find_first_of(',', 0) != std::string::npos) {
+            std::vector<std::string> values = Utility::_split_line(content_length_value, ',');
+            std::string first_value = Utility::_trim(values[0]);
+            for (size_t i = 1; i < values.size(); ++i) {
+                if (first_value != Utility::_trim(values[i])) {
+                    _throw_request_exception(HTTPResponse::BadRequest);
+                }
+            }
+            content_length_value = first_value;
+        }
+        for (std::string::iterator it = content_length_value.begin(); it != content_length_value.end(); ++it) {
+            if (!isdigit(*it)) {
+                _throw_request_exception(HTTPResponse::BadRequest); // should throw for negative values as well
+            }
+        }
+        return std::atoi(content_length_value.c_str());
+    }
+
+        bool RequestParser::is_parsing_finished() {
+        return _current_parsing_state == FINISHED;
+    }
+
     void RequestParser::_throw_request_exception(HTTPResponse::StatusCode error_status) {
         _current_parsing_state = FINISHED;
         throw Exception::RequestException(error_status);
     }
-
 
     void RequestParser::_parse_request_line(std::string& line) {
         if (line.empty()) {
@@ -135,12 +134,6 @@ namespace HTTPRequest {
         return longest_size;
     }
 
-    std::string RequestParser::_convert_header_name_touppercase(std::string& header_name) {
-        std::transform(header_name.begin(), header_name.end(),header_name.begin(), ::toupper);
-        std::replace_if (header_name.begin(), header_name.end(), Utility::is_hyphen, '_');
-        return header_name;
-    }
-
     void RequestParser::_parse_header(std::string& line) {
         if (line == "\r\n" || line == "") {
             _current_parsing_state = MESSAGE_BODY;
@@ -155,34 +148,10 @@ namespace HTTPRequest {
         _http_request_message->set_header_field(header_field);
     }
 
-    ssize_t RequestParser::_find_chuncked_encoding_position(std::vector<std::string>& encodings, size_t encodings_num) {
-        for (size_t i = 0; i < encodings_num; ++i) {
-            if (Utility::_trim(encodings[i]) == "chunked") {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    void RequestParser::_delete_obolete_content_length_header() {
-        _http_request_message->get_headers().erase("CONTENT_LENGTH");
-    }
-
-    void RequestParser::_parse_transfer_encoding(std::string coding_names_list) {
-        std::vector<std::string> encodings = Utility::_split_line(coding_names_list, ','); //splitting the header value
-        ssize_t encodings_num = encodings.size();
-        ssize_t chuncked_position = _find_chuncked_encoding_position(encodings, encodings_num);
-        if (chuncked_position == - 1) {
-            std::cout << "Chunked not found\n"; //TODO:: what to do in this case?
-            _message_body_length = NOT_FOUND;
-        }
-        else if (chuncked_position == encodings_num - 1) {
-            std::cout << "Will be handling chunks here\n";
-            _message_body_length = CHUNCKED;
-        }
-        else {
-            _throw_request_exception(HTTPResponse::BadRequest);
-        }
+    std::string RequestParser::_convert_header_name_touppercase(std::string& header_name) {
+        std::transform(header_name.begin(), header_name.end(),header_name.begin(), ::toupper);
+        std::replace_if (header_name.begin(), header_name.end(), Utility::is_hyphen, '_');
+        return header_name;
     }
 
     void RequestParser::_define_message_body_length() {
@@ -211,6 +180,36 @@ namespace HTTPRequest {
                 _throw_request_exception(HTTPResponse::LengthRequired);
             }
         }
+    }
+
+    void RequestParser::_parse_transfer_encoding(std::string coding_names_list) {
+        std::vector<std::string> encodings = Utility::_split_line(coding_names_list, ','); //splitting the header value
+        ssize_t encodings_num = encodings.size();
+        ssize_t chuncked_position = _find_chuncked_encoding_position(encodings, encodings_num);
+        if (chuncked_position == - 1) {
+            std::cout << "Chunked not found\n"; //TODO:: what to do in this case?
+            _message_body_length = NOT_FOUND;
+        }
+        else if (chuncked_position == encodings_num - 1) {
+            std::cout << "Will be handling chunks here\n";
+            _message_body_length = CHUNCKED;
+        }
+        else {
+            _throw_request_exception(HTTPResponse::BadRequest);
+        }
+    }
+
+    ssize_t RequestParser::_find_chuncked_encoding_position(std::vector<std::string>& encodings, size_t encodings_num) {
+        for (size_t i = 0; i < encodings_num; ++i) {
+            if (Utility::_trim(encodings[i]) == "chunked") {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    void RequestParser::_delete_obolete_content_length_header() {
+        _http_request_message->get_headers().erase("CONTENT_LENGTH");
     }
 
     void RequestParser::_parse_message_body(std::string& line) {
