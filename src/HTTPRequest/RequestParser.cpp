@@ -81,7 +81,7 @@ namespace HTTPRequest {
         return std::atoi(content_length_value.c_str());
     }
 
-        bool RequestParser::is_parsing_finished() {
+    bool RequestParser::is_parsing_finished() {
         return _current_parsing_state == FINISHED;
     }
 
@@ -182,8 +182,10 @@ namespace HTTPRequest {
         }
     }
 
+
+    // need to find the position of the 'chunked' in transfer-Encodeing as rfc demands to throw the 400 Error if 'chunked'is not the final encoding
     void RequestParser::_parse_transfer_encoding(std::string coding_names_list) {
-        std::vector<std::string> encodings = Utility::_split_line(coding_names_list, ','); //splitting the header value
+        std::vector<std::string> encodings = Utility::_split_line(coding_names_list, ','); //splitting the header value as there might be multiple encodings
         ssize_t encodings_num = encodings.size();
         ssize_t chuncked_position = _find_chuncked_encoding_position(encodings, encodings_num);
         if (chuncked_position == - 1) {
