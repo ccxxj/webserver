@@ -30,6 +30,8 @@ namespace Utility
 		const std::string& list_directory(void);
 		bool find_index_page();
 		bool un_link(const std::string &str);
+		bool create_dir();
+		bool create_random_named_file_put_msg_body_in(const std::string &str);
 		std::string last_modified_info(const std::string &path);
 		std::string last_modified_info();
 	};

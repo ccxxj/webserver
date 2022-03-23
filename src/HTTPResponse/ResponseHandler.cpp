@@ -26,7 +26,7 @@ namespace HTTPResponse {
 	ResponseHandler::~ResponseHandler(){}
 
 	void ResponseHandler::create_http_response() {
-		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
+		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path()); //FIXME when target is /
 
 		//log request info
 		Utility::logger(request_info(), YELLOW);
@@ -38,7 +38,7 @@ namespace HTTPResponse {
 			return(handle_error(ContentTooLarge));
 
 		//HTTP method handling
-		_handle_methods(); //inside get_and_head, is_cgi, post, delete
+		_handle_methods();
 
 		// if(status_code > 300 ?) //some errors are catched after handling methods?
 			//_handle_error(status_code);
@@ -57,7 +57,7 @@ namespace HTTPResponse {
 			_serve_file();
 	}
 
-	void ResponseHandler::_serve_file(void) {
+	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
 		//TODO CGI check? where?
 		if (!_file.exists()) //get file existence info
 			return handle_error(NotFound);
@@ -114,19 +114,36 @@ namespace HTTPResponse {
 		_build_final_response();
 	}
 
-	void ResponseHandler::_upload_file(void) {
-		//error check
-		//regular file check
-		// if (!_file.is_regular()) //allowing normal files to be posted
-		// 	return handle_error(Forbidden);
-		//create the file
-			//open with O_WRONLY | O_CREAT | O_TRUNC
-				//check for failure
+	void ResponseHandler::_upload_file(void) { //POST will upload a new resource
+		//TODO do we check in request parser if POST has a body? = no bad request error is catched
+		//TODO check what nginx does with (target resource == dir && (dir.exists etc.)) || (file && file.exists())
+
+		if (_file.exists()) {
+			if (!_file.is_directory()) //means it's a file and it already exists
+				return handle_error(Conflict);
+			else { //target resource is a directory and server creates a file inside it
+				if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
+					return handle_error(InternalServerError);
 				//set up response for uploading
-				//status code 200
+				_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
+				_http_response_message->set_status_code("200");
+				_http_response_message->set_reason_phrase("OK");
+				// _http_response_message->set_header_element("Location", new path?); 
+			}
+		}
+		if (!_file.exists()) { //means server will create a directory with target resource and also create a file inside to hold info
+			if (!_file.create_dir())
+				return handle_error(InternalServerError);
+			if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
+					return handle_error(InternalServerError);
+			_http_response_message->set_message_body("<h1><center> Successfully created the directory and the file! </center></h1>");
+			_http_response_message->set_status_code("201"); //code if resource dir has been created with POST request
+			_http_response_message->set_reason_phrase("Created");
+      	}
+		_build_final_response();
 	}
 
-	void ResponseHandler::_delete_file(void) {
+	void ResponseHandler::_delete_file(void) { //DELETE will delete a resource
 		//get file data check for errors with stat
 		if (!_file.exists()) //get file existence info
 			return handle_error(NotFound);
