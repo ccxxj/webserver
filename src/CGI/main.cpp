@@ -2,7 +2,6 @@
 
 int main()
 {
-	std::cout << "check\n";
 	CGIRequest cgi;
-	cgi.execute_cgi();
+	std::cout << cgi.execute_cgi() << std::endl;
 }

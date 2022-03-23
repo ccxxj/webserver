@@ -20,7 +20,7 @@ print '<form method="post" action="hello_complex.py">'
 print '<p>Name: <input type="text" name="name" /></p>'
 print '<input type="checkbox" name="happy" /> Happy'
 print '<input type="checkbox" name="sad" /> Sad'
-print '<input type="submit" value="Submit" />
+print '<input type="submit" value="Submit" />'
 print "</form>"
 print "</body>"
 print "</html>"
