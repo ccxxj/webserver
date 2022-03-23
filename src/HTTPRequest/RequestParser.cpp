@@ -31,7 +31,7 @@ namespace HTTPRequest {
         {
             bool can_be_parsed = false;
             std::string line = _request_reader.read_line(buffer, bytes_read, &bytes_parsed, &can_be_parsed);
-            if (_current_parsing_state == MESSAGE_BODY && line.size() == content_length) {
+            if (_current_parsing_state == MESSAGE_BODY && line.size() == content_length) { // this check stops parsing of the requests with empty body messages
                 can_be_parsed = true;
             }
             if (can_be_parsed == false) {
@@ -43,6 +43,12 @@ namespace HTTPRequest {
                     _define_message_body_length();
                     if (_message_body_length == CONTENT_LENGTH) {
                         content_length = _set_content_length();
+                    }
+                    else if (_message_body_length == CHUNKED) {
+
+                    }
+                    else {
+                        _throw_request_exception(HTTPResponse::LengthRequired); // there is no possibility to define the message body without length or chunked encoding
                     }
                     //TODO: validate request line
                     //TODO: validate headers
@@ -164,16 +170,13 @@ namespace HTTPRequest {
             }
             else {
                 _parse_transfer_encoding(transfer_encoding_iter->second);
-                if (_message_body_length == CHUNCKED) {
+                if (_message_body_length == CHUNKED) {
                     _delete_obolete_content_length_header(); // if chunked is present Transfer-Encoding  overrides the Content-Length
                 }
             }
         }
         else if (transfer_encoding_iter != headers_map.end()) { // if headers contain Transfer-Encoding without Content-length
             _parse_transfer_encoding(transfer_encoding_iter->second);
-            if (_message_body_length != CHUNCKED) {
-                _throw_request_exception(HTTPResponse::LengthRequired);
-            }
         }
         else {
             if (_http_request_message->get_method() == "POST") {
@@ -187,21 +190,21 @@ namespace HTTPRequest {
     void RequestParser::_parse_transfer_encoding(std::string coding_names_list) {
         std::vector<std::string> encodings = Utility::_split_line(coding_names_list, ','); //splitting the header value as there might be multiple encodings
         ssize_t encodings_num = encodings.size();
-        ssize_t chuncked_position = _find_chuncked_encoding_position(encodings, encodings_num);
-        if (chuncked_position == - 1) {
+        ssize_t chunked_position = _find_chunked_encoding_position(encodings, encodings_num);
+        if (chunked_position == - 1) {
             std::cout << "Chunked not found\n"; //TODO:: what to do in this case?
             _message_body_length = NOT_FOUND;
         }
-        else if (chuncked_position == encodings_num - 1) {
+        else if (chunked_position == encodings_num - 1) {
             std::cout << "Will be handling chunks here\n";
-            _message_body_length = CHUNCKED;
+            _message_body_length = CHUNKED;
         }
         else {
             _throw_request_exception(HTTPResponse::BadRequest);
         }
     }
 
-    ssize_t RequestParser::_find_chuncked_encoding_position(std::vector<std::string>& encodings, size_t encodings_num) {
+    ssize_t RequestParser::_find_chunked_encoding_position(std::vector<std::string>& encodings, size_t encodings_num) {
         for (size_t i = 0; i < encodings_num; ++i) {
             if (Utility::_trim(encodings[i]) == "chunked") {
                 return i;

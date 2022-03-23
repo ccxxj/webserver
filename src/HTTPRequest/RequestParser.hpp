@@ -26,7 +26,7 @@ namespace HTTPRequest {
 
         enum MessageBodyLength
         {
-            CHUNCKED,
+            CHUNKED,
             CONTENT_LENGTH,
             NOT_FOUND
         };
@@ -41,7 +41,7 @@ namespace HTTPRequest {
         void _define_message_body_length();
         void _parse_transfer_encoding(std::string coding_names_list);
         int _set_content_length();
-        ssize_t _find_chuncked_encoding_position(std::vector<std::string> &encodings, size_t encodings_num);
+        ssize_t _find_chunked_encoding_position(std::vector<std::string> &encodings, size_t encodings_num);
         void _delete_obolete_content_length_header();
         void _parse_message_body(std::string &line);
 
