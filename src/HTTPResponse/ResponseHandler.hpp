@@ -30,7 +30,7 @@ namespace HTTPResponse
 		void _delete_file(void);
 		void _upload_file(void);
 		void _build_final_response();
-		std::string _response_status();
+
 
 	public:
 		ResponseHandler(HTTPRequest::RequestMessage *request_message, ResponseMessage *response_message);
@@ -41,5 +41,7 @@ namespace HTTPResponse
 		void create_http_response();
 		void handle_error(HTTPResponse::StatusCode code);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
+		std::string response_status();
+		std::string request_info();
 	};
 }

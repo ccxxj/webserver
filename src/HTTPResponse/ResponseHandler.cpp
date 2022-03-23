@@ -26,6 +26,11 @@ namespace HTTPResponse {
 	ResponseHandler::~ResponseHandler(){}
 
 	void ResponseHandler::create_http_response() {
+		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
+
+		//log request info
+		Utility::logger(request_info(), YELLOW);
+
 		// checks before moving on with methods
 		if(!_verify_method(_config.get_limit_except()))
 			return(handle_error(MethodNotAllowed));
@@ -42,7 +47,7 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_handle_methods(void) {
-		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
+		
 
 		if (_http_request_message->get_method() == "DELETE")
 			_delete_file();
@@ -194,7 +199,7 @@ namespace HTTPResponse {
 		_http_response_message->append_complete_response(response);
 
 		//log
-		Utility::Logger.print(_response_status(), MAGENTA, false);
+		Utility::logger(response_status(), YELLOW);
 	}
 
 	bool ResponseHandler::_verify_method(const std::vector<std::string> methods) {
@@ -217,6 +222,7 @@ namespace HTTPResponse {
 	void ResponseHandler::set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location) {
 		//directive values between levels are generally inherited or replaced, but not added
 		//i.e. only if there are no error_page directives defined on the current level, outer level's are inherited
+		_config.set_id(virtual_server->get_id());
 		if (location && location->get_error_page().size())
 			_config.set_error_page_value(location->get_error_page());
 		else
@@ -225,9 +231,9 @@ namespace HTTPResponse {
 			_config.set_client_max_body_size(location->get_client_max_body_size());
 		else
 			_config.set_client_max_body_size(virtual_server->get_client_max_body_size());
-		if (!location)
-			_config.set_root_value(virtual_server->get_root());
 
+
+		_config.set_root_value(virtual_server->get_root()); //if loc has root, this will be overwritten
 		_config.set_return_value(virtual_server->get_return()); //returns are appended within levels
 		if(location) { //location specific config rules, appends and overwrites
 			_config.set_specific_location(true);
@@ -235,17 +241,32 @@ namespace HTTPResponse {
 			_config.set_methods_line(location->get_limit_except());
 			_config.set_autoindex(location->get_autoindex());
 			_config.set_route(location->get_route());
-			_config.set_root_value(location->get_root());
+			if (!location->get_root().empty()) //FIXME do your research
+				_config.set_root_value(location->get_root());
 			_config.set_return_value(location->get_return());
 		}
 	}
 
-	std::string ResponseHandler::_response_status() {
+	std::string ResponseHandler::response_status() {
 		std::string tmp;
 
-		tmp += "Response: ";
-		tmp += "Status " + _http_response_message->get_status_code();
-		tmp += " " + _http_response_message->get_reason_phrase();
+		tmp += "Response ";
+		tmp += "[Status " + _http_response_message->get_status_code();
+		tmp += " " + _http_response_message->get_reason_phrase() + "]";
+ 
+		return tmp;
+	}
+
+	std::string ResponseHandler::request_info() {
+		std::string tmp;
+
+		tmp += "Request  ";
+		tmp += "[Method " + _http_request_message->get_method() + "] ";
+		tmp += "[Target " + _file.get_target() + "] ";
+		tmp += "[Server " + Utility::to_string(_config.get_id()) + "] ";
+		tmp += "[Location " + _config.get_route() + "] ";
+		tmp += "[Root " + _config.get_root() + "] ";
+		tmp += "[Search Path " + _file.get_path() + "] ";
 
 		return tmp;
 	}
