@@ -1,12 +1,5 @@
 #include "ConfigData.hpp"
-#define B_RED "\033[1;31m"
-#define MAGENTA "\033[36m"
-#define PURPLE "\033[35m"
-#define RED "\033[31m"
-#define YELLOW "\033[33m"
-#define GREEN "\033[32m"
-#define BLUE "\033[34m"
-#define RESET "\033[0m"
+#include "../globals.hpp"
 
 namespace Config
 {
@@ -36,7 +29,7 @@ namespace Config
     {
         _servers.push_back(server);
     }
-    
+
     const std::vector<ServerBlock> &ConfigData::get_servers(void) const
 	{
 		return (_servers);
@@ -57,7 +50,7 @@ namespace Config
     {
         std::set<std::string> listen_set = server.get_listen();
         std::cout << GREEN << "listening ports: ";
-		for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) 
+		for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++)
 				std::cout << "X)" << *i << " ";
         std::cout << RESET << std::endl;
     }
