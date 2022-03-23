@@ -18,17 +18,21 @@ namespace Utility
 
 	void File::set_path(const std::string &root, const std::vector<std::string> &uri_paths) {
 		_path += root;
-		std::vector<std::string>::const_iterator it = uri_paths.begin();
-		while (it != uri_paths.end()) {
-			_path += *it;
-			it++;
-			if (it != uri_paths.end())
-				_path += "/";
-		}
-		// FIXME what about the / in the end? check with directory and file
-		//so the path is now "www/wordpress/index.html/"
+		set_target(uri_paths);
+		_path += _target;
+		//so if root is "www" and the target is "wordpress/index.html" the path is now "www/wordpress/index.html"
 	}
 
+	void File::set_target(const std::vector<std::string> &uri_paths) {
+		std::vector<std::string>::const_iterator it = uri_paths.begin();
+		while (it != uri_paths.end()) {
+			_target += *it;
+			it++;
+			if (it != uri_paths.end())
+				_target += "/";
+		}
+
+	}
 	bool File::exists(void) { 
 		struct stat buffer;
 		return  stat(_path.c_str(), &buffer) == 0;
@@ -147,5 +151,9 @@ namespace Utility
 
 	const std::string & File::get_path(void) {
 		return _path;
+	}
+
+	const std::string & File::get_target(void) {
+		return _target;
 	}
 }
