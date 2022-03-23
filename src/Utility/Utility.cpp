@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sys/time.h>
+#include "../globals.hpp"
 
 namespace Utility
 {
@@ -142,5 +143,20 @@ namespace Utility
 		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
 		std::string ret_val(buf);
 		return ret_val;
+	}
+
+    void logger(std::string str, std::string color)
+	{
+		struct tm *tm;
+		time_t rawtime;
+		char buf[32];
+
+		time(&rawtime);
+		tm = localtime(&rawtime);
+		int ret = strftime(buf, 32, "%T", tm);
+		buf[ret] = '\0';
+
+		std::cout << GREEN << "[" << buf << "] " << RESET;
+		std::cout << color << str << RESET << std::endl;
 	}
 } // namespace Utility

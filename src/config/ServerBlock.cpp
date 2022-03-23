@@ -29,6 +29,7 @@ namespace Config
         _return = other._return;
         _error_page = other._error_page;
         _is_size_default = other._is_size_default;
+        _id = other._id;
         return *this;
     }
 
@@ -104,6 +105,11 @@ namespace Config
         _locations.push_back(location);
     }
 
+    void ServerBlock::set_id(int num) 
+    {
+        _id = num;
+    }
+
     /* getters */
     const std::set<std::string>& ServerBlock::get_listen() const
     {
@@ -123,5 +129,10 @@ namespace Config
     bool ServerBlock::get_default() const
     {
         return _is_default;
+    }
+
+    int ServerBlock::get_id(void) const
+    {
+        return _id;
     }
 } // namespace Config

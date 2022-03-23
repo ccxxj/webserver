@@ -1,4 +1,6 @@
 #include "Webserver.hpp"
+#include "./Utility/Utility.hpp"
+#include "globals.hpp"
 
 Webserver::Webserver(std::string file_path): _file_path(file_path)
 {
@@ -21,6 +23,7 @@ void Webserver::start()
 		parser.parse();
 		// config.print_servers_info();
 		config.check_parsed_data();
+		Utility::logger("Server configured with  : " + _file_path, YELLOW);
 		HTTP::Server server(&config);
 		server.run();
 	}

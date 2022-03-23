@@ -83,6 +83,11 @@ namespace HTTPResponse
 		_has_specific_location = value;
 	}
 
+    void SpecifiedConfig::set_id(int num) 
+    {
+        _id = num;
+    }
+
     /* getters */
     int SpecifiedConfig::get_client_max_body_size(void) const
     {
@@ -125,5 +130,10 @@ namespace HTTPResponse
 
 	bool SpecifiedConfig::has_specific_location(void) const {
         return _has_specific_location;
+    }
+
+    int SpecifiedConfig::get_id(void) const
+    {
+        return _id;
     }
 } // namespace Config

@@ -34,15 +34,15 @@ server {
 	listen 2000;
 	listen 1000;
 	server_name irem;
-	root /var/www/localhost;
+	root www;
 
 	location /wordpress/ {
-		root /var/www/localhost;
+		root www;
 		error_page 301 /custom-301.html;
 		autoindex on;
-		#limit_except POST {
-		#	deny all;
-		#}
+		limit_except POST {
+			deny all;
+		}
 		return 301 https://localhost;
 	}
 
