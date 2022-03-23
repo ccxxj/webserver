@@ -28,15 +28,19 @@ namespace Utility
 
 	void File::set_target(const std::vector<std::string> &uri_paths) {
 		std::vector<std::string>::const_iterator it = uri_paths.begin();
+		if (uri_paths.size() == 1) {
+			_target += "/";
+			return ;
+		}
 		while (it != uri_paths.end()) {
 			_target += *it;
 			it++;
 			if (it != uri_paths.end())
 				_target += "/";
 		}
-
 	}
-	bool File::exists(void) { 
+
+	bool File::exists(void) {
 		struct stat buffer;
 		return  stat(_path.c_str(), &buffer) == 0;
 	}
@@ -59,14 +63,14 @@ namespace Utility
 		std::string	tmp;
 
 		dir_p = opendir(_path.c_str());
-		if (!dir_p) 
+		if (!dir_p)
 			return _dir;
 		_dir += "<html>\r\n<h2>" + _path + "</h2><ul>";
 		while ((entry = readdir(dir_p))) {
 			// tmp = _path + "/" + entry->d_name;
-			// _dir += "<li><a href=\"";  
+			// _dir += "<li><a href=\"";
 			// _dir += tmp + "\">"; //TODO do we need to add links to files?
-			_dir += "<li><a>";  
+			_dir += "<li><a>";
 			if (entry->d_type == DT_DIR)
 				_dir += "Dir  : ";
 			else
@@ -85,7 +89,7 @@ namespace Utility
 		std::string	index = "index.html";
 
 		dir_p = opendir(_path.c_str());
-		if (!dir_p) 
+		if (!dir_p)
 			return false;
 		while ((entry = readdir(dir_p))) {
 			if (entry->d_name == index) {
@@ -134,7 +138,7 @@ namespace Utility
 		struct dirent *entry;
 		int i = 0;
 		DIR *dir_p = opendir(_path.c_str());
-		if (!dir_p) 
+		if (!dir_p)
 			return false;
 		while ((entry = readdir(dir_p))) {
 			i++;
