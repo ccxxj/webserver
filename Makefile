@@ -25,8 +25,7 @@ HEADERS = Webserver.hpp \
 	HTTPResponse/SpecifiedConfig.hpp \
 	Utility/Utility.hpp \
 	Utility/SmartPointer.hpp \
-	Utility/File.hpp \
-	Utility/Logger.hpp
+	Utility/File.hpp 
 
 SRC = Webserver.cpp \
 	HTTPRequest/RequestReader.cpp \
@@ -51,8 +50,7 @@ SRC = Webserver.cpp \
 	config/ConfigValidator.cpp \
 	config/ConfigTokenizer.cpp \
 	Utility/Utility.cpp \
-	Utility/File.cpp \
-	Utility/Logger.cpp
+	Utility/File.cpp 
 
 CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
 		-std=c++98 -pedantic \
