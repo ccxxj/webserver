@@ -132,6 +132,7 @@ namespace Config
 		{
 			ServerBlock server;
 			parse_server_block(server_tokens[i], server);
+			server.set_id(i + 1);
 			config_data->set_a_server(server);
 		}
 		config_data->make_first_server_default();
