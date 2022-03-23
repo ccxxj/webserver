@@ -30,6 +30,7 @@ namespace HTTPResponse
 		void _delete_file(void);
 		void _upload_file(void);
 		void _build_final_response();
+		std::string _response_status();
 
 	public:
 		ResponseHandler(HTTPRequest::RequestMessage *request_message, ResponseMessage *response_message);

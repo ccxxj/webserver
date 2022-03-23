@@ -58,8 +58,8 @@ namespace HTTPResponse {
 			return handle_error(NotFound);
 
 		if (_file.is_directory()) {
-			if (_file.find_index_page()) 
-				return(_serve_found_file(_file.get_path() + "/" + _file.get_index_page())); 
+			if (_file.find_index_page())
+				return(_serve_found_file(_file.get_path() + "/" + _file.get_index_page()));
 			else { // directory listing
 				if (_config.get_autoindex() == OFF)
 					return (handle_error(Forbidden));
@@ -85,7 +85,7 @@ namespace HTTPResponse {
 		_http_response_message->set_message_body(_file.list_directory());
 		if (_http_response_message->get_message_body().empty())
 			return (handle_error(InternalServerError));
-		
+
 		//set necessary headers
 		_http_response_message->set_header_element("Content-Type", "text/html");
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info());
@@ -100,7 +100,7 @@ namespace HTTPResponse {
 		_http_response_message->set_message_body(_file.get_content(str));
 		if (_http_response_message->get_message_body().empty())
 			return (handle_error(Forbidden));
-		
+
 		//set necessary headers
 		//_http_response_message->set_header_element("Content-Type", file.get_mime_type());
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
@@ -118,7 +118,7 @@ namespace HTTPResponse {
 			//open with O_WRONLY | O_CREAT | O_TRUNC
 				//check for failure
 				//set up response for uploading
-				//status code 200	
+				//status code 200
 	}
 
 	void ResponseHandler::_delete_file(void) {
@@ -157,7 +157,7 @@ namespace HTTPResponse {
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
 								+ "<hr><center> HungerWeb 1.0 </center>\r\n"
 								+ "</html>\r\n");
-	
+
 		_build_final_response();
 	}
 
@@ -165,7 +165,7 @@ namespace HTTPResponse {
 	{
 		std::string response;
 		std::string msg_body = _http_response_message->get_message_body();
- 
+
 		// set any remaining headers
 		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
 		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
@@ -192,6 +192,9 @@ namespace HTTPResponse {
 
 		//final step
 		_http_response_message->append_complete_response(response);
+
+		//log
+		Utility::Logger.print(_response_status(), MAGENTA, false);
 	}
 
 	bool ResponseHandler::_verify_method(const std::vector<std::string> methods) {
@@ -235,5 +238,15 @@ namespace HTTPResponse {
 			_config.set_root_value(location->get_root());
 			_config.set_return_value(location->get_return());
 		}
+	}
+
+	std::string ResponseHandler::_response_status() {
+		std::string tmp;
+
+		tmp += "Response: ";
+		tmp += "Status " + _http_response_message->get_status_code();
+		tmp += " " + _http_response_message->get_reason_phrase();
+
+		return tmp;
 	}
 }
