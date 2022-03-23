@@ -156,7 +156,7 @@ namespace Utility
 		int ret = strftime(buf, 32, "%T", tm);
 		buf[ret] = '\0';
 
-		std::cout << PURPLE << "[" << buf << "] " << RESET;
+		std::cout << GREEN << "[" << buf << "] " << RESET;
 		std::cout << color << str << RESET << std::endl;
 	}
 } // namespace Utility
