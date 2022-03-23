@@ -60,7 +60,7 @@ CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
 
 HEADERS := $(addprefix $(SRC_DIR)/,$(HEADERS))
 OBJ = $(SRC:.cpp=.o)
-CXX=clang++
+CXX=c++
 
 .PHONY: all clean fclean re tests
 
