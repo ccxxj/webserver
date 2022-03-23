@@ -11,7 +11,6 @@ namespace HTTPResponse
 	{
 	private:
 		std::string _root;
-		// std::vector<std::string> _server_name; //TODO if not used, remove.
 		std::vector<std::string> _return;
 		std::vector<std::string> _error_page;
 		std::vector<std::string> _limit_except;
