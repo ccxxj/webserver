@@ -1,4 +1,7 @@
 #include "File.hpp"
+#include "../Utility/Utility.hpp"
+#include "../globals.hpp"
+
 #include <sys/stat.h> //for stat that retrives information about a file
 #include <dirent.h> // for dir functions
 #include <fcntl.h> // open files
@@ -114,6 +117,35 @@ namespace Utility
 	bool File::un_link(const std::string &str) {
 		if (unlink(str.c_str()) == -1)
 			return false;
+		return true;
+	}
+
+	bool File::create_dir() {
+		if (mkdir(_path.c_str(), 0755) == -1)
+		{
+			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
+			return false;
+		}
+		return true;
+	}
+
+	bool File::create_random_named_file_put_msg_body_in(const std::string& str) {
+		//just to create get the fiel count in dir to create a random name
+		struct dirent *entry;
+		int i = 0;
+		DIR *dir_p = opendir(_path.c_str());
+		if (!dir_p) 
+			return false;
+		while ((entry = readdir(dir_p))) {
+			i++;
+		}
+		closedir(dir_p);
+
+		//create the file
+		int fd = open((_path + "/file" + Utility::to_string(i - 1)).c_str(), O_CREAT | O_RDWR | O_TRUNC, 00755);
+		if (str.length() &&  write(fd, str.c_str(), str.length()) <= 0) // write the request body to the file
+			return false;
+		//Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 		return true;
 	}
 
