@@ -37,12 +37,15 @@ namespace Config
 
 	void ConfigData::check_parsed_data(void)
 	{
+		std::string tmp = "root wwww;";
 		if (_servers.size() == 0)
 			throw std::runtime_error("Invalid-Config: empty file");
         for (size_t i = 0; i < _servers.size(); i++)
         {
             if(_servers[i].get_listen().size() == 0)
                 throw std::runtime_error("missing listen line");
+			if(_servers[i].get_root().empty())
+				_servers[i].set_root_value(tmp); //FIXME discuss + if you don't have a root in location & a location is matched. It fucks things up? 
         }
 	}
 
