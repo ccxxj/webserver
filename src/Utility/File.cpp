@@ -30,7 +30,7 @@ namespace Utility
 
 	void File::set_target(const std::vector<std::string> &uri_paths) {
 		std::vector<std::string>::const_iterator it = uri_paths.begin();
-		if (uri_paths.size() == 1) {
+		if (uri_paths.size() == 1 && (*it).empty()) {
 			_target += "/";
 			return ;
 		}
