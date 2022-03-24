@@ -7,6 +7,7 @@
 #include <fcntl.h> // open files
 #include <unistd.h>
 #include <errno.h>
+#include <string.h> //for strerror
 
 //stat path check: relative to the current working directory of the calling process
 namespace Utility
