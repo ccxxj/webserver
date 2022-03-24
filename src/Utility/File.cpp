@@ -6,6 +6,7 @@
 #include <dirent.h> // for dir functions
 #include <fcntl.h> // open files
 #include <unistd.h>
+#include <errno.h>
 
 //stat path check: relative to the current working directory of the calling process
 namespace Utility
