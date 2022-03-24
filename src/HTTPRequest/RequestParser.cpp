@@ -26,18 +26,24 @@ namespace HTTPRequest {
 
     void RequestParser::parse_HTTP_request(char* buffer, size_t bytes_read) {
         size_t content_length = 0;
-        size_t bytes_parsed = 0;
-        while (bytes_parsed != bytes_read || _current_parsing_state != FINISHED)
+        size_t bytes_accumulated = 0;
+        size_t chunk_size = -1;
+        while (bytes_accumulated != bytes_read || _current_parsing_state != FINISHED)
         {
             bool can_be_parsed = false;
-            std::string line = _request_reader.read_line(buffer, bytes_read, &bytes_parsed, &can_be_parsed);
-            if (_current_parsing_state == MESSAGE_BODY && line.size() == content_length) { // this check stops parsing of the requests with empty body messages
-                can_be_parsed = true;
-            }
-            if (can_be_parsed == false) {
-                return;
+            std::string line;
+            if (_current_parsing_state == MESSAGE_BODY && _message_body_length == CHUNKED) {
+                line = _request_reader.decode_chunked(buffer, chunk_size, bytes_read, &bytes_accumulated, &can_be_parsed);
             }
             else {
+                line = _request_reader.read_line(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
+            }
+            // this check stops parsing of the requests with empty body messages
+            if (_current_parsing_state == MESSAGE_BODY && line.size() == content_length) {
+                can_be_parsed = true;
+            }
+            // if the buffer is read and the request is complete( means the reader reached end of line for request line or header or read message body or message body size == 0)
+            if (can_be_parsed == true) {
                 _handle_request_message_part(line);
                 if (_current_parsing_state == MESSAGE_BODY) {
                     _define_message_body_length();
@@ -45,7 +51,7 @@ namespace HTTPRequest {
                         content_length = _set_content_length();
                     }
                     else if (_message_body_length == CHUNKED) {
-
+                        // TODO: doing st here or in _define_message_body_length() ?
                     }
                     else {
                         _throw_request_exception(HTTPResponse::LengthRequired); // there is no possibility to define the message body without length or chunked encoding
@@ -53,6 +59,9 @@ namespace HTTPRequest {
                     //TODO: validate request line
                     //TODO: validate headers
                 }
+            }
+            else {
+                return;
             }
         }
     }
@@ -177,6 +186,9 @@ namespace HTTPRequest {
         }
         else if (transfer_encoding_iter != headers_map.end()) { // if headers contain Transfer-Encoding without Content-length
             _parse_transfer_encoding(transfer_encoding_iter->second);
+            if (_message_body_length != CHUNKED) { // TODO: does this check stay here or moves to the parse_HTTP_request()?
+                _throw_request_exception(HTTPResponse::LengthRequired);
+            }
         }
         else {
             if (_http_request_message->get_method() == "POST") {

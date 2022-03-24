@@ -14,11 +14,13 @@ namespace HTTPRequest {
 		static size_t _length_counter;
 		
 		bool _is_end_of_line(char character);
+		bool _is_last_chunk(size_t chunk_size);
 
 	public:
 		RequestReader();
 		~RequestReader();
 
-		std::string read_line(char* buffer, size_t bytes_read, size_t* bytes_parsed, bool* can_be_parsed);
+		std::string read_line(char* buffer, size_t bytes_read, size_t* bytes_accumulated, bool* can_be_parsed);
+		std::string decode_chunked(char* buffer, size_t chunk_size, size_t bytes_read, size_t* bytes_accumulated, bool* can_be_parsed);
 	};
 }
