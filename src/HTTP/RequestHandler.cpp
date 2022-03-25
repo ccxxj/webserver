@@ -23,6 +23,7 @@ namespace HTTP {
 	RequestHandler::~RequestHandler(){}
 
 	void RequestHandler::handle_http_request() {
+		Utility::logger("New connection on port  : " + Utility::to_string(_connection_listen_info.port), MAGENTA);
 		char buf[4096];
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
@@ -31,14 +32,15 @@ namespace HTTP {
 			perror("recv error");
 			_delegate.close();
 		} else {
-			std::cout << "\nRead " << bytes_read << " bytes\n";
-			std::cout.write(buf, bytes_read);
+			// std::cout << "\nRead " << bytes_read << " bytes\n";
+			// std::cout.write(buf, bytes_read);
 			try {
 				_parser.parse_HTTP_request(buf, bytes_read);
 			}
 			catch(const Exception::RequestException& e)
 			{
 				_handle_request_exception(e.get_error_status_code());
+				Utility::logger("Request  [Bad Request]", YELLOW);
 				response_handler.handle_error(e.get_error_status_code()); //error response is built, and will be sent below			
 			}
 			if (!_parser.is_parsing_finished()) {
@@ -65,12 +67,9 @@ namespace HTTP {
 		return stringified_code;
 	}
 
-	void RequestHandler::RequestHandler::_process_http_request() { //TODO Logger to say which server & block is matched with the port info
+	void RequestHandler::RequestHandler::_process_http_request() {
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
-		std::cout << "Connecting from port " <<  _connection_listen_info.port << std::endl;
-		if(location)
-			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;
 		response_handler.set_config_rules(virtual_server, location);
 		response_handler.create_http_response(); //FROM here, it's moving to ResponseHandler
 	}

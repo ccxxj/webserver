@@ -26,6 +26,11 @@ namespace HTTPResponse {
 	ResponseHandler::~ResponseHandler(){}
 
 	void ResponseHandler::create_http_response() {
+		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
+
+		//log request info
+		Utility::logger(request_info(), YELLOW);
+
 		// checks before moving on with methods
 		if(!_verify_method(_config.get_limit_except()))
 			return(handle_error(MethodNotAllowed));
@@ -33,86 +38,128 @@ namespace HTTPResponse {
 			return(handle_error(ContentTooLarge));
 
 		//HTTP method handling
-		_handle_methods(); //inside get_and_head, is_cgi, post, delete
+		_handle_methods();
 
 		// if(status_code > 300 ?) //some errors are catched after handling methods?
 			//_handle_error(status_code);
 		// if(not_redirected)
-			//build_final_response
+			//build_final_response (atm I'm calling build response from serve functions. review?)
 	}
 
 	void ResponseHandler::_handle_methods(void) {
-		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
 
-		// if (_http_request_message->get_method() == "DELETE")
-		// 	//delete_file();
-		// else if (_http_request_message->get_method() == "POST")
-		// 	//upload_file();
-		// else //GET || HEAD
-		_serve_file();
+
+		if (_http_request_message->get_method() == "DELETE")
+			_delete_file();
+		else if (_http_request_message->get_method() == "POST")
+			_upload_file();
+		else //GET || HEAD
+			_serve_file();
 	}
 
-	void ResponseHandler::_serve_file(void) {
+	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
 		//TODO CGI check? where?
-		if (!_file.exists()) //get file existence info 
+		if (!_file.exists()) //get file existence info
 			return handle_error(NotFound);
 
 		if (_file.is_directory()) {
-			//if (search_for_index_page())
-				//serve the file?
-			//else //no index page -> means directory listing
-				if (_config.get_autoindex() == ON) {
-					//of -> 403 (forbidden) or 404 (not found) error
-					//on -> serve directory
-						//content-type = get mime type (".html") = we will create this file?
-						//create the file content with what's in the directory (into response body)
-						// status code = 200
-						//build_final_response
-				}
+			if (_file.find_index_page())
+				return(_serve_found_file(_file.get_path() + "/" + _file.get_index_page()));
+			else { // directory listing
+				if (_config.get_autoindex() == OFF)
+					return (handle_error(Forbidden));
+				else
+					return (_serve_directory());
+			}
 		}
 
-		// if (!_file.is_directory()) { // means its a file
-		// 	// find the file in dir
-		// 		// get file directory path (last of / ?)
-		// 		// open directory
-		// 		// readdir into dirent
-		// 		// match files and push to matched vectors
-		// 		// close dir
-		// 	//serve the file?
-		// 		//check if (!file opens)
-		// 			//return(_handle_error(Forbidden))
-		// 		//content-type = get mime type (file name)
-		// 		// put file content into response body
-		// 		// status code = 200
-		// 		// build_final_response
-		// }
+		if (!_file.is_directory()) { // means its a file
+			_serve_found_file(_file.get_path());
+			//TODO look into Content negotiation
+				// find the file in dir
+				// get file directory path (last of / ?)
+				// open directory
+				// readdir into dirent
+				// match files and push to matched vectors
+				// close dir
+		}
 	}
 
-	// void ResponseHandler::_upload_file(void) {
-	// 	//error check
-	// 	//regular file check
+	void ResponseHandler::_serve_directory(void) {
+		//list the directory into response body
+		_http_response_message->set_message_body(_file.list_directory());
+		if (_http_response_message->get_message_body().empty())
+			return (handle_error(InternalServerError));
 
-	// 	//create the file
-	// 		//open with O_WRONLY | O_CREAT | O_TRUNC
-	// 			//check for failure
-	// 			//set up response for uploading
-	// 			//status code 200
-	// }
+		//set necessary headers
+		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info());
+		_http_response_message->set_status_code("200");
+		_http_response_message->set_reason_phrase("OK");
+		_build_final_response();
+	}
 
-	// void ResponseHandler::_delete_file(void) {
-	// 	//get file data check for errors with stat
+	void ResponseHandler::_serve_found_file(const std::string &str) {
+		//TODO redirection
+		//TODO CGI check again, everytime you find a file?
+		_http_response_message->set_message_body(_file.get_content(str));
+		if (_http_response_message->get_message_body().empty())
+			return (handle_error(Forbidden));
 
-	// 	//check if regular file (allowing normal files to be removed)
-	// 		//403 error
+		//set necessary headers
+		//_http_response_message->set_header_element("Content-Type", file.get_mime_type());
+		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
+		_http_response_message->set_status_code("200");
+		_http_response_message->set_reason_phrase("OK");
+		_build_final_response();
+	}
 
-	// 	//remove the file
-	// 		//unlinke
-	// 		//check result of unlink for errors (500)
+	void ResponseHandler::_upload_file(void) { //POST will upload a new resource
+		//TODO do we check in request parser if POST has no body? = no bad request error is catched
+		//TODO check what nginx does with (target resource == dir && (dir.exists etc.)) || (file && file.exists())
 
-	// 	//status_code = 200
-	// 	//create html response to indicate you removed the  file
-	// 	//build_final_response
-	// }
+		if (_file.exists()) {
+			if (!_file.is_directory()) //means it's a file and it already exists
+				return handle_error(Conflict);
+			else { //target resource is a directory and server creates a file inside it
+				if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
+					return handle_error(InternalServerError);
+				//set up response for uploading
+				_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
+				_http_response_message->set_status_code("200");
+				_http_response_message->set_reason_phrase("OK");
+				// _http_response_message->set_header_element("Location", new path?);
+			}
+		}
+		if (!_file.exists()) { //means server will create a directory with target resource and also create a file inside to hold info
+			if (!_file.create_dir())
+				return handle_error(InternalServerError);
+			if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
+					return handle_error(InternalServerError);
+			_http_response_message->set_message_body("<h1><center> Successfully created the directory and the file! </center></h1>");
+			_http_response_message->set_status_code("201"); //code if resource dir has been created with POST request
+			_http_response_message->set_reason_phrase("Created");
+      	}
+		_build_final_response();
+	}
+
+	void ResponseHandler::_delete_file(void) { //DELETE will delete a resource
+		//get file data check for errors with stat
+		if (!_file.exists()) //get file existence info
+			return handle_error(NotFound);
+		if (!_file.is_regular()) //allowing normal files to be removed
+			return handle_error(Forbidden);
+
+		//remove the file
+		if (!_file.un_link(_file.get_path()))
+			return (handle_error(InternalServerError));
+
+		_http_response_message->set_status_code("200");
+		_http_response_message->set_reason_phrase("OK");
+		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_message_body("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
+		_build_final_response();
+	}
 
 	void ResponseHandler::handle_error(HTTPResponse::StatusCode code)
 	{
@@ -123,8 +170,9 @@ namespace HTTPResponse {
 			_http_response_message->set_header_element("Allow", _config.get_methods_line());
 
 		//handle custom error pages //TODO needs works with redirection which will be done afterwards
-		
+
 		// generate error page
+		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
 		_http_response_message->set_header_element("Content-Type", "text/html");
 		_http_response_message->set_payload(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
@@ -143,8 +191,8 @@ namespace HTTPResponse {
 		// set any remaining headers
 		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
 		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
-		_http_response_message->set_header_element("Content-Length", Utility::to_string(msg_body.length()));
-		//get the last-modified info from the File utility and add it to headers
+		if(_http_request_message->get_method() != "HEAD")
+			_http_response_message->set_header_element("Content-Length", Utility::to_string(msg_body.length()));
 
 		// build status line
 		response += _http_response_message->get_HTTP_version() + " ";
@@ -152,7 +200,8 @@ namespace HTTPResponse {
 		response += _http_response_message->get_reason_phrase() + "\r\n";
 
 		// add all the headers to response. Format is {Header}: {Header value} \r\n
-		for (std::map<std::string, std::string>::const_iterator it = _http_response_message->get_response_headers().begin(); it != _http_response_message->get_response_headers().end(); it++) {
+		std::map<std::string, std::string>::const_iterator it;
+		for (it = _http_response_message->get_response_headers().begin(); it != _http_response_message->get_response_headers().end(); it++) {
 			if (!it->first.empty())
 				response += it->first + ": " + it->second;
 			response += "\r\n";
@@ -160,11 +209,14 @@ namespace HTTPResponse {
 
 		// if body is not empty add it to  response. Format: \r\n {body}
 		response += "\r\n";
-		if(!msg_body.empty()) //TODO don't forget to clear body if method is HEAD
+		if(!msg_body.empty() && _http_request_message->get_method() != "HEAD")
 			response += msg_body;
 
 		//final step
 		_http_response_message->append_complete_response(response);
+
+		//log
+		Utility::logger(response_status(), YELLOW);
 	}
 
 	bool ResponseHandler::_verify_method(const std::vector<std::string> methods) {
@@ -187,17 +239,18 @@ namespace HTTPResponse {
 	void ResponseHandler::set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location) {
 		//directive values between levels are generally inherited or replaced, but not added
 		//i.e. only if there are no error_page directives defined on the current level, outer level's are inherited
+		_config.set_id(virtual_server->get_id());
 		if (location && location->get_error_page().size())
-			_config.set_error_page_value(location->get_error_page()); 
+			_config.set_error_page_value(location->get_error_page());
 		else
 			_config.set_error_page_value(virtual_server->get_error_page());
 		if (location && !location->get_is_size_default()) //we decided to overwrite irrespective of the relationship between levels
 			_config.set_client_max_body_size(location->get_client_max_body_size());
 		else
 			_config.set_client_max_body_size(virtual_server->get_client_max_body_size());
-		if (!location)
-			_config.set_root_value(virtual_server->get_root());
-		
+
+
+		_config.set_root_value(virtual_server->get_root()); //if loc has root, this will be overwritten
 		_config.set_return_value(virtual_server->get_return()); //returns are appended within levels
 		if(location) { //location specific config rules, appends and overwrites
 			_config.set_specific_location(true);
@@ -205,8 +258,34 @@ namespace HTTPResponse {
 			_config.set_methods_line(location->get_limit_except());
 			_config.set_autoindex(location->get_autoindex());
 			_config.set_route(location->get_route());
-			_config.set_root_value(location->get_root());
-			_config.set_return_value(location->get_return()); //FIXME move this text somewhere in create response.  
-		}		
+			if (!location->get_root().empty()) // if no root is specified in location, outer level's root is inherited
+				_config.set_root_value(location->get_root());
+			_config.set_return_value(location->get_return());
+		}
+	}
+
+	std::string ResponseHandler::response_status() {
+		std::string tmp;
+
+		tmp += "Response ";
+		tmp += "[Status " + _http_response_message->get_status_code();
+		tmp += " " + _http_response_message->get_reason_phrase() + "]";
+
+		return tmp;
+	}
+
+	std::string ResponseHandler::request_info() {
+		std::string tmp;
+
+		tmp += "Request  ";
+		tmp += "[Method " + _http_request_message->get_method() + "] ";
+		tmp += "[Target " + _file.get_target() + "] ";
+		tmp += "[Server " + Utility::to_string(_config.get_id()) + "] ";
+		if (_config.has_specific_location())
+			tmp += "[Location " + _config.get_route() + "] ";
+		tmp += "[Root " + _config.get_root() + "] ";
+		tmp += "[Search Path " + _file.get_path() + "] ";
+
+		return tmp;
 	}
 }
