@@ -20,7 +20,8 @@ namespace HTTPRequest {
         {
             REQUEST_LINE,
             HEADER,
-            MESSAGE_BODY,
+            PAYLOAD,
+            CHUNKED_PAYLOAD,
             FINISHED
         };
 
@@ -33,7 +34,11 @@ namespace HTTPRequest {
 
         RequestReader _request_reader;
         State _current_parsing_state;
-        MessageBodyLength _message_body_length;
+        MessageBodyLength _payload_length;
+
+        size_t _chunk_size;
+		size_t _decoded_body_length;
+		std::string _decoded_body;
 
         void _handle_request_message_part(std::string& line);
         void _parse_request_line(std::string& line);
@@ -43,7 +48,11 @@ namespace HTTPRequest {
         int _set_content_length();
         ssize_t _find_chunked_encoding_position(std::vector<std::string> &encodings, size_t encodings_num);
         void _delete_obolete_content_length_header();
-        void _parse_message_body(std::string &line);
+        void _parse_payload(std::string &line);
+        void _decode_chunked(std::string& line);
+        void _set_chunk_size(std::string& line);
+        void _assign_decoded_body_length_to_content_length();
+		bool _is_last_chunk(size_t chunk_size);
 
         bool _is_method_supported(const std::string &method);
         size_t _longest_method_size();

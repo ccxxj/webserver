@@ -6,7 +6,7 @@ namespace HTTPRequest {
 
     size_t RequestReader::_length_counter = 0;
 
-    RequestReader::RequestReader() : _accumulator(""){}
+    RequestReader::RequestReader() : _accumulator("") {}
 
     RequestReader::~RequestReader()
     {
@@ -43,36 +43,35 @@ namespace HTTPRequest {
         return _accumulator;
     }
 
-    std::string RequestReader::decode_chunked(char* buffer, size_t chunk_size, size_t bytes_read, size_t* bytes_accumulated, bool* can_be_parsed) { // pointer to the buffer as we need to keep track of it
-        while (*bytes_accumulated != bytes_read)
-        {
-            if (RequestReader::_length_counter > MAX_SIZE_BODY) {
-                throw Exception::RequestException(HTTPResponse::ContentTooLarge);
-            }
-            char current_character = buffer[*bytes_accumulated];
-            if (_is_end_of_line(current_character)) {
-                if (_is_last_chunk(chunk_size)) {
-                    *can_be_parsed = true;
-                }
-                std::string line = _accumulator.substr(0, _accumulator.size() - 1); // -1 \r that has been appended, we don't want it to passed
-                *bytes_accumulated += 1; // skipping \n
-                _accumulator.resize(0);
-                return line;
-            }
-            if (isascii(current_character)) {
-                _accumulator.append(1, current_character);
-                *bytes_accumulated += 1;
-                RequestReader::_length_counter++;
-            }
-            else {
-                throw Exception::RequestException(HTTPResponse::BadRequest);
+//     std::string RequestReader::decode_chunked(char* buffer, size_t bytes_read, size_t* bytes_accumulated, bool* end_of_decoded_body) { // pointer to the buffer as we need to keep track of it
+//         while (*bytes_accumulated != bytes_read)
+//         {
+//             bool can_be_decoded = false;
+//             if (_chunk_size == INT_MAX) {
+//                 std::string line = read_line(buffer, bytes_read, bytes_accumulated, &can_be_decoded);
+//             }
+//             if (can_be_decoded == true) {
+//                 if (_is_last_chunk(chunk_size)) {
+//                     *end_of_decoded_body = true;
+//                 }
+//                 std::string line = _accumulator.substr(0, _accumulator.size() - 1); // -1 \r that has been appended, we don't want it to passed
+//                 *bytes_accumulated += 1; // skipping \n
+//                 _accumulator.resize(0);
+//                 return line;
+//             }
+//             if (isascii(current_character)) {
+//                 _accumulator.append(1, current_character);
+//                 *bytes_accumulated += 1;
+//                 RequestReader::_length_counter++;
+//             }
+//             else {
+//                 throw Exception::RequestException(HTTPResponse::BadRequest);
+// 
+//             }
+//         }
+//         return _accumulator;
+//     }
 
-            }
-        }
-        return _accumulator;
-    }
 
-    bool RequestReader::_is_last_chunk(size_t chunk_size) {
-        return chunk_size == 0;
-    }
 }
+

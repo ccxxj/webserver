@@ -1,11 +1,13 @@
 #include "RequestParser.hpp"
 #include <algorithm> // for std::distance
+#include <utility> // for std::make_pair
 #include <cstdlib> // for atoi
 #include <cctype> // for ::toupper
 
+#include "HTTPRequestMethods.hpp"
 #include "../HTTP/Exceptions/RequestException.hpp"
 #include "../Utility/Utility.hpp"
-#include "HTTPRequestMethods.hpp"
+#include "../Constants.hpp"
 
 
 namespace HTTPRequest {
@@ -13,7 +15,8 @@ namespace HTTPRequest {
     RequestParser::Dispatch RequestParser::_dispatch_table[] = {
         {REQUEST_LINE, &RequestParser::_parse_request_line},
         {HEADER, &RequestParser::_parse_header},
-        {MESSAGE_BODY, &RequestParser::_parse_message_body},
+        {PAYLOAD, &RequestParser::_parse_payload},
+        {CHUNKED_PAYLOAD, &RequestParser::_decode_chunked},
         {FINISHED, NULL}
     };
 
@@ -27,35 +30,34 @@ namespace HTTPRequest {
     void RequestParser::parse_HTTP_request(char* buffer, size_t bytes_read) {
         size_t content_length = 0;
         size_t bytes_accumulated = 0;
-        size_t chunk_size = -1;
         while (bytes_accumulated != bytes_read || _current_parsing_state != FINISHED)
         {
             bool can_be_parsed = false;
             std::string line;
-            if (_current_parsing_state == MESSAGE_BODY && _message_body_length == CHUNKED) {
-                line = _request_reader.decode_chunked(buffer, chunk_size, bytes_read, &bytes_accumulated, &can_be_parsed);
-            }
-            else {
+            // if (_current_parsing_state == PAYLOAD && _payload_length == CHUNKED) {
+            //     line = _request_reader.decode_chunked(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
+            // }
+            // else {
                 line = _request_reader.read_line(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
-            }
+            // }
             // this check stops parsing of the requests with empty body messages
-            if (_current_parsing_state == MESSAGE_BODY && line.size() == content_length) {
+            if (_current_parsing_state == PAYLOAD && line.size() == content_length) {
                 can_be_parsed = true;
             }
             // if the buffer is read and the request is complete( means the reader reached end of line for request line or header or read message body or message body size == 0)
             if (can_be_parsed == true) {
                 _handle_request_message_part(line);
-                if (_current_parsing_state == MESSAGE_BODY) {
+                if (_current_parsing_state == PAYLOAD) {
                     _define_message_body_length();
-                    if (_message_body_length == CONTENT_LENGTH) {
+                    if (_payload_length == CONTENT_LENGTH) {
                         content_length = _set_content_length();
                     }
-                    else if (_message_body_length == CHUNKED) {
-                        // TODO: doing st here or in _define_message_body_length() ?
-                    }
-                    else {
-                        _throw_request_exception(HTTPResponse::LengthRequired); // there is no possibility to define the message body without length or chunked encoding
-                    }
+                    // else if (_payload_length == CHUNKED) {
+                    //     // TODO: doing st here or in _define_message_body_length() ?
+                    // }
+                    // else {
+                    //     _throw_request_exception(HTTPResponse::LengthRequired); // there is no possibility to define the message body without length or chunked encoding
+                    // }
                     //TODO: validate request line
                     //TODO: validate headers
                 }
@@ -151,7 +153,7 @@ namespace HTTPRequest {
 
     void RequestParser::_parse_header(std::string& line) {
         if (line == "\r\n" || line == "") {
-            _current_parsing_state = MESSAGE_BODY;
+            _current_parsing_state = PAYLOAD;
             return;
         }
         std::vector<std::string> segments = Utility::_split_line(line, ':');
@@ -175,18 +177,22 @@ namespace HTTPRequest {
         std::map<std::string, std::string>::iterator content_length_iter = headers_map.find("CONTENT_LENGTH");
         if (content_length_iter != headers_map.end()) { // if headers contain Content-Length
             if (transfer_encoding_iter == headers_map.end()) { // and headers don't contain Transfer-Encoding
-                _message_body_length = CONTENT_LENGTH;
+                _payload_length = CONTENT_LENGTH;
             }
             else {
                 _parse_transfer_encoding(transfer_encoding_iter->second);
-                if (_message_body_length == CHUNKED) {
-                    _delete_obolete_content_length_header(); // if chunked is present Transfer-Encoding  overrides the Content-Length
+                if (_payload_length == CHUNKED) {
+                    _delete_obolete_content_length_header(); // TODO:: probably won't need this function // if chunked is present Transfer-Encoding  overrides the Content-Length
+                    _current_parsing_state = CHUNKED_PAYLOAD;
+                    _chunk_size = INT_MAX;
+                    _decoded_body_length = 0;
+                    _decoded_body = "";
                 }
             }
         }
         else if (transfer_encoding_iter != headers_map.end()) { // if headers contain Transfer-Encoding without Content-length
             _parse_transfer_encoding(transfer_encoding_iter->second);
-            if (_message_body_length != CHUNKED) { // TODO: does this check stay here or moves to the parse_HTTP_request()?
+            if (_payload_length != CHUNKED) { // TODO: does this check stay here or moves to the parse_HTTP_request()?
                 _throw_request_exception(HTTPResponse::LengthRequired);
             }
         }
@@ -205,11 +211,11 @@ namespace HTTPRequest {
         ssize_t chunked_position = _find_chunked_encoding_position(encodings, encodings_num);
         if (chunked_position == - 1) {
             std::cout << "Chunked not found\n"; //TODO:: what to do in this case?
-            _message_body_length = NOT_FOUND;
+            _payload_length = NOT_FOUND;
         }
         else if (chunked_position == encodings_num - 1) {
             std::cout << "Will be handling chunks here\n";
-            _message_body_length = CHUNKED;
+            _payload_length = CHUNKED;
         }
         else {
             _throw_request_exception(HTTPResponse::BadRequest);
@@ -229,8 +235,78 @@ namespace HTTPRequest {
         _http_request_message->get_headers().erase("CONTENT_LENGTH");
     }
 
-    void RequestParser::_parse_message_body(std::string& line) {
-        _http_request_message->set_message_body(line);
+    void RequestParser::_parse_payload(std::string& line) {
+        _http_request_message->set_payload(line);
         _current_parsing_state = FINISHED;
     }
+
+    void RequestParser::_decode_chunked(std::string& line) {
+        if (_chunk_size == INT_MAX) { // it means we're dealing with the line defining the chunk_length
+            _set_chunk_size(line);
+            // TODO: should also read chunk extension
+        }
+        else {
+            if (_chunk_size == 0) {
+                // TODO: read_trailer_field() and add them to the headers;
+                _assign_decoded_body_length_to_content_length();
+                //TODO:: remove chunked from transfer encoding
+                _parse_payload(_decoded_body);
+            }
+            else {
+                _decoded_body.append(line); // in this case we're dealing with the payload data
+                _decoded_body_length += _chunk_size;
+                _chunk_size = INT_MAX; // after handling the data we have to make sure we set the new chunk_size in the next iteration
+            }
+        }
+    }
+
+    bool RequestParser::_is_last_chunk(size_t chunk_size) {
+        return chunk_size == 0;
+    }
+
+    void RequestParser::_assign_decoded_body_length_to_content_length() {
+        std::map<std::string, std::string> headers_map = _http_request_message->get_headers();
+        const std::string content_length_header_name = "CONTENT_LENGTH";
+        const std::string content_length_value = Utility::to_string(_decoded_body_length);
+        std::map<std::string, std::string>::iterator content_length_iter = headers_map.find(content_length_header_name);
+        if (content_length_iter != headers_map.end()) {
+            std::pair<std::string, std::string> header_field(content_length_header_name, content_length_value);
+            _http_request_message->set_header_field(header_field);
+        }
+        else {
+            content_length_iter->second = content_length_value;
+        }
+    }
+
+    void RequestParser::_set_chunk_size(std::string& line) {
+        std::string extracted_number = Utility::get_number_in_string(line);
+        if (extracted_number != "") {
+            _chunk_size = atoi(extracted_number.c_str());
+            if (_chunk_size < Constants::PAYLOAD_MAX_LENGTH) {
+                _throw_request_exception(HTTPResponse::BadRequest);
+            }
+        }
+        else {
+            _throw_request_exception(HTTPResponse::BadRequest);
+        }
+    }
 }
+
+//   length := 0
+//      read chunk-size, chunk-ext (if any), and CRLF
+//      while (chunk-size > 0) {
+//         read chunk-data and CRLF
+//         append chunk-data to decoded-body
+//         length := length + chunk-size
+//         read chunk-size, chunk-ext (if any), and CRLF
+//      }
+//      read trailer field
+//      while (trailer field is not empty) {
+//         if (trailer field is allowed to be sent in a trailer) {
+//             append trailer field to existing header fields
+//         }
+//         read trailer-field
+//      }
+//      Content-Length := length
+//      Remove "chunked" from Transfer-Encoding
+//      Remove Trailer from existing header fields
