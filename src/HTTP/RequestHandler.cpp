@@ -72,6 +72,8 @@ namespace HTTP {
 		if(location)
 			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;
 		response_handler.set_config_rules(virtual_server, location);
+		if(response_handler.handle_cgi() == 1)
+			return;
 		response_handler.create_http_response(); //FROM here, it's moving to ResponseHandler
 	}
 

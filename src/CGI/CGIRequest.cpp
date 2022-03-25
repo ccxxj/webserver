@@ -43,8 +43,8 @@ CGIRequest::~CGIRequest(){
 	}
 }
 
-// void CGIRequest::parse_meta_variables(HTTPRequest::RequestMessage &request_message, Config::ConfigData &config_data)
-void CGIRequest::parse_meta_variables(void)
+void CGIRequest::parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config)
+// void CGIRequest::parse_meta_variables(void)
 {
 	//check with Olga to map to the request message class
 	//TODO this need to be updated to the actual env variable, for now I am setting up myself for the basic to run cgi
@@ -52,10 +52,10 @@ void CGIRequest::parse_meta_variables(void)
 	_meta_variables["REQUEST_METHOD"] = "GET";
 
 //actual data
-	// _meta_variables["AUTH_TYPE"] = request_message.get_header_value("AUTHORIZATION");
-	// _meta_variables["CONTENT_LENGTH"] = request_message.get_header_value("CONTENT_LENGTH");
-	// _meta_variables["CONTENT_TYPE"] = request_message.get_header_value("CONTENT_TYPE");
-	// _meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
+	_meta_variables["AUTH_TYPE"] = _http_request_message->get_header_value("AUTHORIZATION");
+	_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
+	_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
+	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
 	// _meta_variables["PATH_INFO"]; //portion of uri, the segment after identify the script itself (run DECODE!!). (cgi/more => /more). can be void
 	// _meta_variables["PATH_TRANSLATED"]; // if path_info is null, path_translated is null. otherwise: root + path_info
 	// _meta_variables["QUERY_STRING"];//from uri query string map. TODO check if the key is set, is the default value null?
@@ -97,7 +97,7 @@ void CGIRequest::search_cgi(std::string uri)
 	int position_path_info, position_cgi;
 	while(it != _cgi_extension.end()){
 		position_cgi = uri.find(*it);
-		if( position_cgi != std::string::npos){
+		if( position_cgi != (int)std::string::npos){
 			position_path_info = position_cgi + (*it).length();
 			int len = uri.length() - position_path_info;
 			if((*it)[position_path_info] == '/' && len > 0)
@@ -110,10 +110,10 @@ void CGIRequest::search_cgi(std::string uri)
 	_search_cgi_extension = false;
 }
 
-int CGIRequest::execute_cgi()
+int CGIRequest::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config)
 {
 	// search_cgi("/cgi_tester/./");
-	search_cgi("/hello_complex.py/./");
+	search_cgi("/cgi_tester/./");
 	// std::cout << "the result of search: " << _search_cgi_extension << std::endl;
 	if(_search_cgi_extension == false) //input need to change to uri
 		return 0;
@@ -123,7 +123,7 @@ int CGIRequest::execute_cgi()
 	}
 	pid_t pid;
 	set_argument("hello_complex.py");
-	parse_meta_variables();
+	parse_meta_variables(_http_request_message, _config);
 	set_envp();
 	pid = fork();
 	if(pid == (pid_t)0){

@@ -8,6 +8,7 @@
 #include "../Utility/File.hpp"
 #include "ResponseMessage.hpp"
 #include "SpecifiedConfig.hpp"
+#include "../CGI/CGIRequest.hpp"
 
 namespace HTTPResponse
 {
@@ -18,6 +19,7 @@ namespace HTTPResponse
 		ResponseMessage *_http_response_message;
 		SpecifiedConfig _config;
 		Utility::File _file;
+		CGIRequest _cgi_handler;
 
 		bool _verify_method(const std::vector<std::string> methods);
 		const std::string& _create_allowed_methods_line(const std::vector<std::string> methods);
@@ -34,6 +36,7 @@ namespace HTTPResponse
 
 		void create_http_response();
 		void handle_error(HTTPResponse::StatusCode code);
+		int handle_cgi();
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
 	};
 }

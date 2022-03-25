@@ -209,4 +209,9 @@ namespace HTTPResponse {
 			_config.set_return_value(location->get_return()); //FIXME move this text somewhere in create response.  
 		}		
 	}
+
+	int ResponseHandler::handle_cgi()
+	{
+		return _cgi_handler.execute_cgi(_http_request_message, _config);
+	}
 }

@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-// #include "../HTTPRequest/RequestMessage.cpp"
-// #include "../config/ConfigData.cpp"
+#include "../HTTPRequest/RequestMessage.hpp"
+#include "../HTTPResponse/SpecifiedConfig.hpp"
 
 class CGIRequest
 {
@@ -22,11 +22,11 @@ public:
 	CGIRequest();
 	~CGIRequest();
 	// void parse_meta_variables(HTTPRequest::RequestMessage request_message);//TODO update later
-	// void parse_meta_variables(HTTPRequest::RequestMessage &request_message, Config::ConfigData &config_data);
+	void parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config);
 	void search_cgi(std::string uri);
-	void parse_meta_variables(void);
+	// void parse_meta_variables(void);
 	void set_envp(void);
 	void set_argument(std::string cgi_path);
 	// char **get_argument();
-	int execute_cgi();
+	int execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config);
 };
