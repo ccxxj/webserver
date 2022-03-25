@@ -271,8 +271,10 @@ namespace HTTPRequest {
     void RequestParser::_set_chunk_size(std::string& line) {
         std::string extracted_number = Utility::get_number_in_string(line);
         if (extracted_number != "") {
-            _chunk_size = atoi(extracted_number.c_str());
-            if (_chunk_size < Constants::PAYLOAD_MAX_LENGTH) {
+            std::stringstream ss;
+            ss << std::hex << extracted_number;
+            ss >> _chunk_size;
+            if (_chunk_size > Constants::PAYLOAD_MAX_LENGTH) {
                 _throw_request_exception(HTTPResponse::BadRequest);
             }
         }
