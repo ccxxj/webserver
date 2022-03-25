@@ -1,6 +1,6 @@
 #include "Webserver.hpp"
 #include "./Utility/Utility.hpp"
-#include "globals.hpp"
+#include "Constants.hpp"
 
 Webserver::Webserver(std::string file_path): _file_path(file_path)
 {

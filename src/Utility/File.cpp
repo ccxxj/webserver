@@ -1,6 +1,6 @@
 #include "File.hpp"
 #include "../Utility/Utility.hpp"
-#include "../globals.hpp"
+#include "../Constants.hpp"
 
 #include <sys/stat.h> //for stat that retrives information about a file
 #include <dirent.h> // for dir functions
