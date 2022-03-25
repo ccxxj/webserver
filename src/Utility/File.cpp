@@ -60,14 +60,16 @@ namespace Utility
 		return S_ISDIR(buffer.st_mode);
 	}
 
-	const std::string & File::list_directory(void) { //TODO if you want more add last modified and size option to html
+	const std::string & File::list_directory(void) { 
 		DIR *dir_p;
 		struct dirent *entry;
 		std::string	tmp;
 
 		dir_p = opendir(_path.c_str());
-		if (!dir_p)
+		if (!dir_p) {
+			Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
 			return _dir;
+		}
 		_dir += "<html>\r\n<h2>" + _path + "</h2><ul>";
 		while ((entry = readdir(dir_p))) {
 			// tmp = _path + "/" + entry->d_name;
@@ -92,8 +94,10 @@ namespace Utility
 		std::string	index = "index.html";
 
 		dir_p = opendir(_path.c_str());
-		if (!dir_p)
+		if (!dir_p) {
+			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 			return false;
+		}
 		while ((entry = readdir(dir_p))) {
 			if (entry->d_name == index) {
 				_index_page = std::string(entry->d_name);
@@ -110,11 +114,15 @@ namespace Utility
   		int ret;
 
 		int fd = open(str.c_str(), O_RDONLY);
-		if (fd == -1)
+		if (fd == -1) {
+			Utility::logger("DEBUG open : " + std::string(strerror(errno)) , RED);
 			return "";
+		}
 		while ((ret = read(fd, buf, 4096)) != 0) {
-			if (ret == -1)
+			if (ret == -1) {
+				Utility::logger("DEBUG read : " + std::string(strerror(errno)), RED);
 				return "";
+			}
 			buf[ret] = '\0';
 			file_content.insert(file_content.length(), buf, ret);
 		}
@@ -122,14 +130,15 @@ namespace Utility
 	}
 
 	bool File::un_link(const std::string &str) {
-		if (unlink(str.c_str()) == -1)
+		if (unlink(str.c_str()) == -1) {
+			Utility::logger("DEBUG unlink : " + std::string(strerror(errno)), RED);
 			return false;
+		}
 		return true;
 	}
 
 	bool File::create_dir() {
-		if (mkdir(_path.c_str(), 0755) == -1)
-		{
+		if (mkdir(_path.c_str(), 0755) == -1) {
 			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 			return false;
 		}
@@ -141,8 +150,10 @@ namespace Utility
 		struct dirent *entry;
 		int i = 0;
 		DIR *dir_p = opendir(_path.c_str());
-		if (!dir_p)
+		if (!dir_p) {
+			Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
 			return false;
+		}
 		while ((entry = readdir(dir_p))) {
 			i++;
 		}
@@ -152,7 +163,6 @@ namespace Utility
 		int fd = open((_path + "/file" + Utility::to_string(i - 1)).c_str(), O_CREAT | O_RDWR | O_TRUNC, 00755);
 		if (str.length() &&  write(fd, str.c_str(), str.length()) <= 0) // write the request body to the file
 			return false;
-		//Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 		return true;
 	}
 
