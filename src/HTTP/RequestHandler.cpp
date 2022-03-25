@@ -6,7 +6,7 @@
 
 #include "Exceptions/RequestException.hpp"
 #include "../Utility/Utility.hpp"
-#include "../globals.hpp"
+#include "../Constants.hpp"
 
 namespace HTTP {
 	RequestHandler::RequestHandler(RequestHandlerDelegate& delegate, Config::ConfigData *config_data, ListenInfo& listen_info)

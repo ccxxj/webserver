@@ -18,7 +18,7 @@
 #endif
 
 #include "RequestHandler.hpp"
-#include "../globals.hpp"
+#include "../Constants.hpp"
 
 namespace HTTP {
 
