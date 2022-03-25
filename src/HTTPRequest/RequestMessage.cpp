@@ -1,7 +1,7 @@
 #include "RequestMessage.hpp"
 
 namespace HTTPRequest {
-    RequestMessage::RequestMessage() : _method(""), _request_uri(""), _HTTP_version(""), _message_body(""){}
+    RequestMessage::RequestMessage() : _method(""), _request_uri(""), _HTTP_version(""), _payload(""){}
 
     RequestMessage::~RequestMessage() {}
 
@@ -48,11 +48,11 @@ namespace HTTPRequest {
     }
 
     const std::string& RequestMessage::get_message_body() const {
-        return _message_body;
+        return _payload;
     }
 
-    void RequestMessage::set_message_body(std::string& body) {
-        _message_body = body;
+    void RequestMessage::set_payload(std::string& body) {
+        _payload = body;
     }
 
     void RequestMessage::set_uri(URIData &uri)

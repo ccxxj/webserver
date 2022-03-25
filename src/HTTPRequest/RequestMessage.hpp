@@ -14,7 +14,7 @@ namespace HTTPRequest {
         URIData uri_data;
         std::string _HTTP_version;
         std::map<std::string, std::string> _request_headers;
-        std::string _message_body;
+        std::string _payload;
 
     public:
         RequestMessage();
@@ -33,7 +33,7 @@ namespace HTTPRequest {
         const std::string& get_header_value(const std::string& header_name) const;
         void set_header_field(std::pair<std::string, std::string>& header_field);
         const std::string& get_message_body() const;
-        void set_message_body(std::string& body);
+        void set_payload(std::string& body);
 
         //debug
         std::map<std::string, std::string> get_headers() const; //TODO;; temp?

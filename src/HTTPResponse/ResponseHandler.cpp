@@ -1,6 +1,6 @@
 #include "ResponseHandler.hpp"
 #include "../Utility/Utility.hpp"
-#include "../globals.hpp"
+#include "../Constants.hpp"
 
 #include <sstream> // for converting int to string
 
@@ -126,7 +126,7 @@ namespace HTTPResponse {
 		
 		// generate error page
 		_http_response_message->set_header_element("Content-Type", "text/html");
-		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
+		_http_response_message->set_payload(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
 								+ "<hr><center> HungerWeb 1.0 </center>\r\n"
