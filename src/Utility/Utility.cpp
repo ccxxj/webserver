@@ -146,11 +146,16 @@ namespace Utility
 	}
 
     std::string get_number_in_string(std::string& line) {
-        size_t non_number_position = line.find_first_not_of("0123456789");
+        if (line == "") {
+            return "";
+        }
+        size_t non_number_position = line.find_first_not_of("0123456789", 0);
         if (non_number_position != std::string::npos) {
             return line.substr(0, non_number_position);
         }
-        return "";
+        else {
+            return line.substr(0, line.size());
+        }
     }
 
     void logger(std::string str, std::string color)
