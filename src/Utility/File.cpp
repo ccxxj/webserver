@@ -12,6 +12,7 @@
 //stat path check: relative to the current working directory of the calling process
 namespace Utility
 {
+	MimeTypes File::_mimes;
 
 	File::File(/* args */)
 	{
@@ -177,6 +178,10 @@ namespace Utility
 		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
 		std::string ret_val(buf);
 		return ret_val;
+	}
+
+	std::string File::get_mime_type() {
+		return _mimes.get_mime_type(_path);
 	}
 
 	void File::set_index_page(const std::string &str) {

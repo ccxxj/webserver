@@ -3,6 +3,8 @@
 #include <iostream>
 #include <vector>
 
+#include "MimeTypes.hpp"
+
 namespace Utility
 {
 	class File
@@ -12,6 +14,7 @@ namespace Utility
 		std::string _target;
 		std::string _dir;
 		std::string _index_page;
+		static MimeTypes _mimes;
 
 	public:
 		File(/* args */);
@@ -34,6 +37,7 @@ namespace Utility
 		bool create_random_named_file_put_msg_body_in(const std::string &str);
 		std::string last_modified_info(const std::string &path);
 		std::string last_modified_info();
+		std::string get_mime_type();
 	};
 
 }
