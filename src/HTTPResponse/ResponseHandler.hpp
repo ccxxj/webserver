@@ -36,7 +36,7 @@ namespace HTTPResponse
 
 		void create_http_response();
 		void handle_error(HTTPResponse::StatusCode code);
-		int handle_cgi();
+		int handle_cgi(int fd);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
 	};
 }

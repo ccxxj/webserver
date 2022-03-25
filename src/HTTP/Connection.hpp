@@ -29,6 +29,7 @@ namespace HTTP {
 		bool is_connection_open() const;
 		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(const void *buffer, size_t buffer_size);
+		virtual int get_fd();
 		virtual void close();
 	};
 }

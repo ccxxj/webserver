@@ -116,13 +116,15 @@ namespace HTTP {
 	void Server::_handle_events() {
 		int sock_kqueue = kqueue(); //creates a new kernel event queue and returns a descriptor.
 		if (sock_kqueue < 0) {
-			std::cout << "Error creating kqueue. errno: " << errno << std::endl;
+			std::cerr << "Error creating kqueue. errno: " << errno << std::endl;
 			std::exit(EXIT_FAILURE);
 		}
 		struct kevent kev[10], event_fds[10]; // kernel event
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
 			EV_SET(kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
+			// EV_SET(kev,	_listening_sockfds[i], EVFILT_VNODE, EV_ADD | EV_CLEAR, 0	,0,0);
 			if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
+				std::cerr << "caused by EV_SET\n";
 				std::perror("kevent");
 				std::exit(1);
 			}
@@ -133,8 +135,9 @@ namespace HTTP {
 			timeout.tv_nsec = 0;
 			int new_events = kevent(sock_kqueue, NULL, 0, event_fds, 1, &timeout); //look out for events and register to event list; one event per time
 			if(new_events == -1) {
+				std::cerr << "it is caused by new events register failure \n";
 				std::perror("kevent");
-				std::exit(1);
+				exit(1);
 			}
 			// if no new events are appearing within the timeout the server is closing all the connections
 			//TODO: might be replaced by the kevent timeout filter which will be checking not only incoming but outcoming connections as well (what if the server is sending a large video file, so there is no incoming data but we srtill cannot close the connection)

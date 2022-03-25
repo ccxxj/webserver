@@ -28,5 +28,5 @@ public:
 	void set_envp(void);
 	void set_argument(std::string cgi_path);
 	// char **get_argument();
-	int execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config);
+	int execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config, int fd);
 };

@@ -2,6 +2,10 @@
 
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 
 CGIRequest::CGIRequest(){
 //initialize the meta_variable map
@@ -35,12 +39,12 @@ CGIRequest::CGIRequest(){
 
 CGIRequest::~CGIRequest(){
 //free all the _envp[21] (cuz I used strdup for every elements)
-	if(_search_cgi_extension){
-		for(int i = 0; i < 20; i++){
-			if(_envp[i])
-				free(_envp[i]);
-		}
-	}
+	// if(_search_cgi_extension){
+	// 	for(int i = 0; i < 20; i++){
+	// 		if(_envp[i])
+	// 			free(_envp[i]);
+	// 	}
+	// }
 }
 
 void CGIRequest::parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config)
@@ -110,38 +114,69 @@ void CGIRequest::search_cgi(std::string uri)
 	_search_cgi_extension = false;
 }
 
-int CGIRequest::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config)
+int CGIRequest::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config, int fd)
 {
 	// search_cgi("/cgi_tester/./");
-	search_cgi("/cgi_tester/./");
+	search_cgi("/first.cgi/./");
+	int fd2 = open("test", O_WRONLY|O_CREAT|O_TRUNC, 755);
+	if(fd2 < 0)
+		std::cout << "open fail\n";
 	// std::cout << "the result of search: " << _search_cgi_extension << std::endl;
 	if(_search_cgi_extension == false) //input need to change to uri
 		return 0;
-	int fd[2];
-	if (pipe(fd)){
-		std::cout << "pipe failed\n"; //TODO decide exception to throw later
-	}
 	pid_t pid;
-	set_argument("hello_complex.py");
+	set_argument("first.cgi");
 	parse_meta_variables(_http_request_message, _config);
 	set_envp();
 	pid = fork();
-	if(pid == (pid_t)0){
-		dup2(fd[1], 1);
-		close(fd[0]);
+	if(pid == 0){
+		if(dup2(fd2, 1) == -1)
+			std::cout << "dup fail\n";
+		std::cout << "child process \n";
 		if(execve(_argument[0], _argument, _envp) == -1)
 			return -1;
+		std::cerr << "WHY AM I HERE?\n";
 	}
 	else if(pid < (pid_t)0){
 		std::cout << "fork failed\n"; //TODO decide exception to throw later
 		return -1;
 	}
 	else{
-		close(fd[1]);
+		wait(0);
 		char buf[4086];
-		read(fd[0], buf, sizeof(buf));//TODO find a better function
+		read(fd2, buf, sizeof(buf));//TODO find a better function
 		//the buf need to goes into response
 		std::cout << buf << "\n";
 	}
+	// int fd[2];
+	// if (pipe(fd)){
+	// 	std::cout << "pipe failed\n"; //TODO decide exception to throw later
+	// }
+	// pid_t pid;
+	// set_argument("cgi_tester");
+	// parse_meta_variables(_http_request_message, _config);
+	// set_envp();
+	// pid = fork();
+	// if(pid == 0){
+	// 	std::cout  << "fd0: " << fd[1] << "fd0: " << fd[0] << " child process \n";
+	// 	dup2(fd[1], 1);
+	// 	close(fd[0]);
+	// 	std::cout << "child process \n";
+	// 	if(execve(_argument[0], _argument, _envp) == -1)
+	// 		return -1;
+	// }
+	// else if(pid < (pid_t)0){
+	// 	std::cout << "fork failed\n"; //TODO decide exception to throw later
+	// 	return -1;
+	// }
+	// else{
+	// 	wait(0);
+	// 	close(fd[1]);
+	// 	char buf[4086];
+	// 	read(fd[0], buf, sizeof(buf));//TODO find a better function
+	// 	//the buf need to goes into response
+	// 	std::cout << buf << "\n";
+	// }
+	close(fd2);
 	return 1;
 }

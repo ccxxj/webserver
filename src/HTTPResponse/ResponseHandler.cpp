@@ -210,8 +210,8 @@ namespace HTTPResponse {
 		}		
 	}
 
-	int ResponseHandler::handle_cgi()
+	int ResponseHandler::handle_cgi(int fd)
 	{
-		return _cgi_handler.execute_cgi(_http_request_message, _config);
+		return _cgi_handler.execute_cgi(_http_request_message, _config, fd);
 	}
 }

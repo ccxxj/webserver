@@ -10,6 +10,7 @@ namespace HTTP {
 
 		virtual size_t receive(char *buffer, size_t buffer_size) = 0;
 		virtual void send(const void *buffer, size_t buffer_size) = 0;
+		virtual int get_fd() = 0;
 		virtual void close() = 0;
 	};
 }
