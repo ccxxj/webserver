@@ -3,6 +3,7 @@
 #include <utility> // for std::make_pair
 #include <cstdlib> // for atoi
 #include <cctype> // for ::toupper
+#include  <climits> // for INT_MAX
 
 #include "HTTPRequestMethods.hpp"
 #include "../HTTP/Exceptions/RequestException.hpp"
