@@ -35,13 +35,7 @@ namespace HTTPRequest {
         {
             bool can_be_parsed = false;
             std::string line;
-            // if (_current_parsing_state == PAYLOAD && _payload_length == CHUNKED) {
-            //     line = _request_reader.decode_chunked(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
-            // }
-            // else {
-                line = _request_reader.read_line(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
-            // }
-            // this check stops parsing of the requests with empty body messages
+            line = _request_reader.read_line(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
             if (_current_parsing_state == PAYLOAD && line.size() == content_length) {
                 can_be_parsed = true;
             }
@@ -53,12 +47,6 @@ namespace HTTPRequest {
                     if (_payload_length == CONTENT_LENGTH) {
                         content_length = _set_content_length();
                     }
-                    // else if (_payload_length == CHUNKED) {
-                    //     // TODO: doing st here or in _define_message_body_length() ?
-                    // }
-                    // else {
-                    //     _throw_request_exception(HTTPResponse::LengthRequired); // there is no possibility to define the message body without length or chunked encoding
-                    // }
                     //TODO: validate request line
                     //TODO: validate headers
                 }
@@ -193,7 +181,7 @@ namespace HTTPRequest {
         }
         else if (transfer_encoding_iter != headers_map.end()) { // if headers contain Transfer-Encoding without Content-length
             _parse_transfer_encoding(transfer_encoding_iter->second);
-            if (_payload_length != CHUNKED) { // TODO: does this check stay here or moves to the parse_HTTP_request()?
+            if (_payload_length != CHUNKED) {
                 _throw_request_exception(HTTPResponse::LengthRequired);
             }
         }
@@ -251,6 +239,7 @@ namespace HTTPRequest {
                 // TODO: read_trailer_field() and add them to the headers;
                 _assign_decoded_body_length_to_content_length();
                 //TODO:: remove chunked from transfer encoding
+                //TODO:: Remove Trailer from existing header fields
                 _parse_payload(_decoded_body);
             }
             else {
@@ -292,22 +281,3 @@ namespace HTTPRequest {
         }
     }
 }
-
-//   length := 0
-//      read chunk-size, chunk-ext (if any), and CRLF
-//      while (chunk-size > 0) {
-//         read chunk-data and CRLF
-//         append chunk-data to decoded-body
-//         length := length + chunk-size
-//         read chunk-size, chunk-ext (if any), and CRLF
-//      }
-//      read trailer field
-//      while (trailer field is not empty) {
-//         if (trailer field is allowed to be sent in a trailer) {
-//             append trailer field to existing header fields
-//         }
-//         read trailer-field
-//      }
-//      Content-Length := length
-//      Remove "chunked" from Transfer-Encoding
-//      Remove Trailer from existing header fields

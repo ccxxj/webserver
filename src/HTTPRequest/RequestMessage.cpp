@@ -31,7 +31,6 @@ namespace HTTPRequest {
         return (*_request_headers.find(header_name)).second;
     }
 
-//debug
     std::map<std::string, std::string> RequestMessage::get_headers() const {
         return _request_headers;
     }

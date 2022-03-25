@@ -20,6 +20,5 @@ namespace HTTPRequest {
 		~RequestReader();
 
 		std::string read_line(char* buffer, size_t bytes_read, size_t* bytes_accumulated, bool* can_be_parsed);
-		// std::string decode_chunked(char* buffer, size_t bytes_read, size_t* bytes_accumulated, bool* can_be_parsed);
 	};
 }
