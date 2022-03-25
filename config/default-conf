@@ -41,35 +41,34 @@ server {
 	}
 }
 
-server {
-	listen 2000;
-	listen 1000;
-	server_name irem;
+# server {
+# 	listen 2000;
+# 	listen 1000;
+# 	server_name irem;
 
-	client_max_body_size 2;
+# 	client_max_body_size 2;
 
-	root  www;
+# 	root  www;
 
-	location /wordpress/ {
-		root  www;
-		error_page 301 /custom-301.html;
-		autoindex on;
-		limit_except POST {
-			deny all;
-		}
-		return 301 https://localhost;
-	}
+# 	location /wordpress/ {
+# 		root  www;
+# 		error_page 301 /custom-301.html;
+# 		autoindex on;
+# 		limit_except POST {
+# 			deny all;
+# 		}
+# 		return 301 https://localhost;
+# 	}
 
-	location /myyy_route/ {
-		autoindex off;
-		error_page 301 /custom-301.html; #put them in the root!
-		return 301 https://localhost;
-	}
+# 	location /myyy_route/ {
+# 		autoindex off;
+# 		error_page 301 /custom-301.html; #put them in the root!
+# 		return 301 https://localhost;
+# 	}
 
-	location /whatssssup/ {
-		root www;
-		autoindex on;
-		return 505 https://$server_name$request_uri;
-	}
-
-}
+# 	location /whatssssup/ {
+# 		root www;
+# 		autoindex on;
+# 		return 505 https://$server_name$request_uri;
+# 	}
+# }
