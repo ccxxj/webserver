@@ -60,7 +60,7 @@ namespace Utility
 		return S_ISDIR(buffer.st_mode);
 	}
 
-	const std::string & File::list_directory(void) { 
+	const std::string & File::list_directory(void) {
 		DIR *dir_p;
 		struct dirent *entry;
 		std::string	tmp;
@@ -72,9 +72,9 @@ namespace Utility
 		}
 		_dir += "<html>\r\n<h2>" + _path + "</h2><ul>";
 		while ((entry = readdir(dir_p))) {
-			// tmp = _path + "/" + entry->d_name;
-			// _dir += "<li><a href=\"";
-			// _dir += tmp + "\">"; //TODO do we need to add links to files?
+			tmp = _path + "/" + entry->d_name;
+			_dir += "<li><a href=\"";
+			_dir += tmp + "\">"; //TODO do we need to add links to files?
 			_dir += "<li><a>";
 			if (entry->d_type == DT_DIR)
 				_dir += "Dir  : ";
