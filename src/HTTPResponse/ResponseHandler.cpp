@@ -47,7 +47,7 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_handle_methods(void) {
-
+		
 
 		if (_http_request_message->get_method() == "DELETE")
 			_delete_file();
@@ -107,7 +107,7 @@ namespace HTTPResponse {
 			return (handle_error(Forbidden));
 
 		//set necessary headers
-		//_http_response_message->set_header_element("Content-Type", file.get_mime_type());
+		_http_response_message->set_header_element("Content-Type", _file.get_mime_type());
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
@@ -115,8 +115,7 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_upload_file(void) { //POST will upload a new resource
-		//TODO do we check in request parser if POST has no body? = no bad request error is catched
-		//TODO check what nginx does with (target resource == dir && (dir.exists etc.)) || (file && file.exists())
+		//TODO what if post req has no body?
 
 		if (_file.exists()) {
 			if (!_file.is_directory()) //means it's a file and it already exists
@@ -128,7 +127,7 @@ namespace HTTPResponse {
 				_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
 				_http_response_message->set_status_code("200");
 				_http_response_message->set_reason_phrase("OK");
-				// _http_response_message->set_header_element("Location", new path?);
+				// _http_response_message->set_header_element("Location", new path?); 
 			}
 		}
 		if (!_file.exists()) { //means server will create a directory with target resource and also create a file inside to hold info
@@ -258,7 +257,7 @@ namespace HTTPResponse {
 			_config.set_methods_line(location->get_limit_except());
 			_config.set_autoindex(location->get_autoindex());
 			_config.set_route(location->get_route());
-			if (!location->get_root().empty()) // if no root is specified in location, outer level's root is inherited
+			if (!location->get_root().empty())
 				_config.set_root_value(location->get_root());
 			_config.set_return_value(location->get_return());
 		}
@@ -270,7 +269,7 @@ namespace HTTPResponse {
 		tmp += "Response ";
 		tmp += "[Status " + _http_response_message->get_status_code();
 		tmp += " " + _http_response_message->get_reason_phrase() + "]";
-
+ 
 		return tmp;
 	}
 
@@ -281,8 +280,7 @@ namespace HTTPResponse {
 		tmp += "[Method " + _http_request_message->get_method() + "] ";
 		tmp += "[Target " + _file.get_target() + "] ";
 		tmp += "[Server " + Utility::to_string(_config.get_id()) + "] ";
-		if (_config.has_specific_location())
-			tmp += "[Location " + _config.get_route() + "] ";
+		tmp += "[Location " + _config.get_route() + "] ";
 		tmp += "[Root " + _config.get_root() + "] ";
 		tmp += "[Search Path " + _file.get_path() + "] ";
 
