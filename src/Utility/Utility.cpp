@@ -149,7 +149,7 @@ namespace Utility
         if (line == "") {
             return "";
         }
-        size_t non_number_position = line.find_first_not_of("0123456789", 0);
+        size_t non_number_position = line.find_first_not_of("0123456789ABCDEF", 0);
         if (non_number_position != std::string::npos) {
             return line.substr(0, non_number_position);
         }
