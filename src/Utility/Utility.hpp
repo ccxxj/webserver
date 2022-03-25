@@ -21,4 +21,5 @@ namespace Utility {
 	bool is_hyphen(char c);
 	const std::string to_string(const int code);
 	std::string get_formatted_date();
+	void logger(std::string str, std::string color);
 }

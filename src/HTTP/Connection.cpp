@@ -1,5 +1,7 @@
 #include "Connection.hpp"
 #include "../config/ConfigData.hpp"
+#include "../globals.hpp"
+#include "../Utility/Utility.hpp"
 
 #include <string>
 #include <iostream>
@@ -32,16 +34,16 @@ namespace HTTP {
 
 	void Connection::send(const void* buffer, size_t buffer_size) {
 		if (::send(_socket_fd, buffer, buffer_size, 0) < 0) {
-			std::cout << "Send failed. errno: " << errno << std::endl;
+			Utility::logger("Send failed. errno: " + Utility::to_string(errno), RED);
 			this->close();
 		}
 	}
 
 	void Connection::close() {
 		if (::close(_socket_fd) < 0) {
-			std::cout << "Socket closing failed. errno: " << errno << std::endl;
+			Utility::logger("Socket closing failed. errno: "  + Utility::to_string(errno), RED);
 		} else {
-			std::cout << "Socket " << _socket_fd << " is closed." << std::endl; // for debug
+			Utility::logger("Socket " +  Utility::to_string(_socket_fd) + " is closed.", PURPLE); // for debug
 			_is_open = false;
 		}
 	}

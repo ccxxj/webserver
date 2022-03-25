@@ -24,7 +24,13 @@ namespace HTTPResponse
 		bool _check_client_body_size();
 		void _handle_methods(void);
 		void _serve_file(void);
+		void _serve_directory(void);
+		void _serve_found_file(const std::string &str);
+		bool _search_for_index_page();
+		void _delete_file(void);
+		void _upload_file(void);
 		void _build_final_response();
+
 
 	public:
 		ResponseHandler(HTTPRequest::RequestMessage *request_message, ResponseMessage *response_message);
@@ -35,5 +41,7 @@ namespace HTTPResponse
 		void create_http_response();
 		void handle_error(HTTPResponse::StatusCode code);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
+		std::string response_status();
+		std::string request_info();
 	};
 }

@@ -11,7 +11,6 @@ namespace HTTPResponse
 	{
 	private:
 		std::string _root;
-		// std::vector<std::string> _server_name; //TODO if not used, remove.
 		std::vector<std::string> _return;
 		std::vector<std::string> _error_page;
 		std::vector<std::string> _limit_except;
@@ -20,6 +19,7 @@ namespace HTTPResponse
 		int _autoindex;
 		int _client_max_body_size;
 		bool _has_specific_location;
+		int _id;
 
 	public:
 		SpecifiedConfig();
@@ -37,6 +37,7 @@ namespace HTTPResponse
 		void set_methods_line(std::vector<std::string> methods);
 		void set_autoindex(int autoindex);
 		void set_specific_location(bool value);
+		void set_id(int num);
 
 		int get_client_max_body_size(void) const;
 		bool get_is_size_default(void) const;
@@ -48,5 +49,6 @@ namespace HTTPResponse
 		const std::string& get_route(void) const;
 		const std::string& get_methods_line(void) const;
 		bool has_specific_location(void) const;
+		int get_id(void) const;
 	};
 } // namespace Config
