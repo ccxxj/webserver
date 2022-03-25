@@ -155,8 +155,10 @@ namespace Utility
 		tm = localtime(&rawtime);
 		int ret = strftime(buf, 32, "%T", tm);
 		buf[ret] = '\0';
-
-		std::cout << GREEN << "[" << buf << "] " << RESET;
-		std::cout << color << str << RESET << std::endl;
+		(void)color;
+		// std::cout << GREEN << "[" << buf << "] " << RESET;
+		// std::cout << color << str << RESET << std::endl;
+		std::cout << "[" << buf << "] ";
+		std::cout << str << std::endl;
 	}
 } // namespace Utility
