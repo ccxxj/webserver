@@ -143,4 +143,13 @@ namespace Utility
 		std::string ret_val(buf);
 		return ret_val;
 	}
+
+    std::string get_number_in_string(std::string& line) {
+        size_t non_number_position = line.find_first_not_of("0123456789");
+        if (non_number_position != std::string::npos) {
+            return line.substr(0, non_number_position);
+        }
+        return "";
+    }
+
 } // namespace Utility
