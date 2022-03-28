@@ -1,6 +1,6 @@
 #include "LocationBlock.hpp"
 #include "../Utility/Utility.hpp"
-#include "../globals.hpp"
+#include "../Constants.hpp"
 
 
 namespace Config
