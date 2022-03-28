@@ -247,6 +247,8 @@ namespace HTTPRequest {
                 //TODO:: remove chunked from transfer encoding
                 //TODO:: Remove Trailer from existing header fields
                 _parse_payload(_decoded_body);
+                _remove_chunked_from_transfer_encoding(); // this is what rfc demands
+                std::cout << "NEW HEADER IS:" << _http_request_message->get_header_value("TRANSFER_ENCODING") << "-" << std::endl;
             }
             else {
                 _decoded_body.append(line); // in this case we're dealing with the payload data
@@ -290,6 +292,25 @@ namespace HTTPRequest {
         }
         else {
             _throw_request_exception(HTTPResponse::BadRequest);
+        }
+    }
+
+    void RequestParser::_remove_chunked_from_transfer_encoding() {
+        std::map<std::string, std::string>::iterator transfer_encoding_iter = _http_request_message->get_headers().find("TRANSFER_ENCODING");
+        if (transfer_encoding_iter != _http_request_message->get_headers().end()) { 
+            std::string value = transfer_encoding_iter->second;
+            // chunked must always be the last parameter of transfer encoding. We're erasing the last part of the string which must be the length of "chunked"
+            size_t part_to_erase_size = strlen("chunked");
+            std::cout << part_to_erase_size << std::endl;
+            // size_t starting_index = transfer_encoding_iter->second.size() - part_to_erase_size;
+            value.erase(value.end() - part_to_erase_size, value.end());
+            std::cout << "VAlue: \n" << value << std::endl;
+            _http_request_message->get_headers().erase("TRANSFER_ENCODING");
+            // transfer_encoding_iter->second = value;
+            // _http_request_message->get_headers()["TRANSFER_ENCODING"] = value;
+            std::pair<std::string, std::string> header_field("TRANSFER_ENCODING", value);
+            _http_request_message->set_header_field(header_field);
+            std::cout << "HEADER VALUE: \n" << _http_request_message->get_header_value("TRANSFER_ENCODING") << std::endl;
         }
     }
 }

@@ -53,6 +53,7 @@ namespace HTTPRequest {
         void _set_chunk_size(std::string& line);
         void _assign_decoded_body_length_to_content_length();
 		bool _is_last_chunk(size_t chunk_size);
+		void _remove_chunked_from_transfer_encoding();
 
         bool _is_method_supported(const std::string &method);
         size_t _longest_method_size();
