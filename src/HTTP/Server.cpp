@@ -201,7 +201,12 @@ namespace HTTP {
 			std::set<std::string> listen_set = servers[i].get_listen();
 			//TODO [::]:1000's atoi result is 0 since the string starts with non-numerical number.
 			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) {
-				int port = std::atoi((*i).c_str());
+				int port;
+				size_t pos = (*i).find("[::]:");
+				if (pos != std::string::npos)
+					port = std::atoi((*i).substr(pos + 5).c_str());
+				else
+					port = std::atoi((*i).c_str());;
 				if (std::find(_listen_ports.begin(), _listen_ports.end(), port) == _listen_ports.end()) //does not push duplicate ports
 					_listen_ports.push_back(port);
 			}
