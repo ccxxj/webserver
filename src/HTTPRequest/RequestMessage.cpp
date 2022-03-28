@@ -31,7 +31,7 @@ namespace HTTPRequest {
         return (*_request_headers.find(header_name)).second;
     }
 
-    std::map<std::string, std::string> RequestMessage::get_headers() const {
+    const std::map<std::string, std::string>& RequestMessage::get_headers() const {
         return _request_headers;
     }
 
@@ -43,6 +43,13 @@ namespace HTTPRequest {
         else {
             header_name_position->second.append(", ");
             header_name_position->second.append(header_field.second);
+        }
+    }
+
+    void RequestMessage::update_header_field(const std::string& header_name, const std::string& new_value) {
+        std::map<std::string, std::string>::iterator header_name_position = _request_headers.find(header_name);
+        if ( header_name_position != _request_headers.end()) {
+            header_name_position->second = new_value;
         }
     }
 
@@ -64,5 +71,3 @@ namespace HTTPRequest {
         return uri_data;
     }
 }
-
-
