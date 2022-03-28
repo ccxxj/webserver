@@ -42,6 +42,9 @@ namespace HTTPResponse {
 
 		// if(status_code > 300 ?) //some errors are catched after handling methods?
 			//_handle_error(status_code);
+		//redirection?
+			//redirection loop? > where to build it? RequestHandler?
+			//add update status code with rediretion code?
 		// if(not_redirected)
 			//build_final_response (atm I'm calling build response from serve functions. review?)
 	}
@@ -107,7 +110,7 @@ namespace HTTPResponse {
 			return (handle_error(Forbidden));
 
 		//set necessary headers
-		_http_response_message->set_header_element("Content-Type", _file.get_mime_type());
+		_http_response_message->set_header_element("Content-Type", _file.get_mime_type(str));
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
@@ -169,7 +172,14 @@ namespace HTTPResponse {
 			_http_response_message->set_header_element("Allow", _config.get_methods_line());
 
 		//handle custom error pages //TODO needs works with redirection which will be done afterwards
-
+		if (_config.get_error_page().size()) {
+			std::map<int, std::string>::const_iterator it = _config.get_error_page().find(static_cast<int>(code));
+			if (it != _config.get_error_page().end()) {
+				std::cout << it->second << std::endl;
+				return _serve_custom_error_page(it->second);
+			}	
+		}
+		
 		// generate error page
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
 		_http_response_message->set_header_element("Content-Type", "text/html");
@@ -181,6 +191,20 @@ namespace HTTPResponse {
 
 		_build_final_response();
 	}
+
+	void ResponseHandler::_serve_found_file(const std::string &str) {
+		//TODO redirection
+		//TODO CGI check again, everytime you find a file?
+		_http_response_message->set_message_body(_file.get_content(_file.ge + str));
+		if (_http_response_message->get_message_body().empty()) //FIXME what to do when file is empty?
+			return (handle_error(Forbidden));
+
+		//set necessary headers
+		_http_response_message->set_header_element("Content-Type", _file.get_mime_type(str));
+		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
+		_build_final_response();
+	}
+
 
 	void ResponseHandler::_build_final_response()
 	{
