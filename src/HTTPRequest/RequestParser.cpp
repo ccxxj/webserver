@@ -176,7 +176,6 @@ namespace HTTPRequest {
             else {
                 _parse_transfer_encoding(transfer_encoding_iter->second);
                 if (_payload_length == CHUNKED) {
-                    _delete_obolete_content_length_header(); // TODO:: probably won't need this function // if chunked is present Transfer-Encoding  overrides the Content-Length
                     _current_parsing_state = CHUNKED_PAYLOAD;
                     _chunk_size = -1;
                     _decoded_body_length = 0;
@@ -208,7 +207,6 @@ namespace HTTPRequest {
             _payload_length = NOT_FOUND;
         }
         else if (chunked_position == encodings_num - 1) {
-            std::cout << "Will be handling chunks here\n";
             _payload_length = CHUNKED;
         }
         else {
@@ -225,9 +223,6 @@ namespace HTTPRequest {
         return -1;
     }
 
-    void RequestParser::_delete_obolete_content_length_header() {
-        _http_request_message->get_headers().erase("CONTENT_LENGTH");
-    }
 
     void RequestParser::_parse_payload(std::string& line) {
         _http_request_message->set_payload(line);
@@ -244,11 +239,9 @@ namespace HTTPRequest {
             if (_chunk_size == 0) {
                 // TODO: read_trailer_field() and add them to the headers;
                 _assign_decoded_body_length_to_content_length();
-                //TODO:: remove chunked from transfer encoding
                 //TODO:: Remove Trailer from existing header fields
                 _parse_payload(_decoded_body);
                 _remove_chunked_from_transfer_encoding(); // this is what rfc demands
-                std::cout << "NEW HEADER IS:" << _http_request_message->get_header_value("TRANSFER_ENCODING") << "-" << std::endl;
             }
             else {
                 _decoded_body.append(line); // in this case we're dealing with the payload data
@@ -267,16 +260,16 @@ namespace HTTPRequest {
     }
 
     void RequestParser::_assign_decoded_body_length_to_content_length() {
-        std::map<std::string, std::string> headers_map = _http_request_message->get_headers();
-        const std::string content_length_header_name = "CONTENT_LENGTH";
+        std::string content_length_header_name = "CONTENT_LENGTH";
         const std::string content_length_value = Utility::to_string(_decoded_body_length);
-        std::map<std::string, std::string>::iterator content_length_iter = headers_map.find(content_length_header_name);
-        if (content_length_iter != headers_map.end()) {
+        const std::map<std::string, std::string>& headers = _http_request_message->get_headers();
+        std::map<std::string, std::string>::const_iterator content_length_iter = headers.find(content_length_header_name);
+        if (content_length_iter == headers.end()) {
             std::pair<std::string, std::string> header_field(content_length_header_name, content_length_value);
             _http_request_message->set_header_field(header_field);
         }
         else {
-            content_length_iter->second = content_length_value;
+            _http_request_message->update_header_field(content_length_header_name, content_length_value);
         }
     }
 
@@ -296,21 +289,13 @@ namespace HTTPRequest {
     }
 
     void RequestParser::_remove_chunked_from_transfer_encoding() {
-        std::map<std::string, std::string>::iterator transfer_encoding_iter = _http_request_message->get_headers().find("TRANSFER_ENCODING");
-        if (transfer_encoding_iter != _http_request_message->get_headers().end()) { 
-            std::string value = transfer_encoding_iter->second;
-            // chunked must always be the last parameter of transfer encoding. We're erasing the last part of the string which must be the length of "chunked"
-            size_t part_to_erase_size = strlen("chunked");
-            std::cout << part_to_erase_size << std::endl;
-            // size_t starting_index = transfer_encoding_iter->second.size() - part_to_erase_size;
-            value.erase(value.end() - part_to_erase_size, value.end());
-            std::cout << "VAlue: \n" << value << std::endl;
-            _http_request_message->get_headers().erase("TRANSFER_ENCODING");
-            // transfer_encoding_iter->second = value;
-            // _http_request_message->get_headers()["TRANSFER_ENCODING"] = value;
-            std::pair<std::string, std::string> header_field("TRANSFER_ENCODING", value);
-            _http_request_message->set_header_field(header_field);
-            std::cout << "HEADER VALUE: \n" << _http_request_message->get_header_value("TRANSFER_ENCODING") << std::endl;
-        }
+        const std::map<std::string, std::string>& headers = _http_request_message->get_headers();
+        std::string name = "TRANSFER_ENCODING";
+        std::map<std::string, std::string>::const_iterator transfer_encoding_iter = headers.find(name);
+        std::string value = transfer_encoding_iter->second;
+        // chunked must always be the last parameter of transfer encoding. We're erasing the last part of the string which must be the length of "chunked"
+        size_t part_to_erase_size = strlen("chunked");
+        value.erase(value.end() - part_to_erase_size, value.end());
+        _http_request_message->update_header_field(name, value);
     }
 }
