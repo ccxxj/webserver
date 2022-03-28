@@ -35,7 +35,12 @@ namespace HTTPRequest {
         {
             bool can_be_parsed = false;
             std::string line;
-            line = _request_reader.read_line(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
+            if (_current_parsing_state == CHUNKED_PAYLOAD && _chunk_size > 0) {
+                line = _request_reader.read_chunk(_chunk_size, buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
+            }
+            else {
+                line = _request_reader.read_line(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
+            }
             if (_current_parsing_state == PAYLOAD && line.size() == content_length) {
                 can_be_parsed = true;
             }
@@ -173,7 +178,7 @@ namespace HTTPRequest {
                 if (_payload_length == CHUNKED) {
                     _delete_obolete_content_length_header(); // TODO:: probably won't need this function // if chunked is present Transfer-Encoding  overrides the Content-Length
                     _current_parsing_state = CHUNKED_PAYLOAD;
-                    _chunk_size = INT_MAX;
+                    _chunk_size = -1;
                     _decoded_body_length = 0;
                     _decoded_body = "";
                 }
@@ -226,11 +231,12 @@ namespace HTTPRequest {
 
     void RequestParser::_parse_payload(std::string& line) {
         _http_request_message->set_payload(line);
+        std::cout << "PAYLOAD: " << line << std::endl;
         _current_parsing_state = FINISHED;
     }
 
     void RequestParser::_decode_chunked(std::string& line) {
-        if (_chunk_size == INT_MAX) { // it means we're dealing with the line defining the chunk_length
+        if (_chunk_size == -1) { // it means we're dealing with the line defining the chunk_length
             _set_chunk_size(line);
             // TODO: should also read chunk extension
         }
@@ -244,8 +250,12 @@ namespace HTTPRequest {
             }
             else {
                 _decoded_body.append(line); // in this case we're dealing with the payload data
-                _decoded_body_length += _chunk_size;
-                _chunk_size = INT_MAX; // after handling the data we have to make sure we set the new chunk_size in the next iteration
+                size_t line_size = line.size();
+                _chunk_size -= line_size;
+                _decoded_body_length += line_size;
+                if (_chunk_size == 0) {
+                    _chunk_size = -1; // after handling the data we have to make sure we set the new chunk_size in the next iteration
+                }
             }
         }
     }
@@ -271,7 +281,7 @@ namespace HTTPRequest {
     void RequestParser::_set_chunk_size(std::string& line) {
         std::string extracted_number = Utility::get_number_in_string(line);
         if (extracted_number != "") {
-            std::stringstream ss;
+            std::stringstream ss; // converting hex to the ssize_t
             ss << std::hex << extracted_number;
             ss >> _chunk_size;
             if (_chunk_size > Constants::PAYLOAD_MAX_LENGTH) {

@@ -36,7 +36,7 @@ namespace HTTPRequest {
         State _current_parsing_state;
         MessageBodyLength _payload_length;
 
-        size_t _chunk_size;
+        ssize_t _chunk_size;
 		size_t _decoded_body_length;
 		std::string _decoded_body;
 
