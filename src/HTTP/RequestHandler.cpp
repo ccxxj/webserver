@@ -41,7 +41,7 @@ namespace HTTP {
 			{
 				_handle_request_exception(e.get_error_status_code());
 				Utility::logger("Request  [Bad Request]", YELLOW);
-				response_handler.handle_error(e.get_error_status_code()); //error response is built, and will be sent below			
+				response_handler.handle_error(e.get_error_status_code()); //error response is built, and will be sent below
 			}
 			if (!_parser.is_parsing_finished()) {
 				return;
@@ -95,7 +95,6 @@ namespace HTTP {
 
 	const Config::ServerBlock* RequestHandler::_match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
 		std::string host = _http_request_message.get_header_value("Host");
-		// if (host.empty()) //TODO empty host header
 		for (std::vector<const Config::ServerBlock*>::iterator it = matching_servers.begin(); it != matching_servers.end(); it++)
 			for (std::vector<std::string>::const_iterator srv_name = (*it)->get_server_name().begin(); srv_name != (*it)->get_server_name().end(); srv_name++)
 				if ((*srv_name).compare(host) == 0)
