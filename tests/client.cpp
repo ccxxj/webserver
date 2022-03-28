@@ -14,18 +14,27 @@
 
 int main(int argc, char const *argv[])
 {
+   
     int sock = 0;
     struct sockaddr_in serv_addr;
-    std::string http_request_mes = "POST /cgi-bin/process.cgi?a=b&%75=uuuu HTTP/1.1\r\n"
+    std::string http_request_mes = "GET / HTTP/1.1\r\n"
                             "User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\r\n"
                             "Host: www.tutorialspoint.com\r\n"
                             "Content-Type: application/x-www-form-urlencoded\r\n"
                             "Content-Length: 49\r\n"
                             "Accept-Language: en-us\r\n"
                             "Accept-Encoding: gzip, deflate\r\n"
-                            "Connection: Keep-Alive\r\n\r\n"
+                            "Connection: Keep-Alive\r\n"
+                            "Transfer-Encoding: chunked\r\n\r\n"
 
-                            "licenseID=string&content=string&/paramsXML=string";
+                            "4\r\n"
+                            "Wiki\r\n"
+                            "5\r\n"
+                            "pedia\r\n"
+                            "E\r\n"
+                            " in\r\n\r\nchunks.\r\n"
+                            "0\r\n"
+                            "\r\n";
 
     std::string bla_mesasage = "bla";
     std::string long_message = "GET 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 HTTP/1.1\r\n";

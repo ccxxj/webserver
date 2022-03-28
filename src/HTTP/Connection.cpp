@@ -1,6 +1,6 @@
 #include "Connection.hpp"
 #include "../config/ConfigData.hpp"
-#include "../globals.hpp"
+#include "../Constants.hpp"
 #include "../Utility/Utility.hpp"
 
 #include <string>

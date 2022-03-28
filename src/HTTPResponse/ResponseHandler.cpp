@@ -1,6 +1,6 @@
 #include "ResponseHandler.hpp"
 #include "../Utility/Utility.hpp"
-#include "../globals.hpp"
+#include "../Constants.hpp"
 
 #include <sstream> // for converting int to string
 
@@ -87,7 +87,7 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_serve_directory(void) {
 		//list the directory into response body
-		_http_response_message->set_message_body(_file.list_directory());
+		_http_response_message->set_payload(_file.list_directory());
 		if (_http_response_message->get_message_body().empty())
 			return (handle_error(InternalServerError));
 
@@ -102,7 +102,7 @@ namespace HTTPResponse {
 	void ResponseHandler::_serve_found_file(const std::string &str) {
 		//TODO redirection
 		//TODO CGI check again, everytime you find a file?
-		_http_response_message->set_message_body(_file.get_content(str));
+		_http_response_message->set_payload(_file.get_content(str));
 		if (_http_response_message->get_message_body().empty())
 			return (handle_error(Forbidden));
 
@@ -125,7 +125,7 @@ namespace HTTPResponse {
 				if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
 					return handle_error(InternalServerError);
 				//set up response for uploading
-				_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
+				_http_response_message->set_payload("<h1><center> Successfully created file! </center></h1>");
 				_http_response_message->set_status_code("200");
 				_http_response_message->set_reason_phrase("OK");
 				// _http_response_message->set_header_element("Location", new path?);
@@ -136,7 +136,7 @@ namespace HTTPResponse {
 				return handle_error(InternalServerError);
 			if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
 					return handle_error(InternalServerError);
-			_http_response_message->set_message_body("<h1><center> Successfully created the directory and the file! </center></h1>");
+			_http_response_message->set_payload("<h1><center> Successfully created the directory and the file! </center></h1>");
 			_http_response_message->set_status_code("201"); //code if resource dir has been created with POST request
 			_http_response_message->set_reason_phrase("Created");
       	}
@@ -157,7 +157,7 @@ namespace HTTPResponse {
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
 		_http_response_message->set_header_element("Content-Type", "text/html");
-		_http_response_message->set_message_body("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
+		_http_response_message->set_payload("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
 		_build_final_response();
 	}
 
@@ -174,7 +174,7 @@ namespace HTTPResponse {
 		// generate error page
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
 		_http_response_message->set_header_element("Content-Type", "text/html");
-		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
+		_http_response_message->set_payload(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
 								+ "<hr><center> HungerWeb 1.0 </center>\r\n"

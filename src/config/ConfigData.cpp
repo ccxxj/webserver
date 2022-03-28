@@ -1,5 +1,5 @@
 #include "ConfigData.hpp"
-#include "../globals.hpp"
+#include "../Constants.hpp"
 
 namespace Config
 {
