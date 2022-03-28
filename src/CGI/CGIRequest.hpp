@@ -24,9 +24,11 @@ public:
 	// void parse_meta_variables(HTTPRequest::RequestMessage request_message);//TODO update later
 	void parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config);
 	void search_cgi(std::string uri);
-	// void parse_meta_variables(void);
+	void parse_meta_variables(void);
 	void set_envp(void);
 	void set_argument(std::string cgi_path);
 	// char **get_argument();
-	int execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config, int fd);
+	// int execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config, int fd);
+	// int execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config);
+	int execute_cgi(void);
 };

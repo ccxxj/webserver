@@ -60,14 +60,14 @@ void CGIRequest::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 	_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
 	_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
-	// _meta_variables["PATH_INFO"]; //portion of uri, the segment after identify the script itself (run DECODE!!). (cgi/more => /more). can be void
+	// _meta_variables["PATH_INFO"]; //TODO decoding? or add the uri decoded value from URI data; has been decoded during parsing URI, value has been parsed during search for cgi extension, therefore completed
 	// _meta_variables["PATH_TRANSLATED"]; // if path_info is null, path_translated is null. otherwise: root + path_info
-	// _meta_variables["QUERY_STRING"];//from uri query string map. TODO check if the key is set, is the default value null?
+	_meta_variables["QUERY_STRING"];//TODO change query parse function in URI?? check with team. need a simple string of query
 	// _meta_variables["REMOTE_ADDR"];//set to the server network address. can be void
 	// _meta_variables["REMOTE_HOST"]; //if not remote_host value provided (hostname), substitute with the remote_address value
 	// _meta_variables["REMOTE_IDENT"];
 	// _meta_variables["REMOTE_USER"];
-	// _meta_variables["REQUEST_METHOD"] = request_message.get_method();// from method
+	_meta_variables["REQUEST_METHOD"] = _http_request_message->get_method();// from method
 	// _meta_variables["SCRIPT_NAME"]; //from uri
 	// _meta_variables["SERVER_NAME"];//from config
 	// _meta_variables["SERVER_PORT"];//from config
@@ -114,69 +114,43 @@ void CGIRequest::search_cgi(std::string uri)
 	_search_cgi_extension = false;
 }
 
-int CGIRequest::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config, int fd)
+int CGIRequest::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config)
+// int CGIRequest::execute_cgi()
 {
-	// search_cgi("/cgi_tester/./");
-	search_cgi("/first.cgi/./");
-	int fd2 = open("test", O_WRONLY|O_CREAT|O_TRUNC, 755);
-	if(fd2 < 0)
-		std::cout << "open fail\n";
-	// std::cout << "the result of search: " << _search_cgi_extension << std::endl;
+	// search_cgi("cgi_tester");//this is purely for test isolately
+	search_cgi(_http_request_message->get_request_uri());
 	if(_search_cgi_extension == false) //input need to change to uri
-		return 0;
-	pid_t pid;
-	set_argument("first.cgi");
-	parse_meta_variables(_http_request_message, _config);
-	set_envp();
-	pid = fork();
-	if(pid == 0){
-		if(dup2(fd2, 1) == -1)
-			std::cout << "dup fail\n";
-		std::cout << "child process \n";
-		if(execve(_argument[0], _argument, _envp) == -1)
-			return -1;
-		std::cerr << "WHY AM I HERE?\n";
+		return 0;	
+	int inputPipe[2], outputPipe[2];
+	if(pipe(inputPipe) == -1){
+		std::perror("pipe");//TODO create exception later??
 	}
-	else if(pid < (pid_t)0){
-		std::cout << "fork failed\n"; //TODO decide exception to throw later
-		return -1;
+	set_argument("hello.py");//TODO replace by input from uri
+	parse_meta_variables();//TODO replace by input from http request get_message_body
+	set_envp();
+	write(inputPipe[1], _http_request_message->get_message_body().c_str(), std::stoi(_meta_variables["CONTENT_LENGTH"]));//TODO check with Olga, what if the message is hanging? e.g too big
+	pid_t pid = fork();
+	if(pid < 0){
+		perror("fork failure");//TODO create exception later??
+	}
+	else if(pid == 0){
+		dup2(inputPipe[0], 0);
+		dup2(outputPipe[1], 1);
+		close(inputPipe[1]);	
+		close(outputPipe[0]);
+		//fcntl() set non-blocking flag??
+		if(execve(_argument[0], _argument, _envp) == -1){
+			perror("execution error");//TODO create exception later??
+			return -1;
+		}
 	}
 	else{
-		wait(0);
+		wait(0);//waitpid
+		//TODO do I need to close the write end? I think kqueue will take care of it
 		char buf[4086];
-		read(fd2, buf, sizeof(buf));//TODO find a better function
-		//the buf need to goes into response
-		std::cout << buf << "\n";
+		memset(buf, 0, 4086);
+		read(outputPipe[0], buf, sizeof(buf));
+		std::cout << "buf is " << buf << std::endl;
+		close(outputPipe[0]);
 	}
-	// int fd[2];
-	// if (pipe(fd)){
-	// 	std::cout << "pipe failed\n"; //TODO decide exception to throw later
-	// }
-	// pid_t pid;
-	// set_argument("cgi_tester");
-	// parse_meta_variables(_http_request_message, _config);
-	// set_envp();
-	// pid = fork();
-	// if(pid == 0){
-	// 	std::cout  << "fd0: " << fd[1] << "fd0: " << fd[0] << " child process \n";
-	// 	dup2(fd[1], 1);
-	// 	close(fd[0]);
-	// 	std::cout << "child process \n";
-	// 	if(execve(_argument[0], _argument, _envp) == -1)
-	// 		return -1;
-	// }
-	// else if(pid < (pid_t)0){
-	// 	std::cout << "fork failed\n"; //TODO decide exception to throw later
-	// 	return -1;
-	// }
-	// else{
-	// 	wait(0);
-	// 	close(fd[1]);
-	// 	char buf[4086];
-	// 	read(fd[0], buf, sizeof(buf));//TODO find a better function
-	// 	//the buf need to goes into response
-	// 	std::cout << buf << "\n";
-	// }
-	close(fd2);
-	return 1;
 }
