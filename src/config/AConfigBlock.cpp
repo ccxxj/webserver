@@ -99,8 +99,9 @@ namespace Config
         Utility::remove_last_of(';', str);
         std::vector<std::string> args = Utility::split_string_by_white_space(str);
 		_check_error_page_syntax(args);
-        for (size_t i = 1; i < args.size(); i++)
-            _error_page.push_back(args[i]);
+        for (size_t i = 1; i < args.size() - 1; i++) {
+            _error_page.insert(std::make_pair(std::atoi(args[i].c_str()), args[args.size() -1]));
+        }        
     }
 
     void AConfigBlock::set_root_value(std::string& str)
@@ -142,7 +143,7 @@ namespace Config
         return _root;
     }
 
-    const std::vector<std::string>& AConfigBlock::get_error_page(void) const
+    const std::map<int, std::string>& AConfigBlock::get_error_page(void) const
     {
         return _error_page;
     }

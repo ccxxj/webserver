@@ -79,7 +79,7 @@ namespace Config
     void ConfigData::print_error_pages(ServerBlock &server)
     {
 
-        std::vector<std::string> error_pages = server.get_error_page();
+        std::map<int, std::string> error_pages = server.get_error_page();
         std::cout << "\033[34m"
                   << "error_pages: ";
         for (size_t i = 0; i < error_pages.size(); i++)
