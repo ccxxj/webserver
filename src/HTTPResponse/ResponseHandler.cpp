@@ -55,7 +55,7 @@ namespace HTTPResponse {
 		_http_response_message->set_reason_phrase("Moved Permanently");
 		
 		//Save the redirected URL
-		// _http_response_message->set_header_element("Location", it->second);
+		_http_response_message->set_header_element("Location", it->second);
 
 		// generate redirection page
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
