@@ -69,7 +69,7 @@ namespace Utility
 			Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
 			return _dir;
 		}
-		_dir += "<html>\r\n<h2> Index of " + _path + "</h2><ul>";
+		_dir += "<html>\r\n<h2> Index of " + _target + "</h2>";
 		while ((entry = readdir(dir_p))) {
 			_dir += "<li><a href=\"";
 			_dir += _target + "/" + entry->d_name + "\">";
@@ -80,7 +80,6 @@ namespace Utility
 			_dir += entry->d_name;
 			_dir +=  "</a></li>";;
 		}
-		_dir += "</ul>";
 		closedir(dir_p);
 		return _dir;
 	}
