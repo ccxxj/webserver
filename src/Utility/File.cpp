@@ -23,6 +23,7 @@ namespace Utility
 	}
 
 	void File::set_path(const std::string &root, const std::vector<std::string> &uri_paths) {
+		_root = root;
 		_path += root;
 		set_target(uri_paths);
 		_path += _target;
@@ -200,6 +201,10 @@ namespace Utility
 
 	const std::string & File::get_path(void) {
 		return _path;
+	}
+
+	const std::string & File::get_root(void) {
+		return _root;
 	}
 
 	const std::string & File::get_target(void) {

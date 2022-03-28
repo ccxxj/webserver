@@ -11,6 +11,7 @@ namespace Utility
 	{
 	private:
 		std::string _path;
+		std::string _root;
 		std::string _target;
 		std::string _dir;
 		std::string _index_page;
@@ -24,6 +25,7 @@ namespace Utility
 		void set_target(const std::vector<std::string> &uri_paths);
 		void set_index_page(const std::string &str);
 		const std::string& get_path(void);
+		const std::string& get_root(void);
 		const std::string& get_target(void);
 		const std::string& get_index_page(void);
 		std::string get_content(const std::string &str);
