@@ -1,6 +1,5 @@
 server {
 	listen 1000;
-	# listen [::]:1000 ;
 	server_name localhost;
 	root www;
 	client_max_body_size 2000;
@@ -42,6 +41,7 @@ server {
 
 server {
 	listen 2000;
+	listen [::]:2000;
 	listen 1000;
 	server_name localhost;
 	root www;
