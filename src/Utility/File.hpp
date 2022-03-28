@@ -37,7 +37,7 @@ namespace Utility
 		bool create_random_named_file_put_msg_body_in(const std::string &str);
 		std::string last_modified_info(const std::string &path);
 		std::string last_modified_info();
-		std::string get_mime_type();
+		std::string get_mime_type(const std::string& str);
 	};
 
 }

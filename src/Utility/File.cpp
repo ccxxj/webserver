@@ -186,8 +186,8 @@ namespace Utility
 		return ret_val;
 	}
 
-	std::string File::get_mime_type() {
-		return _mimes.get_mime_type(_path);
+	std::string File::get_mime_type(const std::string& str) {
+		return _mimes.get_mime_type(str);
 	}
 
 	void File::set_index_page(const std::string &str) {
