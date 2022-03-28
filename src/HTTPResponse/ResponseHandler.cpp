@@ -47,7 +47,7 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_handle_methods(void) {
-		
+
 
 		if (_http_request_message->get_method() == "DELETE")
 			_delete_file();
@@ -103,7 +103,7 @@ namespace HTTPResponse {
 		//TODO redirection
 		//TODO CGI check again, everytime you find a file?
 		_http_response_message->set_message_body(_file.get_content(str));
-		if (_http_response_message->get_message_body().empty())
+		if (_http_response_message->get_message_body().empty()) //FIXME what to do when file is empty?
 			return (handle_error(Forbidden));
 
 		//set necessary headers
@@ -127,7 +127,7 @@ namespace HTTPResponse {
 				_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
 				_http_response_message->set_status_code("200");
 				_http_response_message->set_reason_phrase("OK");
-				// _http_response_message->set_header_element("Location", new path?); 
+				// _http_response_message->set_header_element("Location", new path?);
 			}
 		}
 		if (!_file.exists()) { //means server will create a directory with target resource and also create a file inside to hold info
@@ -269,7 +269,7 @@ namespace HTTPResponse {
 		tmp += "Response ";
 		tmp += "[Status " + _http_response_message->get_status_code();
 		tmp += " " + _http_response_message->get_reason_phrase() + "]";
- 
+
 		return tmp;
 	}
 

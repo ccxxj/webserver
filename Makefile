@@ -26,7 +26,7 @@ HEADERS = Webserver.hpp \
 	Utility/Utility.hpp \
 	Utility/SmartPointer.hpp \
 	Utility/File.hpp \
-	Utility/MimeTypes.hpp 
+	Utility/MimeTypes.hpp
 
 SRC = Webserver.cpp \
 	HTTPRequest/RequestReader.cpp \
@@ -52,7 +52,7 @@ SRC = Webserver.cpp \
 	config/ConfigTokenizer.cpp \
 	Utility/Utility.cpp \
 	Utility/File.cpp \
-	Utility/MimeTypes.cpp 
+	Utility/MimeTypes.cpp
 
 CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
 		-std=c++98 -pedantic \
@@ -60,7 +60,7 @@ CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
 
 HEADERS := $(addprefix $(SRC_DIR)/,$(HEADERS))
 OBJ = $(SRC:.cpp=.o)
-CXX=clang++
+CXX= clang++
 
 .PHONY: all clean fclean re tests
 
