@@ -29,10 +29,10 @@ namespace HTTPResponse
     SpecifiedConfig::~SpecifiedConfig() {}
 
     /* setters */
-    void SpecifiedConfig::set_return_value(const std::vector<std::string>& returns)
+    void SpecifiedConfig::set_return_value(const std::map<int, std::string>& returns)
     {
-		for (std::vector<std::string>::const_iterator it = returns.begin(); it != returns.end(); it++)
-			_return.push_back(*it);
+		for (std::map<int, std::string>::const_iterator it = returns.begin(); it != returns.end(); it++)
+			_return.insert(*it);
     }
 
     void SpecifiedConfig::set_error_page_value(const std::map<int, std::string>& errors)
@@ -94,7 +94,7 @@ namespace HTTPResponse
         return _client_max_body_size;
     }
 
-    const std::vector<std::string>& SpecifiedConfig::get_return(void) const
+    const std::map<int, std::string>& SpecifiedConfig::get_return(void) const
     {
         return _return;
     }

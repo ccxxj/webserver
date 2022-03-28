@@ -67,7 +67,7 @@ namespace Config
     void ConfigData::print_returns(ServerBlock &server)
     {
 
-        std::vector<std::string> returns = server.get_return();
+        std::map<int, std::string> returns = server.get_return();
         std::cout << PURPLE << "returns: ";
         for (size_t i = 0; i < returns.size(); i++)
         {

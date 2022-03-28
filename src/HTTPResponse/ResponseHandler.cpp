@@ -37,16 +37,36 @@ namespace HTTPResponse {
 		if (!_check_client_body_size())
 			return(handle_error(ContentTooLarge));
 
-		//HTTP method handling
-		_handle_methods();
-
-		// if(status_code > 300 ?) //some errors are catched after handling methods?
-			//_handle_error(status_code);
-		//redirection?
+		//redirection //TODO discuss where to check redirection in this function i.e. what happens if a method is forbidden 
+		if (!_config.get_return().empty()) {
+			return (_handle_redirection());
 			//redirection loop? > where to build it? RequestHandler?
 			//add update status code with rediretion code?
-		// if(not_redirected)
-			//build_final_response (atm I'm calling build response from serve functions. review?)
+		}
+
+		//HTTP method handling
+		_handle_methods();
+	}
+
+	void ResponseHandler::_handle_redirection()
+	{
+		std::map<int, std::string>::const_iterator it = _config.get_return().begin();
+		_http_response_message->set_status_code(Utility::to_string(it->first));
+		_http_response_message->set_reason_phrase("Moved Permanently");
+		
+		//Save the redirected URL
+		// _http_response_message->set_header_element("Location", it->second);
+
+		// generate redirection page
+		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
+		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
+								+ _http_response_message->get_status_code() + "</h1><center>"
+								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
+								+ "<hr><center> HungerWeb 1.0 </center>\r\n"
+								+ "</html>\r\n");
+
+		_build_final_response();
 	}
 
 	void ResponseHandler::_handle_methods(void) {
@@ -172,7 +192,7 @@ namespace HTTPResponse {
 			_http_response_message->set_header_element("Allow", _config.get_methods_line());
 
 		//handle custom error pages
-		if (_config.get_error_page().size()) {
+		if (!_config.get_error_page().empty()) {
 			std::map<int, std::string>::const_iterator it = _config.get_error_page().find(static_cast<int>(code));
 			if (it != _config.get_error_page().end()) {
 				return _serve_custom_error_page(it->second);

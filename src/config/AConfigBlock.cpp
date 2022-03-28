@@ -90,8 +90,8 @@ namespace Config
         Utility::remove_last_of(';', str);
         std::vector<std::string> args = Utility::split_string_by_white_space(str);
 		_check_return_syntax(args);
-        for (size_t i = 1; i < args.size(); i++)
-            _return.push_back(args[i]);
+        for (size_t i = 1; i < args.size() - 1; i++)
+            _return.insert(std::make_pair(std::atoi(args[i].c_str()), args[args.size() -1]));
     }
 
     void AConfigBlock::set_error_page_value(std::string& str)
@@ -133,7 +133,7 @@ namespace Config
         return _is_size_default;
     }
 
-    const std::vector<std::string>& AConfigBlock::get_return(void) const
+    const std::map<int, std::string>& AConfigBlock::get_return(void) const
     {
         return _return;
     }

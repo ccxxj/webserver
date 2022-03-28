@@ -31,6 +31,7 @@ namespace HTTPResponse
 		void _delete_file(void);
 		void _upload_file(void);
 		void _build_final_response();
+		void _handle_redirection();
 
 
 	public:
