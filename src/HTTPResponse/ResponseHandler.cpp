@@ -171,11 +171,10 @@ namespace HTTPResponse {
 		if (code == MethodNotAllowed)
 			_http_response_message->set_header_element("Allow", _config.get_methods_line());
 
-		//handle custom error pages //TODO needs works with redirection which will be done afterwards
+		//handle custom error pages
 		if (_config.get_error_page().size()) {
 			std::map<int, std::string>::const_iterator it = _config.get_error_page().find(static_cast<int>(code));
 			if (it != _config.get_error_page().end()) {
-				std::cout << it->second << std::endl;
 				return _serve_custom_error_page(it->second);
 			}	
 		}
@@ -192,13 +191,17 @@ namespace HTTPResponse {
 		_build_final_response();
 	}
 
-	void ResponseHandler::_serve_found_file(const std::string &str) {
-		//TODO redirection
+	void ResponseHandler::_serve_custom_error_page(const std::string &str) {
 		//TODO CGI check again, everytime you find a file?
-		_http_response_message->set_message_body(_file.get_content(_file.ge + str));
-		if (_http_response_message->get_message_body().empty()) //FIXME what to do when file is empty?
+		_http_response_message->set_message_body(_file.get_content(_file.get_root() + str));
+		if (_http_response_message->get_message_body().empty())
 			return (handle_error(Forbidden));
 
+		//log error_page redirection
+		Utility::logger("Internal redirect [error_page " + str + "] " +
+						"[Root " + _config.get_root() + "] " +
+						"[Search Path " + _config.get_root() + str + "] "
+						, MAGENTA);
 		//set necessary headers
 		_http_response_message->set_header_element("Content-Type", _file.get_mime_type(str));
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));

@@ -26,6 +26,7 @@ namespace HTTPResponse
 		void _serve_file(void);
 		void _serve_directory(void);
 		void _serve_found_file(const std::string &str);
+		void _serve_custom_error_page(const std::string &str);
 		bool _search_for_index_page();
 		void _delete_file(void);
 		void _upload_file(void);
