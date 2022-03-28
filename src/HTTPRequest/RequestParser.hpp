@@ -47,7 +47,6 @@ namespace HTTPRequest {
         void _parse_transfer_encoding(std::string coding_names_list);
         int _set_content_length();
         ssize_t _find_chunked_encoding_position(std::vector<std::string> &encodings, size_t encodings_num);
-        void _delete_obolete_content_length_header();
         void _parse_payload(std::string &line);
         void _decode_chunked(std::string& line);
         void _set_chunk_size(std::string& line);
