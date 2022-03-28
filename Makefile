@@ -56,7 +56,7 @@ SRC = Webserver.cpp \
 
 CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
 		-std=c++98 -pedantic \
-		-g -fsanitize=address -O3
+		-g -fsanitize=address
 
 HEADERS := $(addprefix $(SRC_DIR)/,$(HEADERS))
 OBJ = $(SRC:.cpp=.o)
