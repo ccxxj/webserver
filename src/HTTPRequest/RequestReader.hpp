@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream> // TODO: remove
+#include <sys/types.h>// for ssize_t
 
 // TODO: get this macro from config
 #define MAX_SIZE_BODY 8000
