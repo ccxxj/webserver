@@ -142,6 +142,18 @@ namespace tests {
             CHECK(_http_request_message.get_header_value("CONTENT_LENGTH") == "23");
             delete[] buf;
         }
+
+        SECTION ("Transfer Encoding trailer after chunked payload", "[valid_request]") {
+
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            
+            char* buf = create_writable_buf(http_requests[6]);
+            CHECK_NOTHROW(parser.parse_HTTP_request(buf, strlen(buf)));
+            CHECK(_http_request_message.get_header_value("EXPIRES") == "Wed, 21 Oct 2015 07:28:00 GMT");
+            delete[] buf;
+        }
     }
 
     TEST_CASE ("Invalid requests - exceptions thrown", "[request_parser]") {
@@ -262,6 +274,17 @@ namespace tests {
             char* buf = create_writable_buf(http_requests[12]);
             
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
+        }
+
+        SECTION ("Transfer-Encoding:  chunked with non-allowed trailer header field, should throw the 400 exception", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char* buf = create_writable_buf(http_requests[13]);
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+
             delete[] buf;
         }
     }

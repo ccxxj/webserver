@@ -169,3 +169,27 @@ chunks.
 
 ------
 
+13 Transfer-Encoding chunked with a non_allowed trailer
+GET / HTTP/1.1
+User-Agent:  Mozilla/4.0 (compatible; MSIE5.01; Windows NT)
+Host: localhost:80
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 49
+Transfer-Encoding: chunked
+Accept-Language: en-us
+Accept-Encoding: gzip, deflate
+Trailer: Expires, Transfer-Encoding
+Connection: Keep-Alive
+
+4
+Wiki
+5
+pedia
+E
+ in
+
+chunks.
+0
+Expires: Wed, 21 Oct 2015 07:28:00 GMT
+Transfer-Encoding: chunked
+------
