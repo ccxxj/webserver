@@ -129,6 +129,19 @@ namespace tests {
             CHECK_NOTHROW(parser.parse_HTTP_request(buf, strlen(buf)));
             delete[] buf;
         }
+
+        SECTION ("Transfer Encoding chunked", "[valid_request]") {
+
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            
+            char* buf = create_writable_buf(http_requests[5]);
+            CHECK_NOTHROW(parser.parse_HTTP_request(buf, strlen(buf)));
+            CHECK(_http_request_message.get_message_body() == "Wikipedia in\r\n\r\nchunks.");
+            CHECK(_http_request_message.get_header_value("CONTENT_LENGTH") == "23");
+            delete[] buf;
+        }
     }
 
     TEST_CASE ("Invalid requests - exceptions thrown", "[request_parser]") {
@@ -241,14 +254,16 @@ namespace tests {
             CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
             delete[] buf;
         }
+
+        SECTION ("Transfer-Encoding:  chunked is not the last encoding, should throw the 400 exception", "[invalid_request]") {
+            HTTPRequest::RequestMessage _http_request_message;
+            HTTPResponse::ResponseMessage _http_response_message;
+            HTTPRequest::RequestParser parser(&_http_request_message, &_http_response_message);
+            char* buf = create_writable_buf(http_requests[12]);
+            
+            CHECK_THROWS_AS((parser.parse_HTTP_request(buf, strlen(buf))), ::Exception::RequestException);
+            delete[] buf;
+        }
     }
 
 }
-
-
-        // using IteratorType = std::vector<char*>::iterator;
-        // std::vector<char*>::iterator it = http_requests.begin();
-        // std::vector<char*>::iterator ite = http_requests.end();
-        // auto request = GENERATE_REF(from_range(it, ite - 1));
-        //  auto request = GENERATE_COPY(from_range(http_requests));
-        // auto request = GENERATE(http_request_mes);
