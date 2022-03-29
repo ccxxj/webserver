@@ -53,8 +53,6 @@ namespace HTTPRequest {
                     if (_payload_length == CONTENT_LENGTH) {
                         content_length = _set_content_length();
                     }
-                    //TODO: validate request line
-                    //TODO: validate headers
                 }
             }
             else {
@@ -255,7 +253,7 @@ namespace HTTPRequest {
                 _parse_payload(_decoded_body);
                 _remove_chunked_from_transfer_encoding(); // this is what rfc demands
             }
-            // TODO: should also read chunk extension
+            // TODO: should also read chunk extension or not?
         }
     }
 
