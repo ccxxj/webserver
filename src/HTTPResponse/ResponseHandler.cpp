@@ -20,6 +20,7 @@ namespace HTTPResponse {
 		_http_response_message = other._http_response_message;
 		_config = other._config;
 		_file = other._file;
+		_redirection_loop = other._redirection_loop;
         return *this;
     }
 
@@ -38,18 +39,21 @@ namespace HTTPResponse {
 			return(handle_error(ContentTooLarge));
 
 		//redirection //TODO discuss where to check redirection in this function i.e. what happens if a method is forbidden
-		if (!_config.get_return().empty()) {
+		if (!_config.get_return().empty()) { //&& _redirection_loop < 10
 			return (_handle_redirection());
 			//redirection loop? > where to build it? RequestHandler?
 			//add update status code with rediretion code?
 		}
+		// if (_redirection_loop == 10)
+		// 	_redirection_loop = 0;
 
 		//HTTP method handling
 		_handle_methods();
 	}
 
 	void ResponseHandler::_handle_redirection()
-	{
+	{	
+		_redirection_loop++;
 		std::map<int, std::string>::const_iterator it = _config.get_return().begin();
 		_http_response_message->set_status_code(Utility::to_string(it->first));
 		_http_response_message->set_reason_phrase("Moved Permanently");
