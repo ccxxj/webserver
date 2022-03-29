@@ -108,11 +108,9 @@ namespace HTTP {
 		for (std::vector<Config::LocationBlock>::const_iterator it = server->get_location().begin(); it != server->get_location().end(); it++) {
 			const std::string loc_route = it->get_route();
 			std::string searched_uri = "";
-			for (size_t i = 0; i < uri_paths.size(); i++)
-			{
-				searched_uri += uri_paths[i] + "/";
-				if (loc_route.compare(searched_uri) == 0)
-				{
+			for (size_t i = 0; i < uri_paths.size(); i++) {
+				searched_uri += uri_paths[i] + "/"; //FIXME no match if loc_route does not have a trailing slash
+				if (loc_route.compare(searched_uri) == 0) {
 					matched_locations.push_back(&(*it));
 					break; // no need to look further
 				}
