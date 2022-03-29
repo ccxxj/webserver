@@ -1,4 +1,4 @@
-#include "CGIRequest.hpp"
+#include "CGIHandler.hpp"
 
 #include <unistd.h>
 #include <string.h>
@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 
-CGIRequest::CGIRequest(){
+CGIHandler::CGIHandler(){
 //initialize the meta_variable map
 	_meta_variables["AUTH_TYPE"]; //from standard request fields
 	_meta_variables["CONTENT_LENGTH"];//from standard request fields
@@ -37,7 +37,7 @@ CGIRequest::CGIRequest(){
 	_cgi_extension.push_back(".pl");//TODO decide later if we want to let user to decide what are the extension can be executed as cgi
 }
 
-CGIRequest::~CGIRequest(){
+CGIHandler::~CGIHandler(){
 //free all the _envp[21] (cuz I used strdup for every elements)
 	// if(_search_cgi_extension){
 	// 	for(int i = 0; i < 20; i++){
@@ -47,8 +47,13 @@ CGIRequest::~CGIRequest(){
 	// }
 }
 
-// void CGIRequest::parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config)
-void CGIRequest::parse_meta_variables(void)
+void CGIHandler::update_path_translated(HTTPResponse::SpecifiedConfig &_config){
+	if(!_meta_variables["PATH_INFO"].empty())
+		_meta_variables["PATH_TRANSLATED"] = 
+
+}
+
+void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
 {
 	//check with Olga to map to the request message class
 	//TODO this need to be updated to the actual env variable, for now I am setting up myself for the basic to run cgi
@@ -56,12 +61,12 @@ void CGIRequest::parse_meta_variables(void)
 	_meta_variables["REQUEST_METHOD"] = "GET";
 
 //actual data
-	// _meta_variables["AUTH_TYPE"] = _http_request_message->get_header_value("AUTHORIZATION");
-	// _meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
-	// _meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
+	_meta_variables["AUTH_TYPE"] = _http_request_message->get_header_value("AUTHORIZATION");
+	_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
+	_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
-	// _meta_variables["PATH_INFO"]; //TODO decoding? or add the uri decoded value from URI data; has been decoded during parsing URI, value has been parsed during search for cgi extension, therefore completed
-	// _meta_variables["PATH_TRANSLATED"]; // if path_info is null, path_translated is null. otherwise: root + path_info
+	// (has been parsed during cgi searching)_meta_variables["PATH_INFO"];
+	_meta_variables["PATH_TRANSLATED"] = _config.get_root() +"/" + _meta_variables["PATH_INFO"]; // if path_info is null, path_translated is null. otherwise: root + path_info
 	_meta_variables["QUERY_STRING"];//TODO change query parse function in URI?? check with team. need a simple string of query
 	// _meta_variables["REMOTE_ADDR"];//set to the server network address. can be void
 	// _meta_variables["REMOTE_HOST"]; //if not remote_host value provided (hostname), substitute with the remote_address value
@@ -75,7 +80,7 @@ void CGIRequest::parse_meta_variables(void)
 	// _meta_variables["SERVER_SOFTWARE"];
 }
 
-void CGIRequest::set_envp(void)
+void CGIHandler::set_envp(void)
 {
 	std::string temp;
 	int i = 0;
@@ -89,14 +94,14 @@ void CGIRequest::set_envp(void)
 	_envp[i] = NULL;
 }
 
-void CGIRequest::set_argument(std::string cgi_path)
+void CGIHandler::set_argument(std::string cgi_path)
 {
 	_argument[0] = strdup(cgi_path.c_str());
 	_argument[1] = NULL;//TODO is it always NULL?
 }
 
 //input parameter will be uriData->get_path()
-void CGIRequest::search_cgi(std::vector<std::string> &path){
+void CGIHandler::search_cgi(std::vector<std::string> &path){
 	int size = path.size();
 	for(int i = 0; i < size; i++){
 		std::vector<std::string>::iterator it = _cgi_extension.begin();
@@ -114,15 +119,9 @@ void CGIRequest::search_cgi(std::vector<std::string> &path){
 	_search_cgi_extension = false;
 }
 
-// int CGIRequest::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config)
-int CGIRequest::execute_cgi()
+int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
 {
-	/*to replace to URIData _path*/
-	// search_cgi(_http_request_message->get_request_uri());
-	std::vector<std::string> path;
-	path.push_back("hello.py");
-	path.push_back("additional");
-	path.push_back("path");
+	std::vector<std::string> path = _http_request_message->get_uri().get_path();
 	search_cgi(path);
 	if(_search_cgi_extension == false)
 		return 0;	
@@ -134,7 +133,7 @@ int CGIRequest::execute_cgi()
 		std::perror("pipe");//TODO create exception later??
 	}
 	set_argument(_cgi_name);//TODO replace by the actual path, currently I am only use the predefined path
-	parse_meta_variables();//TODO replace by input from http request get_message_body
+	parse_meta_variables(_http_request_message, _config);//TODO replace by input from http request get_message_body
 	set_envp();
 	/*to change later when merge to the webserver*/
 	// write(inputPipe[1], _http_request_message->get_message_body().c_str(), std::stoi(_meta_variables["CONTENT_LENGTH"]));//TODO check with Olga, what if the message is hanging? e.g too big
