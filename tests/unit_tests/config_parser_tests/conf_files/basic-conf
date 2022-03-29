@@ -29,7 +29,8 @@ server {
 
 	location /myyy_route/ {
 		autoindex off;
-		error_page 301 /custom-301.html; #put them in the root!
+		error_page 301 /custom-301.html;
+		error_page 401 /custom-401.html;
 		return 301 https://localhost;
 	}
 
