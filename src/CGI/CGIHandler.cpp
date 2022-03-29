@@ -49,7 +49,7 @@ CGIHandler::~CGIHandler(){
 
 void CGIHandler::update_path_translated(HTTPResponse::SpecifiedConfig &_config){
 	if(!_meta_variables["PATH_INFO"].empty())
-		_meta_variables["PATH_TRANSLATED"] = 
+		_meta_variables["PATH_TRANSLATED"] = _config.get_root() + 
 
 }
 
