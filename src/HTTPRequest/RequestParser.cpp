@@ -165,12 +165,15 @@ namespace HTTPRequest {
         return header_name;
     }
 
+    bool RequestParser::_has_header_field(const std::string& header_name) {
+        return _http_request_message->get_headers().find(header_name) != _http_request_message->get_headers().end();
+    }
+
     void RequestParser::_define_message_body_length() {
         std::map<std::string, std::string> headers_map = _http_request_message->get_headers();
         std::map<std::string, std::string>::iterator transfer_encoding_iter = headers_map.find("TRANSFER_ENCODING");
-        std::map<std::string, std::string>::iterator content_length_iter = headers_map.find("CONTENT_LENGTH");
-        if (content_length_iter != headers_map.end()) { // if headers contain Content-Length
-            if (transfer_encoding_iter == headers_map.end()) { // and headers don't contain Transfer-Encoding
+        if (_has_header_field("CONTENT_LENGTH")) {
+            if (!_has_header_field("TRANSFER_ENCODING")) {
                 _payload_length = CONTENT_LENGTH;
             }
             else {
@@ -183,7 +186,7 @@ namespace HTTPRequest {
                 }
             }
         }
-        else if (transfer_encoding_iter != headers_map.end()) { // if headers contain Transfer-Encoding without Content-length
+        else if (_has_header_field("TRANSFER_ENCODING")) { // if headers contain Transfer-Encoding without Content-length
             _parse_transfer_encoding(transfer_encoding_iter->second);
             if (_payload_length != CHUNKED) {
                 _throw_request_exception(HTTPResponse::LengthRequired);
@@ -237,6 +240,9 @@ namespace HTTPRequest {
         else {
             if (_chunk_size == 0) {
                 // TODO: read_trailer_field() and add them to the headers;
+                if (_has_header_field("TRAILER")) {
+                    std::cout << "TRAILER!\n";
+                }
                 _assign_decoded_body_length_to_content_length();
                 //TODO:: Remove Trailer from existing header fields
                 _parse_payload(_decoded_body);
@@ -261,14 +267,12 @@ namespace HTTPRequest {
     void RequestParser::_assign_decoded_body_length_to_content_length() {
         std::string content_length_header_name = "CONTENT_LENGTH";
         const std::string content_length_value = Utility::to_string(_decoded_body_length);
-        const std::map<std::string, std::string>& headers = _http_request_message->get_headers();
-        std::map<std::string, std::string>::const_iterator content_length_iter = headers.find(content_length_header_name);
-        if (content_length_iter == headers.end()) {
-            std::pair<std::string, std::string> header_field(content_length_header_name, content_length_value);
-            _http_request_message->set_header_field(header_field);
+        if (_has_header_field(content_length_header_name)) {
+            _http_request_message->update_header_field(content_length_header_name, content_length_value);
         }
         else {
-            _http_request_message->update_header_field(content_length_header_name, content_length_value);
+            std::pair<std::string, std::string> header_field(content_length_header_name, content_length_value);
+            _http_request_message->set_header_field(header_field);
         }
     }
 
