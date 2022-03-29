@@ -43,7 +43,7 @@ namespace Config
         for (size_t i = 0; i < _servers.size(); i++)
         {
             if(_servers[i].get_listen().size() == 0)
-                throw std::runtime_error("missing listen line");
+                _servers[i].set_listen("listen 80;");
 			if(_servers[i].get_root().empty())
 				_servers[i].set_root_value(tmp); //default root value
         }
