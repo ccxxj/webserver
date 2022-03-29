@@ -293,8 +293,8 @@ namespace HTTPRequest {
         std::map<std::string, std::string>::const_iterator transfer_encoding_iter = headers.find(name);
         std::string value = transfer_encoding_iter->second;
         // chunked must always be the last parameter of transfer encoding. We're erasing the last part of the string which must be the length of "chunked"
-        size_t part_to_erase_size = strlen("chunked");
-        value.erase(value.end() - part_to_erase_size, value.end());
+        const std::string part_to_erase = "chunked";
+        value.erase(value.end() - part_to_erase.size(), value.end());
         _http_request_message->update_header_field(name, value);
     }
 }
