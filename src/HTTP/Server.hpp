@@ -19,6 +19,7 @@ namespace HTTP {
 		void _handle_events();
 		void _setup_listening_sockets();
 		bool _is_in_listen_sockfd_list(int fd);
+		void _setup_listening_ports();
 
 		void _remove_disconnected_client(int fd);
 		void _remove_connection_closed_by_server(int sock_kqueue);
