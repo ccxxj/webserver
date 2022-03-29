@@ -22,8 +22,7 @@ namespace Utility
         while (true)
         {
             size_t match = line.find(delimiter, start);
-            if (match == std::string::npos)
-            {
+            if (match == std::string::npos){
                 break;
             }
             size_t len = match - start;
@@ -32,6 +31,19 @@ namespace Utility
         }
         lines.push_back(line.substr(start, line.size()));
         return lines;
+    }
+    
+    std::vector<std::string> _split_line_in_two(const std::string &line, const char delimiter)
+    {
+        std::vector<std::string> parts;
+
+        size_t delimiter_position = line.find_first_of(delimiter, 0);
+        if (delimiter_position == std::string::npos) {
+            return parts;
+        }
+        parts.push_back(line.substr(0, delimiter_position)); // second argument of substr equals the length of the first part
+        parts.push_back(line.substr(delimiter_position + 1, line.size() - delimiter_position));
+        return parts;
     }
 
     std::string _trim(const std::string &s)
@@ -174,4 +186,9 @@ namespace Utility
 		std::cout << "[" << buf << "] ";
 		std::cout << str << std::endl;
 	}
+
+    bool is_found(const std::string& haystack, const std::string& needle) {
+        return haystack.find(needle) != std::string::npos;
+    }
+
 } // namespace Utility
