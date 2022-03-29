@@ -231,7 +231,7 @@ namespace HTTPRequest {
 
     void RequestParser::_parse_payload(std::string& line) {
         _http_request_message->set_payload(line);
-        std::cout << "PAYLOAD: " << line << std::endl;
+        // std::cout << "PAYLOAD: " << line << std::endl;
         _current_parsing_state = FINISHED;
     }
 
