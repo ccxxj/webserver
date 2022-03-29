@@ -28,7 +28,7 @@ namespace Config
 			}
 			else if (line.find("server_name") != std::string::npos)
 				single_server_block.append(line + "\n");
-			else if (line.find("server") == std::string::npos) //TODO may be simplified depending on invalidconfigexception change
+			else if (line.find("server") == std::string::npos)
 				single_server_block.append(line + "\n");
 		}
 		// print_server_blocks();

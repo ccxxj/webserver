@@ -45,7 +45,7 @@ namespace Config
             if(_servers[i].get_listen().size() == 0)
                 throw std::runtime_error("missing listen line");
 			if(_servers[i].get_root().empty())
-				_servers[i].set_root_value(tmp); //FIXME discuss + if you don't have a root in location & a location is matched. It fucks things up?
+				_servers[i].set_root_value(tmp); //default root value
         }
 	}
 
