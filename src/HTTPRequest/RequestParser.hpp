@@ -22,6 +22,7 @@ namespace HTTPRequest {
             HEADER,
             PAYLOAD,
             CHUNKED_PAYLOAD,
+            TRAILER,
             FINISHED
         };
 
@@ -49,11 +50,14 @@ namespace HTTPRequest {
         int _set_content_length();
         ssize_t _find_chunked_encoding_position(std::vector<std::string> &encodings, size_t encodings_num);
         void _parse_payload(std::string &line);
+        void _parse_trailer_header_fields(std::string &line);
         void _decode_chunked(std::string& line);
         void _set_chunk_size(std::string& line);
         void _assign_decoded_body_length_to_content_length();
-		bool _is_last_chunk(size_t chunk_size);
+		bool _is_last_chunk();
 		void _remove_chunked_from_transfer_encoding();
+		void _check_disallowed_trailer_header_fields();
+		void _remove_trailer_from_existing_header_fields();
 
         bool _is_method_supported(const std::string &method);
         size_t _longest_method_size();
