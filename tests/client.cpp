@@ -25,6 +25,7 @@ int main(int argc, char const *argv[])
                             "Accept-Language: en-us\r\n"
                             "Accept-Encoding: gzip, deflate\r\n"
                             "Connection: Keep-Alive\r\n"
+                            "Trailer: Expires\r\n"
                             "Transfer-Encoding: chunked\r\n\r\n"
 
                             "4\r\n"
@@ -34,6 +35,7 @@ int main(int argc, char const *argv[])
                             "E\r\n"
                             " in\r\n\r\nchunks.\r\n"
                             "0\r\n"
+                            "Expires: Wed, 21 Oct 2015 07:28:00 GMT\r\n"
                             "\r\n";
 
     std::string bla_mesasage = "bla";
