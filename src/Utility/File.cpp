@@ -183,7 +183,7 @@ namespace Utility
 		stat(path.c_str(), &statbuf);
 		time = gmtime(&statbuf.st_mtime);
 		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
-		std::string ret_val(buf);
+		std::string ret_val(buf); //FIXME abort error with 405 error get request
 		return ret_val;
 	}
 

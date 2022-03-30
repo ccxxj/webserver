@@ -52,7 +52,7 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_handle_redirection()
-	{	
+	{
 		_redirection_loop++;
 		std::map<int, std::string>::const_iterator it = _config.get_return().begin();
 		_http_response_message->set_status_code(Utility::to_string(it->first));
