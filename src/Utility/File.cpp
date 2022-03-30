@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <string.h> //for strerror
 
-//stat path check: relative to the current working directory of the calling process
+//stat path check: relative to the current working directory of the calling process //FIXME find path with realpath
 namespace Utility
 {
 	MimeTypes File::_mimes;

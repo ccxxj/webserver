@@ -169,6 +169,7 @@ namespace HTTP {
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
+					std::cout << "> " << connection_addr.sin_addr.s_addr << std::endl;
 					if (connection_socket_fd == -1)
 					{
 						std::perror("accept socket error");
@@ -176,7 +177,7 @@ namespace HTTP {
 					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
 						std::perror("fcntl error");
 					}
-					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd]);
+					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd], connection_addr);
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {

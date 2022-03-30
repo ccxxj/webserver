@@ -10,12 +10,13 @@
 
 
 namespace HTTP {
-	Connection::Connection(int connection_socket_fd, Config::ConfigData *config_data, ListenInfo& listen_info)
+	Connection::Connection(int connection_socket_fd, Config::ConfigData *config_data, ListenInfo& listen_info, sockaddr_in connection_addr)
 		// Connection::Connection(int connection_socket_fd, int server_listening_sockfd, sockaddr_in& connection_addr, int connection_addr_len)
 		: _socket_fd(connection_socket_fd)
 		, _listen_info(listen_info)
 		, _is_open(true)
 		, request_handler(new RequestHandler(*this, config_data, _listen_info))
+		, my_connection_addr(connection_addr)
 	// , _listening_socket_fd(server_listening_sockfd)
 	//	, _client_addr(connection_addr)
 	// , _client_addr_len(connection_addr_len)
@@ -25,6 +26,7 @@ namespace HTTP {
 	}
 
 	void Connection::handle_http_request() {
+		std::cout << "C: " << my_connection_addr.sin_addr.s_addr << std::endl;
 		request_handler->handle_http_request();
 	}
 
@@ -33,10 +35,13 @@ namespace HTTP {
 	}
 
 	void Connection::send(const void* buffer, size_t buffer_size) {
-		if (::send(_socket_fd, buffer, buffer_size, 0) < 0) {
+		size_t ret = ::send(_socket_fd, buffer, buffer_size, 0);
+		if ( ret < 0) {
 			Utility::logger("Send failed. errno: " + Utility::to_string(errno), RED);
 			this->close();
 		}
+		if (ret == buffer_size)
+			this->close();
 	}
 
 	void Connection::close() {
