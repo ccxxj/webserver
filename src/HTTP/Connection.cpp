@@ -35,13 +35,27 @@ namespace HTTP {
 	}
 
 	void Connection::send(const void* buffer, size_t buffer_size) {
-		size_t ret = ::send(_socket_fd, buffer, buffer_size, 0);
-		if ( ret < 0) {
-			Utility::logger("Send failed. errno: " + Utility::to_string(errno), RED);
-			this->close();
+		size_t bytes_sent = 0;
+		while (bytes_sent < buffer_size) {
+			size_t current_buffer_size;
+			size_t bytes_left = buffer_size - bytes_sent;
+			if (bytes_left < Constants::SEND_BUFFER_SIZE) {
+				current_buffer_size = bytes_left;
+			}
+			else {
+				current_buffer_size = Constants::SEND_BUFFER_SIZE;
+			}
+			const char *pbuffer = (const char*) buffer;
+			ssize_t ret = ::send(_socket_fd, pbuffer + bytes_sent, current_buffer_size, 0);
+			if (ret < 0) {
+				Utility::logger("Send failed. errno: " + Utility::to_string(errno), RED);
+				this->close();
+				break;
+			}
+			bytes_sent += ret;
+			usleep(10000);
 		}
-		if (ret == buffer_size)
-			this->close();
+		this->close();
 	}
 
 	void Connection::close() {
