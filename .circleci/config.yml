@@ -7,7 +7,7 @@ jobs:
         steps:
             - checkout # check out the code in the project directory
             - run:
-                  name: Install clang, make, libkqueue, nodejs, npm # nodejs & npm are needed for integration tests
+                  name: Install clang, make, libkqueue, python3-pip # the last is needed for the integration tests
                   command: |
                       apt update && DEBIAN_FRONTEND='noninteractive' apt install -y clang make libkqueue-dev git python3-pip
             - run:
