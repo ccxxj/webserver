@@ -130,7 +130,6 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_found_file(const std::string &str) {
-		//TODO redirection
 		//TODO CGI check again, everytime you find a file?
 		_http_response_message->set_message_body(_file.get_content(str));
 		if (_http_response_message->get_message_body().empty()) //FIXME what to do when file is empty?
@@ -153,6 +152,7 @@ namespace HTTPResponse {
 					return handle_error(InternalServerError);
 				//set up response for uploading
 				_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
+				_http_response_message->set_header_element("Content-Type", "text/html");
 				_http_response_message->set_status_code("200");
 				_http_response_message->set_reason_phrase("OK");
 				// _http_response_message->set_header_element("Location", new path?);
@@ -164,9 +164,11 @@ namespace HTTPResponse {
 			if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
 					return handle_error(InternalServerError);
 			_http_response_message->set_message_body("<h1><center> Successfully created the directory and the file! </center></h1>");
+			_http_response_message->set_header_element("Content-Type", "text/html");
 			_http_response_message->set_status_code("201"); //code if resource dir has been created with POST request
 			_http_response_message->set_reason_phrase("Created");
       	}
+		std::cout << "file: " << _http_request_message->get_header_value("Content-Type") << std::endl;
 		_build_final_response();
 	}
 
