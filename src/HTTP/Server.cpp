@@ -120,10 +120,12 @@ namespace HTTP {
 			Utility::logger("Error creating kqueue. errno: "  +  Utility::to_string(errno), RED);
 			std::exit(EXIT_FAILURE);
 		}
-		struct kevent kev[10], event_fds[10]; // kernel event
+		struct kevent kev, event_fds[10]; // kernel event
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
-			EV_SET(kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
-			if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
+			// Prepare an event:
+			EV_SET(&kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
+			// Register an event:
+			if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
 				std::perror("kevent");
 				std::exit(1);
 			}
@@ -132,6 +134,7 @@ namespace HTTP {
 			struct timespec timeout;
 			timeout.tv_sec = 30;
 			timeout.tv_nsec = 0;
+			// Receive events:
 			int new_events = kevent(sock_kqueue, NULL, 0, event_fds, 1, &timeout); //look out for events and register to event list; one event per time
 			if(new_events == -1) {
 				std::perror("kevent");
@@ -178,8 +181,8 @@ namespace HTTP {
 					}
 					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd]);
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
-					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
-					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
+					EV_SET(&kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
+					if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
 						std::perror("kevent error");
 					}
 				}
