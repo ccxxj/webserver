@@ -112,27 +112,31 @@ namespace HTTPRequest {
 
 	void URIParser::parse_queries(URIData &uri)
 	{
-		std::vector<std::string> query;
-		std::map<std::string, std::string> query_map;
-		size_t delimiter_equal_position;
-		size_t len;
-		if(query_string.size() > 0)
-		{
-			query = Utility::_split_line(query_string, '&');
-			int size = query.size();
-			for(int i = 0; i < size; i++)
-			{
-				delimiter_equal_position = query[i].find_first_of("=");
-				if(delimiter_equal_position == std::string::npos)
-					throw Exception::RequestException(HTTPResponse::PreconditionFailed);//TODO test in nginx to see if it is correct
-				len = query[i].length();
-				std::string key = query[i].substr(0, delimiter_equal_position);
-				std::string value = query[i].substr(delimiter_equal_position + 1, len - delimiter_equal_position - 1);
-				pct_decoding(key);
-				pct_decoding(value);
-				query_map.insert(std::make_pair(key, value));
-			}
-		}
-		uri.set_query(query_map);
-	}
+		uri.set_query(query_string);
+	}//TODO do I need to check the quality of the query? is it only going to be used in uri
+	
+	// void URIParser::parse_queries(URIData &uri){
+	// 	std::vector<std::string> query;
+	// 	std::map<std::string, std::string> query_map;
+	// 	size_t delimiter_equal_position;
+	// 	size_t len;
+	// 	if(query_string.size() > 0)
+	// 	{
+	// 		query = Utility::_split_line(query_string, '&');
+	// 		int size = query.size();
+	// 		for(int i = 0; i < size; i++)
+	// 		{
+	// 			delimiter_equal_position = query[i].find_first_of("=");
+	// 			if(delimiter_equal_position == std::string::npos)
+	// 				throw Exception::RequestException(HTTPResponse::PreconditionFailed);//TODO test in nginx to see if it is correct
+	// 			len = query[i].length();
+	// 			std::string key = query[i].substr(0, delimiter_equal_position);
+	// 			std::string value = query[i].substr(delimiter_equal_position + 1, len - delimiter_equal_position - 1);
+	// 			pct_decoding(key);
+	// 			pct_decoding(value);
+	// 			query_map.insert(std::make_pair(key, value));
+	// 		}
+	// 	}
+	// 	uri.set_query(query_map);
+	// }
 }

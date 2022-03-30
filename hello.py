@@ -1,4 +1,4 @@
-!/usr/bin/python
+#!/usr/bin/python
 
 #this is to let browser know what content type it is (maybe pass in via env)
 print "Content-type:text/html\r\n\r\n" 

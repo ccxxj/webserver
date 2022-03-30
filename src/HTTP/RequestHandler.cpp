@@ -22,7 +22,7 @@ namespace HTTP {
 
 	RequestHandler::~RequestHandler(){}
 
-	void RequestHandler::handle_http_request() {
+	void RequestHandler::handle_http_request(int kq) {
 		char buf[4096];
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
@@ -31,8 +31,8 @@ namespace HTTP {
 			perror("recv error");
 			_delegate.close();
 		} else {
-			std::cout << "\nRead " << bytes_read << " bytes\n";
-			std::cout.write(buf, bytes_read);
+			// std::cout << "\nRead " << bytes_read << " bytes\n";
+			// std::cout.write(buf, bytes_read);
 			try {
 				_parser.parse_HTTP_request(buf, bytes_read);
 			}
@@ -45,10 +45,10 @@ namespace HTTP {
 				return;
 			}
 			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
-				_process_http_request();
-			// std::string response = _http_response_message.get_complete_response();
-			// _delegate.send(&response[0], response.size());
-			// _delegate.close();
+				_process_http_request(kq);
+			std::string response = _http_response_message.get_complete_response();
+			_delegate.send(&response[0], response.size());
+			_delegate.close();
 		}
 	}
 
@@ -65,15 +65,17 @@ namespace HTTP {
 		return stringified_code;
 	}
 
-	void RequestHandler::RequestHandler::_process_http_request() { //TODO Logger to say which server & block is matched with the port info
+	void RequestHandler::RequestHandler::_process_http_request(int kq) { //TODO Logger to say which server & block is matched with the port info
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
 		std::cout << "Connecting from port " <<  _connection_listen_info.port << std::endl;
 		if(location)
 			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;
 		response_handler.set_config_rules(virtual_server, location);
-		if(response_handler.handle_cgi(_delegate.get_fd()) == 1)
+		std::string cgi_response(response_handler.handle_cgi(_delegate.get_fd(), kq));
+		if(!cgi_response.empty())
 		{
+			_http_response_message.set_complete_response(cgi_response);
 			return;
 		}
 		response_handler.create_http_response(); //FROM here, it's moving to ResponseHandler

@@ -4,7 +4,17 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <fcntl.h>
-#include <unistd.h>
+#include <stdlib.h>
+#include <sys/event.h>//for kqueue and kevent
+// #include <u.h>//for RFPROC
+// #include <libc.h>//RFPROC
+// #include <signal.h>
+// #include <sys/param.h>
+// #include <sys/types.h>
+// #include <sys/mman.h>
+// #include <sys/stat.h>
+// #include <semaphore.h>
+// #include <fcntl.h>
 
 
 CGIHandler::CGIHandler(){
@@ -32,6 +42,7 @@ CGIHandler::CGIHandler(){
 
 //initialize the extensions to search for
 	_cgi_extension.push_back(".php");
+	_cgi_extension.push_back("cgi");
 	_cgi_extension.push_back(".cgi");
 	_cgi_extension.push_back(".py");
 	_cgi_extension.push_back(".pl");//TODO decide later if we want to let user to decide what are the extension can be executed as cgi
@@ -47,10 +58,10 @@ CGIHandler::~CGIHandler(){
 	// }
 }
 
-void CGIHandler::update_path_translated(HTTPResponse::SpecifiedConfig &_config){
+/* append the cgi-bin location to the path after the script in the uri */
+void CGIHandler::update_path_translated(void){
 	if(!_meta_variables["PATH_INFO"].empty())
-		_meta_variables["PATH_TRANSLATED"] = _config.get_root() + 
-
+		_meta_variables["PATH_TRANSLATED"] = "/cgi-bin/" + _meta_variables["PATH_INFO"];
 }
 
 void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
@@ -66,14 +77,14 @@ void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 	_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
 	// (has been parsed during cgi searching)_meta_variables["PATH_INFO"];
-	_meta_variables["PATH_TRANSLATED"] = _config.get_root() +"/" + _meta_variables["PATH_INFO"]; // if path_info is null, path_translated is null. otherwise: root + path_info
-	_meta_variables["QUERY_STRING"];//TODO change query parse function in URI?? check with team. need a simple string of query
+	update_path_translated();// if path_info is null, path_translated is null. otherwise: root + path_info
+	_meta_variables["QUERY_STRING"] = _http_request_message->get_uri().get_query();//TODO change query parse function in URI?? check with team. need a simple string of query
 	// _meta_variables["REMOTE_ADDR"];//set to the server network address. can be void
 	// _meta_variables["REMOTE_HOST"]; //if not remote_host value provided (hostname), substitute with the remote_address value
 	// _meta_variables["REMOTE_IDENT"];
 	// _meta_variables["REMOTE_USER"];
-	// _meta_variables["REQUEST_METHOD"] = _http_request_message->get_method();// from method
-	// _meta_variables["SCRIPT_NAME"]; //from uri
+	_meta_variables["REQUEST_METHOD"] = _http_request_message->get_method();// from method
+	_meta_variables["SCRIPT_NAME"] = "/cgi-bin/" + _cgi_name; //path + script name
 	// _meta_variables["SERVER_NAME"];//from config
 	// _meta_variables["SERVER_PORT"];//from config
 	// _meta_variables["SERVER_PROTOCOL"];
@@ -94,9 +105,10 @@ void CGIHandler::set_envp(void)
 	_envp[i] = NULL;
 }
 
-void CGIHandler::set_argument(std::string cgi_path)
+void CGIHandler::set_argument(std::string cgi_name)
 {
-	_argument[0] = strdup(cgi_path.c_str());
+	std::string full_path = "/Volumes/Storage/goinfre/xxu/webserver/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
+	_argument[0] = strdup(full_path.c_str());
 	_argument[1] = NULL;//TODO is it always NULL?
 }
 
@@ -106,7 +118,7 @@ void CGIHandler::search_cgi(std::vector<std::string> &path){
 	for(int i = 0; i < size; i++){
 		std::vector<std::string>::iterator it = _cgi_extension.begin();
 		while(it != _cgi_extension.end()){
-			if(path[i].find(*it) != (int)std::string::npos){
+			if(path[i].find(*it) != (unsigned long)std::string::npos){
 				_cgi_name = path[i];
 				for(int j = i + 1; j < size; j++)
 					_meta_variables["PATH_INFO"] += "/" + path[j];
@@ -119,12 +131,25 @@ void CGIHandler::search_cgi(std::vector<std::string> &path){
 	_search_cgi_extension = false;
 }
 
-int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
+/* can be moved to utility or deleted*/
+void print_array(char **envp){
+	std::cout << "envp is: ";
+	int i = 0;
+	while(envp[i]){
+		std::cout << envp[i] << std::endl;
+		i++;
+	}
+}
+
+// int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
+char* CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int fd, int kq)
 {
 	std::vector<std::string> path = _http_request_message->get_uri().get_path();
 	search_cgi(path);
+	std::cout << "search result: " << _search_cgi_extension << std::endl;
 	if(_search_cgi_extension == false)
-		return 0;	
+		return nullptr;	
+	char *buf = (char *)malloc(4086 * sizeof(char));
 	int inputPipe[2], outputPipe[2];
 	if(pipe(inputPipe) == -1){
 		std::perror("pipe");//TODO create exception later??
@@ -135,36 +160,50 @@ int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, 
 	set_argument(_cgi_name);//TODO replace by the actual path, currently I am only use the predefined path
 	parse_meta_variables(_http_request_message, _config);//TODO replace by input from http request get_message_body
 	set_envp();
-	/*to change later when merge to the webserver*/
-	// write(inputPipe[1], _http_request_message->get_message_body().c_str(), std::stoi(_meta_variables["CONTENT_LENGTH"]));//TODO check with Olga, what if the message is hanging? e.g too big
-	std::string message_body = "Name=xxu&&email=xxu@gmail.com";
-	write(inputPipe[1], message_body.c_str(), message_body.size());//TODO check with Olga, what if the message is hanging? e.g too big
+	std::string request_message_body = _http_request_message->get_message_body();
+	write(inputPipe[1], request_message_body.c_str(), request_message_body.size());
+	
+	/*set up kevent and kqueue to monitor also child process*/
+	// struct kevent ev;
+
+	// signal(SIGINT, SIG_IGN);
+	// EV_SET(&ev, outputPipe[0], EVFILT_PROC, EV_ADD | EV_ENABLE, NOTE_FORK | NOTE_EXEC, 0, 0);
+	
+	// EV_SET(&ev, outputPipe[0], EVFILT_PROC, EV_ADD | EV_ENABLE, NULL, 0, 0);
+	
 	pid_t pid = fork();
 	if(pid < 0){
 		perror("fork failure");//TODO create exception later??
 	}
 	else if(pid == 0){
+		// if(kevent(kq, &ev, 1, NULL, 0, NULL))
+			// perror("kevent");
+		std::cout << "child process" << std::endl;
 		if(dup2(inputPipe[0], 0) < 0)
 			perror("dup failure");
 		if(dup2(outputPipe[1], 1) < 0)
 			perror("dup failure");
-		close(inputPipe[1]);	
+		close(inputPipe[1]);
 		close(outputPipe[0]);
 		//fcntl() set non-blocking flag??
+		// std::cout << "argument is " << _argument[0] << std::endl;
 		if(execve(_argument[0], _argument, _envp) == -1){
 			perror("execution error");//TODO create exception later??
-			return -1;
+			return nullptr;
 		}
 	}
 	else{
 		wait(0);//waitpid
 		//TODO do I need to close the write end? I think kqueue will take care of it
 		// close(outputPipe[1]);
-		char buf[4086];
+		std::cout << "parent process: " << std::endl;
 		memset(buf, 0, 4086);
-		read(outputPipe[0], buf, 4086);
-		std::cout << "buf is " << buf << std::endl;
+		ssize_t return_size = read(outputPipe[0], buf, 4086);
+		std::cout << return_size << std::endl;
+		// write(fd, buf, sizeof(buf));
+		// std::cout << "return size is " << return_size << std::endl;
+		// std::cout << "buf is " << buf << std::endl;
 		close(outputPipe[0]);
 	}
-	return 1;
+	return buf;
 }

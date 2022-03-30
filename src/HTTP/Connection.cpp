@@ -22,8 +22,8 @@ namespace HTTP {
 	Connection::~Connection(){
 	}
 
-	void Connection::handle_http_request() {
-		request_handler->handle_http_request();
+	void Connection::handle_http_request(int kq) {
+		request_handler->handle_http_request(kq);
 	}
 
 	bool Connection::is_connection_open() const {

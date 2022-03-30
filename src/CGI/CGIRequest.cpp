@@ -152,6 +152,7 @@ int CGIRequest::execute_cgi()
 		close(inputPipe[1]);	
 		close(outputPipe[0]);
 		//fcntl() set non-blocking flag??
+		
 		if(execve(_argument[0], _argument, _envp) == -1){
 			perror("execution error");//TODO create exception later??
 			return -1;

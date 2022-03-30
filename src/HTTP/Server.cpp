@@ -138,10 +138,10 @@ namespace HTTP {
 			timeout.tv_sec = 30;
 			timeout.tv_nsec = 0;
 			//print the event_fds
-			std::cout << "event fds are:\n";
-			for(int i = 0; i < 10; i++){
-				std::cout << event_fds[i].ident << " ";
-			}
+			// std::cout << "event fds are:\n";
+			// for(int i = 0; i < 10; i++){
+			// 	std::cout << event_fds[i].ident << " ";
+			// }
 			int new_events = kevent(sock_kqueue, NULL, 0, event_fds, 1, &timeout); //look out for events and register to event list; one event per time
 			if(new_events == -1) {
 				std::cerr << "it is caused by new events register failure \n";
@@ -197,7 +197,7 @@ namespace HTTP {
 				else if (event_fds[i].filter & EVFILT_READ) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connectio
-						(connection_iter->second)->handle_http_request();
+						(connection_iter->second)->handle_http_request(sock_kqueue);
 						break;
 					}
 				}

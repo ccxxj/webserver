@@ -17,7 +17,7 @@ private:
 	std::string _cgi_name;
 	std::vector<std::string> _cgi_extension;
 	bool _search_cgi_extension;
-	void update_path_translated(HTTPResponse::SpecifiedConfig &_config);
+	void update_path_translated(void);
 
 public:
 	CGIHandler();
@@ -27,8 +27,8 @@ public:
 	void search_cgi(std::vector<std::string> &path);
 	// void parse_meta_variables(void);
 	void set_envp(void);
-	void set_argument(std::string cgi_path);
+	void set_argument(std::string cgi_name);
 	// char **get_argument();
-	// int execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig _config, int fd);
-	int execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config);
+	char* execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int fd, int kq);
+	// int execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config);
 };

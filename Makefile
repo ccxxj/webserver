@@ -23,7 +23,7 @@ HEADERS = Webserver.hpp \
 	HTTPResponse/ResponseHandler.hpp \
 	HTTPResponse/ResponseMessage.hpp \
 	HTTPResponse/SpecifiedConfig.hpp \
-	CGI/CGIRequest.hpp\
+	CGI/CGIHandler.hpp\
 	Utility/Utility.hpp \
 	Utility/SmartPointer.hpp \
 	Utility/File.hpp
@@ -50,7 +50,7 @@ SRC = Webserver.cpp \
 	config/LocationBlock.cpp \
 	config/ConfigValidator.cpp \
 	config/ConfigTokenizer.cpp \
-	CGI/CGIRequest.cpp\
+	CGI/CGIHandler.cpp\
 	Utility/Utility.cpp \
 	Utility/File.cpp
 

@@ -25,7 +25,7 @@ namespace HTTP {
 		// Connection(int connection_socket_fd, int server_listening_sockfd, sockaddr_in& connection_addr, int connection_addr_len);
 		~Connection();
 
-		void handle_http_request();
+		void handle_http_request(int kq);
 		bool is_connection_open() const;
 		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(const void *buffer, size_t buffer_size);
