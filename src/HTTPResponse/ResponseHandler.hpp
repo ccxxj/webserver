@@ -18,6 +18,7 @@ namespace HTTPResponse
 		ResponseMessage *_http_response_message;
 		SpecifiedConfig _config;
 		Utility::File _file;
+		size_t _redirection_loop;
 
 		bool _verify_method(const std::vector<std::string> methods);
 		const std::string& _create_allowed_methods_line(const std::vector<std::string> methods);
@@ -26,10 +27,12 @@ namespace HTTPResponse
 		void _serve_file(void);
 		void _serve_directory(void);
 		void _serve_found_file(const std::string &str);
+		void _serve_custom_error_page(const std::string &str);
 		bool _search_for_index_page();
 		void _delete_file(void);
 		void _upload_file(void);
 		void _build_final_response();
+		void _handle_redirection();
 
 
 	public:

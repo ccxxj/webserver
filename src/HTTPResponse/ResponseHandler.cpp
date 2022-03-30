@@ -20,6 +20,7 @@ namespace HTTPResponse {
 		_http_response_message = other._http_response_message;
 		_config = other._config;
 		_file = other._file;
+		_redirection_loop = other._redirection_loop;
         return *this;
     }
 
@@ -37,13 +38,39 @@ namespace HTTPResponse {
 		if (!_check_client_body_size())
 			return(handle_error(ContentTooLarge));
 
+		//redirection //TODO discuss where to check redirection in this function i.e. what happens if a method is forbidden
+		if (!_config.get_return().empty()) { //&& _redirection_loop < 10
+			return (_handle_redirection());
+			//redirection loop? > where to build it? RequestHandler?
+			//add update status code with rediretion code?
+		}
+		// if (_redirection_loop == 10)
+		// 	_redirection_loop = 0;
+
 		//HTTP method handling
 		_handle_methods();
+	}
 
-		// if(status_code > 300 ?) //some errors are catched after handling methods?
-			//_handle_error(status_code);
-		// if(not_redirected)
-			//build_final_response (atm I'm calling build response from serve functions. review?)
+	void ResponseHandler::_handle_redirection()
+	{
+		_redirection_loop++;
+		std::map<int, std::string>::const_iterator it = _config.get_return().begin();
+		_http_response_message->set_status_code(Utility::to_string(it->first));
+		_http_response_message->set_reason_phrase("Moved Permanently");
+
+		//Save the redirected URL
+		_http_response_message->set_header_element("Location", it->second);
+
+		// generate redirection page
+		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
+		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
+								+ _http_response_message->get_status_code() + "</h1><center>"
+								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
+								+ "<hr><center> HungerWeb 1.0 </center>\r\n"
+								+ "</html>\r\n");
+
+		_build_final_response();
 	}
 
 	void ResponseHandler::_handle_methods(void) {
@@ -87,7 +114,7 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_serve_directory(void) {
 		//list the directory into response body
-		_http_response_message->set_payload(_file.list_directory());
+		_http_response_message->set_message_body(_file.list_directory());
 		if (_http_response_message->get_message_body().empty())
 			return (handle_error(InternalServerError));
 
@@ -102,12 +129,12 @@ namespace HTTPResponse {
 	void ResponseHandler::_serve_found_file(const std::string &str) {
 		//TODO redirection
 		//TODO CGI check again, everytime you find a file?
-		_http_response_message->set_payload(_file.get_content(str));
-		if (_http_response_message->get_message_body().empty())
+		_http_response_message->set_message_body(_file.get_content(str)); //FIXME Olga: did you change it to payload?
+		if (_http_response_message->get_message_body().empty()) //FIXME what to do when file is empty?
 			return (handle_error(Forbidden));
 
 		//set necessary headers
-		//_http_response_message->set_header_element("Content-Type", file.get_mime_type());
+		_http_response_message->set_header_element("Content-Type", _file.get_mime_type(str));
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
@@ -115,8 +142,7 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_upload_file(void) { //POST will upload a new resource
-		//TODO do we check in request parser if POST has no body? = no bad request error is catched
-		//TODO check what nginx does with (target resource == dir && (dir.exists etc.)) || (file && file.exists())
+		//TODO what if post req has no body?
 
 		if (_file.exists()) {
 			if (!_file.is_directory()) //means it's a file and it already exists
@@ -125,7 +151,7 @@ namespace HTTPResponse {
 				if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
 					return handle_error(InternalServerError);
 				//set up response for uploading
-				_http_response_message->set_payload("<h1><center> Successfully created file! </center></h1>");
+				_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
 				_http_response_message->set_status_code("200");
 				_http_response_message->set_reason_phrase("OK");
 				// _http_response_message->set_header_element("Location", new path?);
@@ -136,7 +162,7 @@ namespace HTTPResponse {
 				return handle_error(InternalServerError);
 			if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
 					return handle_error(InternalServerError);
-			_http_response_message->set_payload("<h1><center> Successfully created the directory and the file! </center></h1>");
+			_http_response_message->set_message_body("<h1><center> Successfully created the directory and the file! </center></h1>");
 			_http_response_message->set_status_code("201"); //code if resource dir has been created with POST request
 			_http_response_message->set_reason_phrase("Created");
       	}
@@ -157,7 +183,7 @@ namespace HTTPResponse {
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
 		_http_response_message->set_header_element("Content-Type", "text/html");
-		_http_response_message->set_payload("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
+		_http_response_message->set_message_body("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
 		_build_final_response();
 	}
 
@@ -169,12 +195,18 @@ namespace HTTPResponse {
 		if (code == MethodNotAllowed)
 			_http_response_message->set_header_element("Allow", _config.get_methods_line());
 
-		//handle custom error pages //TODO needs works with redirection which will be done afterwards
+		//handle custom error pages
+		if (!_config.get_error_page().empty()) {
+			std::map<int, std::string>::const_iterator it = _config.get_error_page().find(static_cast<int>(code));
+			if (it != _config.get_error_page().end()) {
+				return _serve_custom_error_page(it->second);
+			}
+		}
 
 		// generate error page
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
 		_http_response_message->set_header_element("Content-Type", "text/html");
-		_http_response_message->set_payload(std::string("<html>\r\n<center><h1>")
+		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
 								+ "<hr><center> HungerWeb 1.0 </center>\r\n"
@@ -182,6 +214,24 @@ namespace HTTPResponse {
 
 		_build_final_response();
 	}
+
+	void ResponseHandler::_serve_custom_error_page(const std::string &str) {
+		//TODO CGI check again, everytime you find a file?
+		_http_response_message->set_message_body(_file.get_content(_file.get_root() + str));
+		if (_http_response_message->get_message_body().empty())
+			return (handle_error(Forbidden));
+
+		//log error_page redirection
+		Utility::logger("Internal redirect [error_page " + str + "] " +
+						"[Root " + _config.get_root() + "] " +
+						"[Search Path " + _config.get_root() + str + "] "
+						, MAGENTA);
+		//set necessary headers
+		_http_response_message->set_header_element("Content-Type", _file.get_mime_type(str));
+		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
+		_build_final_response();
+	}
+
 
 	void ResponseHandler::_build_final_response()
 	{
@@ -258,7 +308,7 @@ namespace HTTPResponse {
 			_config.set_methods_line(location->get_limit_except());
 			_config.set_autoindex(location->get_autoindex());
 			_config.set_route(location->get_route());
-			if (!location->get_root().empty()) // if no root is specified in location, outer level's root is inherited
+			if (!location->get_root().empty())
 				_config.set_root_value(location->get_root());
 			_config.set_return_value(location->get_return());
 		}
@@ -281,8 +331,7 @@ namespace HTTPResponse {
 		tmp += "[Method " + _http_request_message->get_method() + "] ";
 		tmp += "[Target " + _file.get_target() + "] ";
 		tmp += "[Server " + Utility::to_string(_config.get_id()) + "] ";
-		if (_config.has_specific_location())
-			tmp += "[Location " + _config.get_route() + "] ";
+		tmp += "[Location " + _config.get_route() + "] ";
 		tmp += "[Root " + _config.get_root() + "] ";
 		tmp += "[Search Path " + _file.get_path() + "] ";
 
