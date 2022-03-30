@@ -16,5 +16,6 @@
 
 namespace Constants {
 
-	const int PAYLOAD_MAX_LENGTH = 2000;
+	const int PAYLOAD_MAX_LENGTH = 2097152; // 2MB
+	const int SEND_BUFFER_SIZE = 32768; // 32kB
 }
