@@ -34,16 +34,15 @@ namespace HTTPRequest {
                 _accumulator.resize(0);
                 return line;
             }
-            if (isascii(current_character)) {
+            // if (isascii(current_character)) {
                 _accumulator.append(1, current_character);
                 *bytes_accumulated += 1;
                 RequestReader::_length_counter++;
             }
-            else {
-                std::cout << "ERROR REASON:  NON_ASCII\n";  // TODO: checking for ascii for request line and headers only?
-                throw Exception::RequestException(HTTPResponse::BadRequest);
-
-            }
+            // else {
+            //     std::cout << "ERROR REASON:  NON_ASCII\n";  // TODO: checking for ascii for request line and headers only?
+            //     throw Exception::RequestException(HTTPResponse::BadRequest);
+            // }
         }
         return _accumulator;
     }
