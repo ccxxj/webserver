@@ -9,6 +9,8 @@
 #include "ResponseMessage.hpp"
 #include "SpecifiedConfig.hpp"
 
+extern size_t redirection_loop;
+
 namespace HTTPResponse
 {
 	class ResponseHandler
@@ -18,7 +20,6 @@ namespace HTTPResponse
 		ResponseMessage *_http_response_message;
 		SpecifiedConfig _config;
 		Utility::File _file;
-		size_t _redirection_loop;
 
 		bool _verify_method(const std::vector<std::string> methods);
 		const std::string& _create_allowed_methods_line(const std::vector<std::string> methods);

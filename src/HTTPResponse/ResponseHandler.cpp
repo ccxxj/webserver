@@ -3,6 +3,7 @@
 #include "../Constants.hpp"
 
 #include <sstream> // for converting int to string
+size_t redirection_loop = 0; //FIXME is it okay here?
 
 namespace HTTPResponse {
 	ResponseHandler::ResponseHandler(HTTPRequest::RequestMessage* request_message, ResponseMessage* response_message)
@@ -20,7 +21,6 @@ namespace HTTPResponse {
 		_http_response_message = other._http_response_message;
 		_config = other._config;
 		_file = other._file;
-		_redirection_loop = other._redirection_loop;
         return *this;
     }
 
@@ -38,25 +38,28 @@ namespace HTTPResponse {
 		if (!_check_client_body_size())
 			return(handle_error(ContentTooLarge));
 
-		//redirection //TODO discuss where to check redirection in this function i.e. what happens if a method is forbidden
-		if (!_config.get_return().empty()) { //&& _redirection_loop < 10
+		//redirection: server stops processing, responds with redirected location
+		if (!_config.get_return().empty() && redirection_loop < 10) { 
 			return (_handle_redirection());
-			//redirection loop? > where to build it? RequestHandler?
-			//add update status code with rediretion code?
 		}
-		// if (_redirection_loop == 10)
-		// 	_redirection_loop = 0;
+		if (redirection_loop == 10) { //redirection is limited to 10 times
+			redirection_loop = 0;
+		} 
 
 		//HTTP method handling
 		_handle_methods();
 	}
 
 	void ResponseHandler::_handle_redirection()
-	{
-		_redirection_loop++;
+	{	
+		redirection_loop++;
+
+		//get the redirection information
+			//the return directive applies only inside the topmost context it’s defined in
+			//so, it's first return directive saved in specified config
 		std::map<int, std::string>::const_iterator it = _config.get_return().begin();
 		_http_response_message->set_status_code(Utility::to_string(it->first));
-		_http_response_message->set_reason_phrase("Moved Permanently");
+		_http_response_message->set_reason_phrase(HTTPResponse::get_reason_phrase(static_cast<HTTPResponse::StatusCode>(it->first)));
 
 		//Save the redirected URL
 		_http_response_message->set_header_element("Location", it->second);
@@ -129,7 +132,7 @@ namespace HTTPResponse {
 	void ResponseHandler::_serve_found_file(const std::string &str) {
 		//TODO redirection
 		//TODO CGI check again, everytime you find a file?
-		_http_response_message->set_message_body(_file.get_content(str)); //FIXME Olga: did you change it to payload?
+		_http_response_message->set_message_body(_file.get_content(str));
 		if (_http_response_message->get_message_body().empty()) //FIXME what to do when file is empty?
 			return (handle_error(Forbidden));
 
@@ -142,8 +145,6 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_upload_file(void) { //POST will upload a new resource
-		//TODO what if post req has no body?
-
 		if (_file.exists()) {
 			if (!_file.is_directory()) //means it's a file and it already exists
 				return handle_error(Conflict);
