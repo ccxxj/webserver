@@ -11,7 +11,8 @@ namespace HTTPRequest {
     RequestReader::~RequestReader() {}
 
     bool RequestReader::_is_end_of_line(char character) { // previous \r should already be a part of the accumulator
-        return (character == '\n' && *(_accumulator.rbegin()) == '\r');
+        return (character == '\n' && _accumulator.size() != 0 
+                && _accumulator[_accumulator.size() - 1] == '\r');
     }
 
     bool RequestReader::_is_end_of_chunk(char* buffer, size_t bytes_accumulated) {
@@ -33,15 +34,15 @@ namespace HTTPRequest {
                 _accumulator.resize(0);
                 return line;
             }
-            if (isascii(current_character)) {
+            // if (isascii(current_character)) {
                 _accumulator.append(1, current_character);
                 *bytes_accumulated += 1;
                 RequestReader::_length_counter++;
-            }
-            else {
-                throw Exception::RequestException(HTTPResponse::BadRequest);
-
-            }
+            // }
+            // else {
+            //     std::cout << "ERROR REASON:  NON_ASCII\n";  // TODO: checking for ascii for request line and headers only?
+            //     throw Exception::RequestException(HTTPResponse::BadRequest);
+            // }
         }
         return _accumulator;
     }
@@ -54,15 +55,10 @@ namespace HTTPRequest {
             }
             char current_character = buffer[*bytes_accumulated];
             if (chunk_size > 0) {
-                if (isascii(current_character)) {
-                    _accumulator.append(1, current_character);
-                    *bytes_accumulated += 1;
-                    RequestReader::_length_counter++;
-                    chunk_size--;
-                }
-                else {
-                    throw Exception::RequestException(HTTPResponse::BadRequest);
-                }
+                _accumulator.append(1, current_character);
+                *bytes_accumulated += 1;
+                RequestReader::_length_counter++;
+                chunk_size--;
             }
             else {
                 if (_is_end_of_chunk(buffer, *bytes_accumulated)) {
