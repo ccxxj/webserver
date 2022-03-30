@@ -137,14 +137,13 @@ namespace Config
 		Utility::remove_last_of(';', line);
 		std::vector<std::string> deny_split = Utility::split_string_by_white_space(line);
 		if (deny_split.size() != 2)
-			throw std::runtime_error("invalid number of arguments in deny directive");	
+			throw std::runtime_error("invalid number of arguments in deny directive");
 		if (deny_split[0].compare("deny") != 0)
 			throw std::runtime_error("unknown directive " + deny_split[0]);
 		if (deny_split[1].compare("all") != 0)
 			throw std::runtime_error("invalid parameter " + deny_split[1]);
 	}
 
-	//TODO we decided to have simple limit except limit_except GET { deny all; }. So, no allow line?
 	void ConfigValidator::_validate_limit_except(std::string line, std::istringstream &stream)
 	{
 		std::vector<std::string> limit_except_split = Utility::split_string_by_white_space(line);
@@ -160,7 +159,7 @@ namespace Config
 				break;
 			}
 			else
-				throw std::runtime_error("unknown directive " + line);	
+				throw std::runtime_error("unknown directive " + line);
 		}
 	}
 

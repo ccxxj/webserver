@@ -10,7 +10,7 @@ namespace HTTPResponse {
         std::string _HTTP_version;
         std::string _status_code;
         std::string _reason_phrase;
-        std::string _payload;
+        std::string _message_body;
         std::string _complete_response;
 		std::map<std::string, std::string> _response_headers;
         bool _is_redirected;
@@ -22,7 +22,7 @@ namespace HTTPResponse {
 
         void set_status_code(const std::string& code);
         void set_reason_phrase(const std::string& reason);
-        void set_payload(const std::string& body);
+		void set_message_body(const std::string& body);
         void set_complete_response(const std::string& response);
         void append_complete_response(const std::string& response_part);
 		void set_header_element(std::string header, std::string value);

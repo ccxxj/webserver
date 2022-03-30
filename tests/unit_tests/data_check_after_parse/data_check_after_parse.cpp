@@ -23,7 +23,7 @@ TEST_CASE("Empty conf")
 	CHECK_THROWS(config.check_parsed_data());
 }
 
-TEST_CASE("Missing listen line")
+TEST_CASE("Missing listen line - Default port:80")
 {
 	Config::ConfigValidator validator("data_check_after_parse/conf_files/no_listen");
 	validator.validate();
@@ -32,6 +32,10 @@ TEST_CASE("Missing listen line")
 	Config::ConfigData config;
 	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
 	parser.parse();
-	CHECK_THROWS(config.check_parsed_data());
+	config.check_parsed_data();
+	const std::vector<Config::ServerBlock> servers = config.get_servers();
+	std::set<std::string> listen_set = servers[0].get_listen();
+	std::set<std::string>::iterator i = listen_set.begin();
+	CHECK(*i == "80");
 }
 

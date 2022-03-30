@@ -43,9 +43,9 @@ namespace Config
         for (size_t i = 0; i < _servers.size(); i++)
         {
             if(_servers[i].get_listen().size() == 0)
-                throw std::runtime_error("missing listen line");
+                _servers[i].set_listen("listen 80;");
 			if(_servers[i].get_root().empty())
-				_servers[i].set_root_value(tmp); //FIXME discuss + if you don't have a root in location & a location is matched. It fucks things up? 
+				_servers[i].set_root_value(tmp); //default root value
         }
 	}
 
@@ -67,7 +67,7 @@ namespace Config
     void ConfigData::print_returns(ServerBlock &server)
     {
 
-        std::vector<std::string> returns = server.get_return();
+        std::map<int, std::string> returns = server.get_return();
         std::cout << PURPLE << "returns: ";
         for (size_t i = 0; i < returns.size(); i++)
         {
@@ -79,7 +79,7 @@ namespace Config
     void ConfigData::print_error_pages(ServerBlock &server)
     {
 
-        std::vector<std::string> error_pages = server.get_error_page();
+        std::map<int, std::string> error_pages = server.get_error_page();
         std::cout << "\033[34m"
                   << "error_pages: ";
         for (size_t i = 0; i < error_pages.size(); i++)

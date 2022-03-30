@@ -169,6 +169,7 @@ namespace HTTP {
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
+					std::cout << "> " << connection_addr.sin_addr.s_addr << std::endl;
 					if (connection_socket_fd == -1)
 					{
 						std::perror("accept socket error");
@@ -176,7 +177,7 @@ namespace HTTP {
 					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
 						std::perror("fcntl error");
 					}
-					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd]);
+					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd], connection_addr);
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
@@ -194,18 +195,26 @@ namespace HTTP {
 		}
 	}
 
-	void Server::run() {
+	void Server::_setup_listening_ports() {
 		const std::vector<Config::ServerBlock> servers = config_data->get_servers();
 		for (size_t i = 0; i < servers.size(); i++)
 		{
 			std::set<std::string> listen_set = servers[i].get_listen();
-			//TODO [::]:1000's atoi result is 0 since the string starts with non-numerical number.
 			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) {
-				int port = std::atoi((*i).c_str());
+				int port;
+				size_t pos = (*i).find("[::]:");
+				if (pos != std::string::npos)
+					port = std::atoi((*i).substr(pos + 5).c_str()); //if ipv6 port, remove the [::]:
+				else
+					port = std::atoi((*i).c_str()); //if ipv4
 				if (std::find(_listen_ports.begin(), _listen_ports.end(), port) == _listen_ports.end()) //does not push duplicate ports
 					_listen_ports.push_back(port);
 			}
 		}
+	}
+
+	void Server::run() {
+		_setup_listening_ports();
 		_setup_listening_sockets();
 		_handle_events();
 	}

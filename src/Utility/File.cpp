@@ -9,9 +9,10 @@
 #include <errno.h>
 #include <string.h> //for strerror
 
-//stat path check: relative to the current working directory of the calling process
+//stat path check: relative to the current working directory of the calling process //FIXME find path with realpath
 namespace Utility
 {
+	MimeTypes File::_mimes;
 
 	File::File(/* args */)
 	{
@@ -22,6 +23,7 @@ namespace Utility
 	}
 
 	void File::set_path(const std::string &root, const std::vector<std::string> &uri_paths) {
+		_root = root;
 		_path += root;
 		set_target(uri_paths);
 		_path += _target;
@@ -59,20 +61,19 @@ namespace Utility
 		return S_ISDIR(buffer.st_mode);
 	}
 
-	const std::string & File::list_directory(void) { //TODO if you want more add last modified and size option to html
+	const std::string & File::list_directory(void) {
 		DIR *dir_p;
 		struct dirent *entry;
-		std::string	tmp;
 
 		dir_p = opendir(_path.c_str());
-		if (!dir_p)
+		if (!dir_p) {
+			Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
 			return _dir;
-		_dir += "<html>\r\n<h2>" + _path + "</h2><ul>";
+		}
+		_dir += "<html>\r\n<h2> Index of " + _target + "</h2>";
 		while ((entry = readdir(dir_p))) {
-			// tmp = _path + "/" + entry->d_name;
-			// _dir += "<li><a href=\"";
-			// _dir += tmp + "\">"; //TODO do we need to add links to files?
-			_dir += "<li><a>";
+			_dir += "<li><a href=\"";
+			_dir += _target + "/" + entry->d_name + "\">";
 			if (entry->d_type == DT_DIR)
 				_dir += "Dir  : ";
 			else
@@ -80,7 +81,6 @@ namespace Utility
 			_dir += entry->d_name;
 			_dir +=  "</a></li>";;
 		}
-		_dir += "</ul>";
 		closedir(dir_p);
 		return _dir;
 	}
@@ -91,8 +91,10 @@ namespace Utility
 		std::string	index = "index.html";
 
 		dir_p = opendir(_path.c_str());
-		if (!dir_p)
+		if (!dir_p) {
+			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 			return false;
+		}
 		while ((entry = readdir(dir_p))) {
 			if (entry->d_name == index) {
 				_index_page = std::string(entry->d_name);
@@ -109,11 +111,15 @@ namespace Utility
   		int ret;
 
 		int fd = open(str.c_str(), O_RDONLY);
-		if (fd == -1)
+		if (fd == -1) {
+			Utility::logger("DEBUG open : " + std::string(strerror(errno)) , RED);
 			return "";
+		}
 		while ((ret = read(fd, buf, 4096)) != 0) {
-			if (ret == -1)
+			if (ret == -1) {
+				Utility::logger("DEBUG read : " + std::string(strerror(errno)), RED);
 				return "";
+			}
 			buf[ret] = '\0';
 			file_content.insert(file_content.length(), buf, ret);
 		}
@@ -121,14 +127,15 @@ namespace Utility
 	}
 
 	bool File::un_link(const std::string &str) {
-		if (unlink(str.c_str()) == -1)
+		if (unlink(str.c_str()) == -1) {
+			Utility::logger("DEBUG unlink : " + std::string(strerror(errno)), RED);
 			return false;
+		}
 		return true;
 	}
 
 	bool File::create_dir() {
-		if (mkdir(_path.c_str(), 0755) == -1)
-		{
+		if (mkdir(_path.c_str(), 0755) == -1) {
 			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 			return false;
 		}
@@ -140,8 +147,10 @@ namespace Utility
 		struct dirent *entry;
 		int i = 0;
 		DIR *dir_p = opendir(_path.c_str());
-		if (!dir_p)
+		if (!dir_p) {
+			Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
 			return false;
+		}
 		while ((entry = readdir(dir_p))) {
 			i++;
 		}
@@ -151,7 +160,6 @@ namespace Utility
 		int fd = open((_path + "/file" + Utility::to_string(i - 1)).c_str(), O_CREAT | O_RDWR | O_TRUNC, 00755);
 		if (str.length() &&  write(fd, str.c_str(), str.length()) <= 0) // write the request body to the file
 			return false;
-		//Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 		return true;
 	}
 
@@ -175,8 +183,12 @@ namespace Utility
 		stat(path.c_str(), &statbuf);
 		time = gmtime(&statbuf.st_mtime);
 		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
-		std::string ret_val(buf);
+		std::string ret_val(buf); //FIXME abort error with 405 error get request
 		return ret_val;
+	}
+
+	std::string File::get_mime_type(const std::string& str) {
+		return _mimes.get_mime_type(str);
 	}
 
 	void File::set_index_page(const std::string &str) {
@@ -189,6 +201,10 @@ namespace Utility
 
 	const std::string & File::get_path(void) {
 		return _path;
+	}
+
+	const std::string & File::get_root(void) {
+		return _root;
 	}
 
 	const std::string & File::get_target(void) {
