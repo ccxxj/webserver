@@ -107,7 +107,13 @@ void CGIHandler::set_envp(void)
 
 void CGIHandler::set_argument(std::string cgi_name)
 {
-	std::string full_path = "/Volumes/Storage/goinfre/xxu/webserver/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
+	char *ptr;
+	char *buf;
+	long size = pathconf(".", _PC_PATH_MAX);
+	if((buf = (char *)malloc((size_t)size)) != NULL)
+		ptr = getcwd(buf, (size_t)size);
+	std::string executable_path(buf);//get the current executable location
+	std::string full_path = executable_path + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
 	_argument[0] = strdup(full_path.c_str());
 	_argument[1] = NULL;//TODO is it always NULL?
 }
@@ -145,6 +151,7 @@ void print_array(char **envp){
 char* CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int fd, int kq)
 {
 	std::vector<std::string> path = _http_request_message->get_uri().get_path();
+	std::cout << "check segfault\n";
 	search_cgi(path);
 	std::cout << "search result: " << _search_cgi_extension << std::endl;
 	if(_search_cgi_extension == false)
@@ -161,6 +168,7 @@ char* CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message
 	parse_meta_variables(_http_request_message, _config);//TODO replace by input from http request get_message_body
 	set_envp();
 	std::string request_message_body = _http_request_message->get_message_body();
+	std::cout << "message body is " << request_message_body << std::endl;
 	write(inputPipe[1], request_message_body.c_str(), request_message_body.size());
 	
 	/*set up kevent and kqueue to monitor also child process*/
@@ -186,7 +194,6 @@ char* CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message
 		close(inputPipe[1]);
 		close(outputPipe[0]);
 		//fcntl() set non-blocking flag??
-		// std::cout << "argument is " << _argument[0] << std::endl;
 		if(execve(_argument[0], _argument, _envp) == -1){
 			perror("execution error");//TODO create exception later??
 			return nullptr;
@@ -195,14 +202,14 @@ char* CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message
 	else{
 		wait(0);//waitpid
 		//TODO do I need to close the write end? I think kqueue will take care of it
+		//TODO if the process hang due to the execution was hanging, currently it is blocking. implement kqueue would solve the problem? => so it is needed to watch on the child process in this case
+		//TODO handle different error case: 1. execution problem 2. the requested cgi does not exist 3?
+		//TODO currently when I input localhost as request, there is segmentation fault, to discuss with the team
 		// close(outputPipe[1]);
 		std::cout << "parent process: " << std::endl;
 		memset(buf, 0, 4086);
 		ssize_t return_size = read(outputPipe[0], buf, 4086);
-		std::cout << return_size << std::endl;
-		// write(fd, buf, sizeof(buf));
-		// std::cout << "return size is " << return_size << std::endl;
-		// std::cout << "buf is " << buf << std::endl;
+		// std::cout <<"return size: " << return_size << "msg " << buf << std::endl;
 		close(outputPipe[0]);
 	}
 	return buf;
