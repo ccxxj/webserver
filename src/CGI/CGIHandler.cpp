@@ -188,7 +188,7 @@ std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_m
 		}
 	}
 	else{
-		wait(0);//waitpid
+		wait(0);//TODO should be more if conditions? waitpid?
 		//TODO do I need to close the write end? I think kqueue will take care of it
 		//TODO if the process hang due to the execution was hanging, currently it is blocking. implement kqueue would solve the problem? => so it is needed to watch on the child process in this case
 		//TODO handle different error case: 1. execution problem[check with Olga about long hanging] 2. the requested cgi does not exist 3 [done]
