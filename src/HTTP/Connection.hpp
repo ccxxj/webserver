@@ -21,7 +21,7 @@ namespace HTTP {
 		//sockaddr_in _client_addr;
 		// int _client_addr_len;
 	public:
-		Connection(int connection_socket_fd, Config::ConfigData *config_data, ListenInfo& _listen_info);
+		Connection(int connection_socket_fd, Config::ConfigData *config_data, ListenInfo& _listen_info, sockaddr_in connection_addr);
 		// Connection(int connection_socket_fd, int server_listening_sockfd, sockaddr_in& connection_addr, int connection_addr_len);
 		~Connection();
 

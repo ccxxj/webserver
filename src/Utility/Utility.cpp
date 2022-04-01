@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sys/time.h>
+#include "../Constants.hpp"
 
 namespace Utility
 {
@@ -21,8 +22,7 @@ namespace Utility
         while (true)
         {
             size_t match = line.find(delimiter, start);
-            if (match == std::string::npos)
-            {
+            if (match == std::string::npos){
                 break;
             }
             size_t len = match - start;
@@ -31,6 +31,19 @@ namespace Utility
         }
         lines.push_back(line.substr(start, line.size()));
         return lines;
+    }
+    
+    std::vector<std::string> _split_line_in_two(const std::string &line, const char delimiter)
+    {
+        std::vector<std::string> parts;
+
+        size_t delimiter_position = line.find_first_of(delimiter, 0);
+        if (delimiter_position == std::string::npos) {
+            return parts;
+        }
+        parts.push_back(line.substr(0, delimiter_position)); // second argument of substr equals the length of the first part
+        parts.push_back(line.substr(delimiter_position + 1, line.size() - delimiter_position));
+        return parts;
     }
 
     std::string _trim(const std::string &s)
@@ -143,4 +156,39 @@ namespace Utility
 		std::string ret_val(buf);
 		return ret_val;
 	}
+
+    std::string get_number_in_string(std::string& line) {
+        if (line == "") {
+            return "";
+        }
+        size_t non_number_position = line.find_first_not_of("0123456789ABCDEF", 0);
+        if (non_number_position != std::string::npos) {
+            return line.substr(0, non_number_position);
+        }
+        else {
+            return line.substr(0, line.size());
+        }
+    }
+
+    void logger(std::string str, std::string color)
+	{
+		struct tm *tm;
+		time_t rawtime;
+		char buf[32];
+
+		time(&rawtime);
+		tm = localtime(&rawtime);
+		int ret = strftime(buf, 32, "%T", tm);
+		buf[ret] = '\0';
+		(void)color;
+		// std::cout << GREEN << "[" << buf << "] " << RESET;
+		// std::cout << color << str << RESET << std::endl;
+		std::cout << "[" << buf << "] ";
+		std::cout << str << std::endl;
+	}
+
+    bool is_found(const std::string& haystack, const std::string& needle) {
+        return haystack.find(needle) != std::string::npos;
+    }
+
 } // namespace Utility

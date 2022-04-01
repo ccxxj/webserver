@@ -18,7 +18,8 @@
 #endif
 
 #include "RequestHandler.hpp"
-#include "../globals.hpp"
+#include "../Constants.hpp"
+#include "../Utility/Utility.hpp"
 
 namespace HTTP {
 
@@ -37,7 +38,7 @@ namespace HTTP {
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
 			_listening_sockfds.push_back(socket(AF_INET, SOCK_STREAM, 0));
 			if (_listening_sockfds[i] < 0) {
-				std::cout << "Socket failed. errno: " << errno << std::endl;
+				Utility::logger("Socket failed. errno: "  + Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
 			// When retrieving a socket option, or setting it, you specify the option name as well as the level. When level = SOL_SOCKET, the item will be searched for in the socket itself.
@@ -45,7 +46,7 @@ namespace HTTP {
 			// SO_REUSEADDR Reports whether the rules used in validating addresses supplied to bind() should allow reuse of local addresses,
 			// if this is supported by the protocol. More explanation in the docs/resoures/#Sockets
 			if (setsockopt(_listening_sockfds[i], SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-				std::cout << "Setting SO_REUSEADDR failed. errno: " << errno << std::endl;
+				Utility::logger("Setting SO_REUSEADDR failed. errno: " + Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
 			// TODO: adding other socket options like TCP_DEFER_ACCEPT?
@@ -54,11 +55,11 @@ namespace HTTP {
 			sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);// this is the address for this socket. The special adress for this is 0.0.0.0, defined by symbolic constant INADDR_ANY
 			sockaddr.sin_port = htons(_listen_ports[i]);//htons is necessary to convert a number to network byte order
 			if(bind(_listening_sockfds[i], (struct sockaddr *)&sockaddr, sizeof(sockaddr)) < 0) { //int bind(int sockfd, const sockaddr *addr, socklen_t addrlen); return -1 in case of error, return 0 in case of success;
-				std::cout << "Failed to bind to port " << _listen_ports[i] << " errno: " << errno << std::endl;
+				Utility::logger("Failed to bind to port " +  Utility::to_string(_listen_ports[i]) + " errno: " +  Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
 			if (listen(_listening_sockfds[i], 10) < 0) {
-				std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
+				Utility::logger("Failed to listen on socket. errno: " +  Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
 			if (fcntl(_listening_sockfds[i], F_SETFL, O_NONBLOCK) == ERROR) {
@@ -66,7 +67,7 @@ namespace HTTP {
 			}
 			ListenInfo each_listen("0.0.0.0", _listen_ports[i]); //this struct will hold both ip and port info of running servers
 			_running_servers[_listening_sockfds[i]] = each_listen;
-			std::cout << "***************The server is listening on port: " << _listen_ports[i] <<"***************" << std::endl;
+			Utility::logger("Server listening on port: " + Utility::to_string(_listen_ports[i]), MAGENTA);
 		}
 	}
 
@@ -116,7 +117,7 @@ namespace HTTP {
 	void Server::_handle_events() {
 		int sock_kqueue = kqueue(); //creates a new kernel event queue and returns a descriptor.
 		if (sock_kqueue < 0) {
-			std::cerr << "Error creating kqueue. errno: " << errno << std::endl;
+			Utility::logger("Error creating kqueue. errno: "  +  Utility::to_string(errno), RED);
 			std::exit(EXIT_FAILURE);
 		}
 		struct kevent kev[10], event_fds[10]; // kernel event
@@ -169,10 +170,10 @@ namespace HTTP {
 					std::exit(EXIT_FAILURE);
 				}
 				else if (event_fds[i].flags & EV_EOF) {
-					std::cout << "The client has disconnected." << std::endl;
+					Utility::logger("The client has disconnected.", RED);
 					close(current_event_fd);
 					_remove_disconnected_client(current_event_fd);
-					std::cout << "FD " << current_event_fd << " is closed and removed from _connections." << std::endl;
+					Utility::logger("FD " + Utility::to_string(current_event_fd) + " is closed and removed from _connections." , RED);
 				}
 				else if(_is_in_listen_sockfd_list(current_event_fd)) {
 					// iterate the map of connections and if any connection is closed remov it from the map:
@@ -180,6 +181,7 @@ namespace HTTP {
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
+					std::cout << "> " << connection_addr.sin_addr.s_addr << std::endl;
 					if (connection_socket_fd == -1)
 					{
 						std::perror("accept socket error");
@@ -187,7 +189,7 @@ namespace HTTP {
 					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
 						std::perror("fcntl error");
 					}
-					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd]);
+					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd], connection_addr);
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
 					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
@@ -205,18 +207,26 @@ namespace HTTP {
 		}
 	}
 
-	void Server::run() {
+	void Server::_setup_listening_ports() {
 		const std::vector<Config::ServerBlock> servers = config_data->get_servers();
 		for (size_t i = 0; i < servers.size(); i++)
 		{
 			std::set<std::string> listen_set = servers[i].get_listen();
-			//TODO [::]:1000's atoi result is 0 since the string starts with non-numerical number.
 			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) {
-				int port = std::atoi((*i).c_str());
+				int port;
+				size_t pos = (*i).find("[::]:");
+				if (pos != std::string::npos)
+					port = std::atoi((*i).substr(pos + 5).c_str()); //if ipv6 port, remove the [::]:
+				else
+					port = std::atoi((*i).c_str()); //if ipv4
 				if (std::find(_listen_ports.begin(), _listen_ports.end(), port) == _listen_ports.end()) //does not push duplicate ports
 					_listen_ports.push_back(port);
 			}
 		}
+	}
+
+	void Server::run() {
+		_setup_listening_ports();
 		_setup_listening_sockets();
 		_handle_events();
 	}

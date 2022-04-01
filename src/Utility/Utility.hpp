@@ -7,6 +7,7 @@
 namespace Utility {
 
 	std::vector<std::string> _split_line(const std::string& line, const char delimiter);
+	std::vector<std::string> _split_line_in_two(const std::string& line, const char delimiter);
 	std::string _trim(const std::string& s);
 	bool contains_whitespace(std::string &str);
 	bool check_first_keyword(std::string line, std::string keyword);
@@ -21,4 +22,7 @@ namespace Utility {
 	bool is_hyphen(char c);
 	const std::string to_string(const int code);
 	std::string get_formatted_date();
+	std::string get_number_in_string(std::string &line);
+	void logger(std::string str, std::string color);
+	bool is_found(const std::string& haystack, const std::string& needle);
 }

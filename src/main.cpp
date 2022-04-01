@@ -1,6 +1,6 @@
 #include "Webserver.hpp"
 #include <iostream>
-#define DEFAULT_CONFIG "config/default-conf"
+#define DEFAULT_CONFIG "config/default.conf"
 
 int main(int argc, char **argv) {
 	std::string file_path;

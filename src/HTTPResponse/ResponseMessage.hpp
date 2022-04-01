@@ -22,7 +22,7 @@ namespace HTTPResponse {
 
         void set_status_code(const std::string& code);
         void set_reason_phrase(const std::string& reason);
-        void set_message_body(const std::string& body);
+		void set_message_body(const std::string& body);
         void set_complete_response(const std::string& response);
         void append_complete_response(const std::string& response_part);
 		void set_header_element(std::string header, std::string value);

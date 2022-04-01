@@ -1,7 +1,7 @@
 #include "RequestMessage.hpp"
 
 namespace HTTPRequest {
-    RequestMessage::RequestMessage() : _method(""), _request_uri(""), _HTTP_version(""), _message_body(""){}
+    RequestMessage::RequestMessage() : _method(""), _request_uri(""), _HTTP_version(""), _payload(""){}
 
     RequestMessage::~RequestMessage() {}
 
@@ -31,8 +31,7 @@ namespace HTTPRequest {
         return (*_request_headers.find(header_name)).second;
     }
 
-//debug
-    std::map<std::string, std::string> RequestMessage::get_headers() const {
+    const std::map<std::string, std::string>& RequestMessage::get_headers() const {
         return _request_headers;
     }
 
@@ -47,12 +46,19 @@ namespace HTTPRequest {
         }
     }
 
-    const std::string& RequestMessage::get_message_body() const {
-        return _message_body;
+    void RequestMessage::update_header_field(const std::string& header_name, const std::string& new_value) {
+        std::map<std::string, std::string>::iterator header_name_position = _request_headers.find(header_name);
+        if ( header_name_position != _request_headers.end()) {
+            header_name_position->second = new_value;
+        }
     }
 
-    void RequestMessage::set_message_body(std::string& body) {
-        _message_body = body;
+    const std::string& RequestMessage::get_message_body() const {
+        return _payload;
+    }
+
+    void RequestMessage::set_payload(std::string& body) {
+        _payload = body;
     }
 
     void RequestMessage::set_uri(URIData &uri)
@@ -65,5 +71,3 @@ namespace HTTPRequest {
         return uri_data;
     }
 }
-
-

@@ -29,16 +29,16 @@ namespace HTTPResponse
     SpecifiedConfig::~SpecifiedConfig() {}
 
     /* setters */
-    void SpecifiedConfig::set_return_value(const std::vector<std::string>& returns)
+    void SpecifiedConfig::set_return_value(const std::map<int, std::string>& returns)
     {
-		for (std::vector<std::string>::const_iterator it = returns.begin(); it != returns.end(); it++)
-			_return.push_back(*it);
+		for (std::map<int, std::string>::const_iterator it = returns.begin(); it != returns.end(); it++)
+			_return.insert(*it);
     }
 
-    void SpecifiedConfig::set_error_page_value(const std::vector<std::string>& errors)
+    void SpecifiedConfig::set_error_page_value(const std::map<int, std::string>& errors)
     {
-		for (std::vector<std::string>::const_iterator it = errors.begin(); it != errors.end(); it++)
-			_error_page.push_back(*it);
+		for (std::map<int, std::string>::const_iterator it = errors.begin(); it != errors.end(); it++)
+			_error_page.insert(*it);
     }
 
 	void SpecifiedConfig::set_limit_except(const std::vector<std::string>& methods)
@@ -83,13 +83,18 @@ namespace HTTPResponse
 		_has_specific_location = value;
 	}
 
+    void SpecifiedConfig::set_id(int num) 
+    {
+        _id = num;
+    }
+
     /* getters */
     int SpecifiedConfig::get_client_max_body_size(void) const
     {
         return _client_max_body_size;
     }
 
-    const std::vector<std::string>& SpecifiedConfig::get_return(void) const
+    const std::map<int, std::string>& SpecifiedConfig::get_return(void) const
     {
         return _return;
     }
@@ -99,7 +104,7 @@ namespace HTTPResponse
         return _root;
     }
 
-    const std::vector<std::string>& SpecifiedConfig::get_error_page(void) const
+    const std::map<int, std::string>& SpecifiedConfig::get_error_page(void) const
     {
         return _error_page;
     }
@@ -125,5 +130,10 @@ namespace HTTPResponse
 
 	bool SpecifiedConfig::has_specific_location(void) const {
         return _has_specific_location;
+    }
+
+    int SpecifiedConfig::get_id(void) const
+    {
+        return _id;
     }
 } // namespace Config

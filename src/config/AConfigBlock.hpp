@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 namespace Config
 {
@@ -12,8 +13,8 @@ namespace Config
 	protected:
 		/* data */
 		std::string _root;
-		std::vector<std::string> _return;
-		std::vector<std::string> _error_page;
+		std::map<int, std::string> _return;
+		std::map<int, std::string> _error_page;
 		int _client_max_body_size;
 		bool _is_size_default;
 
@@ -38,7 +39,7 @@ namespace Config
 		int get_client_max_body_size(void) const;
 		bool get_is_size_default(void) const;
 		const std::string& get_root(void) const;
-		const std::vector<std::string>& get_return(void) const;
-		const std::vector<std::string>& get_error_page(void) const;
+		const std::map<int, std::string>& get_return(void) const;
+		const std::map<int, std::string>& get_error_page(void) const;
 	};
 } // namespace Config

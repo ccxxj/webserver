@@ -6,7 +6,7 @@
 
 #include "Exceptions/RequestException.hpp"
 #include "../Utility/Utility.hpp"
-#include "../globals.hpp"
+#include "../Constants.hpp"
 
 namespace HTTP {
 	RequestHandler::RequestHandler(RequestHandlerDelegate& delegate, Config::ConfigData *config_data, ListenInfo& listen_info)
@@ -23,6 +23,7 @@ namespace HTTP {
 	RequestHandler::~RequestHandler(){}
 
 	void RequestHandler::handle_http_request(int kq) {
+		Utility::logger("New connection on port  : " + Utility::to_string(_connection_listen_info.port), MAGENTA);
 		char buf[4096];
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
@@ -39,7 +40,8 @@ namespace HTTP {
 			catch(const Exception::RequestException& e)
 			{
 				_handle_request_exception(e.get_error_status_code());
-				response_handler.handle_error(e.get_error_status_code()); //error response is built, and will be sent below			
+				Utility::logger("Request  [Bad Request]", YELLOW);
+				response_handler.handle_error(e.get_error_status_code()); //error response is built, and will be sent below
 			}
 			if (!_parser.is_parsing_finished()) {
 				return;
@@ -47,9 +49,8 @@ namespace HTTP {
 			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
 				_process_http_request(kq);
 			std::string response = _http_response_message.get_complete_response();
-			std::cout << response << std::endl;
 			_delegate.send(&response[0], response.size());
-			_delegate.close();
+			// _delegate.close();
 		}
 	}
 
@@ -69,9 +70,6 @@ namespace HTTP {
 	void RequestHandler::RequestHandler::_process_http_request(int kq) { //TODO Logger to say which server & block is matched with the port info
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
-		std::cout << "Connecting from port " <<  _connection_listen_info.port << std::endl;
-		if(location)
-			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;
 		response_handler.set_config_rules(virtual_server, location);
 		response_handler.create_http_response(kq); //FROM here, it's moving to ResponseHandler
 	}
@@ -97,7 +95,6 @@ namespace HTTP {
 
 	const Config::ServerBlock* RequestHandler::_match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
 		std::string host = _http_request_message.get_header_value("Host");
-		// if (host.empty()) //TODO empty host header
 		for (std::vector<const Config::ServerBlock*>::iterator it = matching_servers.begin(); it != matching_servers.end(); it++)
 			for (std::vector<std::string>::const_iterator srv_name = (*it)->get_server_name().begin(); srv_name != (*it)->get_server_name().end(); srv_name++)
 				if ((*srv_name).compare(host) == 0)
@@ -111,11 +108,9 @@ namespace HTTP {
 		for (std::vector<Config::LocationBlock>::const_iterator it = server->get_location().begin(); it != server->get_location().end(); it++) {
 			const std::string loc_route = it->get_route();
 			std::string searched_uri = "";
-			for (size_t i = 0; i < uri_paths.size(); i++)
-			{
-				searched_uri += uri_paths[i] + "/";
-				if (loc_route.compare(searched_uri) == 0)
-				{
+			for (size_t i = 0; i < uri_paths.size(); i++) {
+				searched_uri += uri_paths[i] + "/"; //FIXME no match if loc_route does not have a trailing slash
+				if (loc_route.compare(searched_uri) == 0) {
 					matched_locations.push_back(&(*it));
 					break; // no need to look further
 				}
