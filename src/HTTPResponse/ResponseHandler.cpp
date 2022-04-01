@@ -26,6 +26,8 @@ namespace HTTPResponse {
 	ResponseHandler::~ResponseHandler(){}
 
 	void ResponseHandler::create_http_response(int kq) {
+		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
+	
 		char *ptr = handle_cgi(0, kq);
 		std::string cgi_response;
 		if(ptr){
@@ -84,7 +86,7 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_handle_methods(void) {
-		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
+		
 
 		// if (_http_request_message->get_method() == "DELETE")
 		// 	//delete_file();
