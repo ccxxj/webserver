@@ -85,10 +85,9 @@ namespace Utility
 		return _dir;
 	}
 
-	bool File::find_index_page() {
+	bool File::find_index_page(const std::string& index) {
 		DIR *dir_p;
 		struct dirent *entry;
-		std::string	index = "index.html";
 
 		dir_p = opendir(_path.c_str());
 		if (!dir_p) {
@@ -113,12 +112,12 @@ namespace Utility
 		int fd = open(str.c_str(), O_RDONLY);
 		if (fd == -1) {
 			Utility::logger("DEBUG open : " + std::string(strerror(errno)) , RED);
-			return "";
+			return "Forbidden";
 		}
 		while ((ret = read(fd, buf, 4096)) != 0) {
 			if (ret == -1) {
 				Utility::logger("DEBUG read : " + std::string(strerror(errno)), RED);
-				return "";
+				return "Forbidden";
 			}
 			buf[ret] = '\0';
 			file_content.insert(file_content.length(), buf, ret);

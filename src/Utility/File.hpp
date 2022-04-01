@@ -33,7 +33,7 @@ namespace Utility
 		bool is_regular(void);
 		bool is_directory(void);
 		const std::string& list_directory(void);
-		bool find_index_page();
+		bool find_index_page(const std::string& index);
 		bool un_link(const std::string &str);
 		bool create_dir();
 		bool create_random_named_file_put_msg_body_in(const std::string &str);
