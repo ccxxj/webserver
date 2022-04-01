@@ -109,7 +109,7 @@ namespace Utility
 		std::string file_content;
 		char buf[4096 + 1];
   		int ret;
-
+		//TODO does this count as: Checking the value of errno is strictly forbidden after a read or a write operation?
 		int fd = open(str.c_str(), O_RDONLY);
 		if (fd == -1) {
 			Utility::logger("DEBUG open : " + std::string(strerror(errno)) , RED);

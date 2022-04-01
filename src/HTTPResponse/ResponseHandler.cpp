@@ -3,6 +3,7 @@
 #include "../Constants.hpp"
 
 #include <sstream> // for converting int to string
+#include <fstream>  // for ofstream
 size_t redirection_loop = 0; //FIXME is it okay here?
 
 namespace HTTPResponse {
@@ -35,23 +36,23 @@ namespace HTTPResponse {
 		// checks before moving on with methods
 		if(!_verify_method(_config.get_limit_except()))
 			return(handle_error(MethodNotAllowed));
-		if (!_check_client_body_size())
-			return(handle_error(ContentTooLarge));
+		// if (!_check_client_body_size())
+		// 	return(handle_error(ContentTooLarge));
 
 		//redirection: server stops processing, responds with redirected location
-		if (!_config.get_return().empty() && redirection_loop < 10) { 
+		if (!_config.get_return().empty() && redirection_loop < 10) {
 			return (_handle_redirection());
 		}
 		if (redirection_loop == 10) { //redirection is limited to 10 times
 			redirection_loop = 0;
-		} 
+		}
 
 		//HTTP method handling
 		_handle_methods();
 	}
 
 	void ResponseHandler::_handle_redirection()
-	{	
+	{
 		redirection_loop++;
 
 		//get the redirection information
@@ -144,38 +145,45 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_upload_file(void) { //POST will upload a new resource
-		if (_file.exists()) {
-			if (!_file.is_directory()) //means it's a file and it already exists
-				return handle_error(Conflict);
-			else { //target resource is a directory and server creates a file inside it
-				if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
-					return handle_error(InternalServerError);
-				//set up response for uploading
-				_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
-				_http_response_message->set_header_element("Content-Type", "text/html");
-				_http_response_message->set_status_code("200");
-				_http_response_message->set_reason_phrase("OK");
-				// _http_response_message->set_header_element("Location", new path?);
-			}
+		//URI will only hold directory info and should not point to an existing file
+		if (!_file.exists())
+			return handle_error(NotFound);
+
+		//TODO 415 type support check
+
+		if (!_file.is_directory()) //means it's a file and it already exists
+			return handle_error(Conflict);
+
+		else { //target resource is a directory and server creates a file inside it
+		std::string path_and_name = _file.get_path() + "/subject.txt"; //TODO when it's raw or binary?
+		std::cout << "name " << path_and_name << std::endl;
+		std::ofstream file_stream(path_and_name.c_str()); //TODO decoding for pdf and image?
+		//std::cout << "Dis " << _http_request_message->get_header_value("Content-Disposition") << std::endl;
+		if(file_stream)
+		{
+			//Difference between sending from postman and html upload 
+			// std::cout << "body " << _http_request_message->get_message_body() << std::endl;
+			file_stream << _http_request_message->get_message_body();
 		}
-		if (!_file.exists()) { //means server will create a directory with target resource and also create a file inside to hold info
-			if (!_file.create_dir())
-				return handle_error(InternalServerError);
-			if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
-					return handle_error(InternalServerError);
-			_http_response_message->set_message_body("<h1><center> Successfully created the directory and the file! </center></h1>");
+			// if (!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
+			// 	return handle_error(InternalServerError);
+
+			// set up response for uploading
+			_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
 			_http_response_message->set_header_element("Content-Type", "text/html");
-			_http_response_message->set_status_code("201"); //code if resource dir has been created with POST request
+			_http_response_message->set_status_code("201");
 			_http_response_message->set_reason_phrase("Created");
-      	}
-		std::cout << "file: " << _http_request_message->get_header_value("Content-Type") << std::endl;
+			_http_response_message->set_header_element("Location", _file.get_target() + "/subject.txt"); //FIXME discuss
+		}
+		// TODO std::cout << "file: " << _http_request_message->get_header_value("Content-Type") << std::endl;
 		_build_final_response();
 	}
 
 	void ResponseHandler::_delete_file(void) { //DELETE will delete a resource
 		//get file data check for errors with stat
-		if (!_file.exists()) //get file existence info
+		if (!_file.exists())
 			return handle_error(NotFound);
+
 		if (!_file.is_regular()) //allowing normal files to be removed
 			return handle_error(Forbidden);
 
