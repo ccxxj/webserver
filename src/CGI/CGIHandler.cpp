@@ -6,15 +6,6 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <sys/event.h>//for kqueue and kevent
-// #include <u.h>//for RFPROC
-// #include <libc.h>//RFPROC
-// #include <signal.h>
-// #include <sys/param.h>
-// #include <sys/types.h>
-// #include <sys/mman.h>
-// #include <sys/stat.h>
-// #include <semaphore.h>
-// #include <fcntl.h>
 
 
 CGIHandler::CGIHandler(){
@@ -66,17 +57,15 @@ void CGIHandler::update_path_translated(void){
 
 void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
 {
-	//check with Olga to map to the request message class
 	//TODO this need to be updated to the actual env variable, for now I am setting up myself for the basic to run cgi
-	_meta_variables["SERVER_PROTOCOL"] = "HTTP/1.0";
-	_meta_variables["REQUEST_METHOD"] = "GET";
+	_meta_variables["SERVER_PROTOCOL"] = "HTTP/1.1";
 
 //actual data
 	_meta_variables["AUTH_TYPE"] = _http_request_message->get_header_value("AUTHORIZATION");
 	_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
 	_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
-	// (has been parsed during cgi searching)_meta_variables["PATH_INFO"];
+	// _meta_variables["PATH_INFO"](has been parsed during cgi searching)_meta_variables["PATH_INFO"];
 	update_path_translated();// if path_info is null, path_translated is null. otherwise: root + path_info
 	_meta_variables["QUERY_STRING"] = _http_request_message->get_uri().get_query();//TODO change query parse function in URI?? check with team. need a simple string of query
 	// _meta_variables["REMOTE_ADDR"];//set to the server network address. can be void
@@ -85,7 +74,7 @@ void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 	// _meta_variables["REMOTE_USER"];
 	_meta_variables["REQUEST_METHOD"] = _http_request_message->get_method();// from method
 	_meta_variables["SCRIPT_NAME"] = "/cgi-bin/" + _cgi_name; //path + script name
-	// _meta_variables["SERVER_NAME"];//from config
+	_meta_variables["SERVER_NAME"] = _http_request_message->get_header_value("Host");//from config
 	// _meta_variables["SERVER_PORT"];//from config
 	// _meta_variables["SERVER_PROTOCOL"];
 	// _meta_variables["SERVER_SOFTWARE"];
@@ -204,12 +193,11 @@ char* CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message
 		//TODO do I need to close the write end? I think kqueue will take care of it
 		//TODO if the process hang due to the execution was hanging, currently it is blocking. implement kqueue would solve the problem? => so it is needed to watch on the child process in this case
 		//TODO handle different error case: 1. execution problem 2. the requested cgi does not exist 3?
-		//TODO currently when I input localhost as request, there is segmentation fault, to discuss with the team
 		// close(outputPipe[1]);
 		std::cout << "parent process: " << std::endl;
 		memset(buf, 0, 4086);
 		ssize_t return_size = read(outputPipe[0], buf, 4086);
-		// std::cout <<"return size: " << return_size << "msg " << buf << std::endl;
+		std::cout <<"return size: " << return_size << "msg " << buf << std::endl;
 		close(outputPipe[0]);
 	}
 	return buf;

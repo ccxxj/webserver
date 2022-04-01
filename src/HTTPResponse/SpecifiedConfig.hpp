@@ -11,7 +11,7 @@ namespace HTTPResponse
 	{
 	private:
 		std::string _root;
-		// std::vector<std::string> _server_name; //TODO if not used, remove.
+		// std::vector<std::string> _server_name; //TODO if not used, remove. 
 		std::vector<std::string> _return;
 		std::vector<std::string> _error_page;
 		std::vector<std::string> _limit_except;
@@ -30,10 +30,10 @@ namespace HTTPResponse
 		/* getters & setters */
 		void set_return_value(const std::vector<std::string>& returns);
 		void set_root_value(const std::string& str);
+		void set_route(const std::string& str);
 		void set_error_page_value(const std::vector<std::string>& errors);
 		void set_client_max_body_size(int client_max_body_size);
 		void set_limit_except(const std::vector<std::string>& methods);
-		void set_route(const std::string& str);
 		void set_methods_line(std::vector<std::string> methods);
 		void set_autoindex(int autoindex);
 		void set_specific_location(bool value);

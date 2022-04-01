@@ -27,6 +27,7 @@ namespace HTTPResponse
 		void _handle_methods(void);
 		void _serve_file(void);
 		void _build_final_response();
+		void _build_final_cgi_response(std::string &cgi_response);
 
 	public:
 		ResponseHandler(HTTPRequest::RequestMessage *request_message, ResponseMessage *response_message);
@@ -34,7 +35,7 @@ namespace HTTPResponse
 		const ResponseHandler &operator=(const ResponseHandler &other);
 		~ResponseHandler();
 
-		void create_http_response();
+		void create_http_response(int kq);
 		void handle_error(HTTPResponse::StatusCode code);
 		char* handle_cgi(int fd, int kq);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);

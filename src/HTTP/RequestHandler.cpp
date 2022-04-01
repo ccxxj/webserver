@@ -47,6 +47,7 @@ namespace HTTP {
 			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
 				_process_http_request(kq);
 			std::string response = _http_response_message.get_complete_response();
+			std::cout << response << std::endl;
 			_delegate.send(&response[0], response.size());
 			_delegate.close();
 		}
@@ -72,13 +73,7 @@ namespace HTTP {
 		if(location)
 			std::cout << location->get_route() << " is the most specific location for this request" << std::endl;
 		response_handler.set_config_rules(virtual_server, location);
-		std::string cgi_response(response_handler.handle_cgi(_delegate.get_fd(), kq));
-		if(!cgi_response.empty())
-		{
-			_http_response_message.set_complete_response(cgi_response);
-			return;
-		}
-		response_handler.create_http_response(); //FROM here, it's moving to ResponseHandler
+		response_handler.create_http_response(kq); //FROM here, it's moving to ResponseHandler
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
