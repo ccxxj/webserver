@@ -32,8 +32,8 @@ namespace HTTP {
 			perror("recv error");
 			_delegate.close();
 		} else {
-			std::cout << "\nRead " << bytes_read << " bytes\n";
-			std::cout.write(buf, bytes_read);
+			// std::cout << "\nRead " << bytes_read << " bytes\n";
+			// std::cout.write(buf, bytes_read);
 			try {
 				_parser.parse_HTTP_request(buf, bytes_read);
 			}
@@ -49,7 +49,6 @@ namespace HTTP {
 			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
 				_process_http_request();
 			std::string response = _http_response_message.get_complete_response();
-
 			_delegate.send(&response[0], response.size());
 			// _delegate.close();
 		}
