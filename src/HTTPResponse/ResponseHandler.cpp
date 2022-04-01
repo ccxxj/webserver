@@ -30,14 +30,14 @@ namespace HTTPResponse {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
 		//log request info
 		Utility::logger(request_info(), YELLOW);
-		
-		char *ptr = handle_cgi(0, kq);
-		std::string cgi_response;
-		if(ptr){
-			cgi_response = ptr;
+		try{
+			std::string cgi_response = handle_cgi(0, kq);
 			if(!cgi_response.empty()){
 				return _build_final_cgi_response(cgi_response);
 			}
+		}
+		catch(std::exception){
+			return(handle_error(InternalServerError));
 		}
 
 // checks before moving on with methods
@@ -378,7 +378,8 @@ namespace HTTPResponse {
 		return tmp;
 	}
 
-	char* ResponseHandler::handle_cgi(int fd, int kq)
+	// char* ResponseHandler::handle_cgi(int fd, int kq)
+	std::string ResponseHandler::handle_cgi(int fd, int kq)
 	{
 		// return _cgi_handler.execute_cgi(_http_request_message, _config, fd);
 		return _cgi_handler.execute_cgi(_http_request_message, _config, fd, kq);

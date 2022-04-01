@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <exception>
 
 #include "../HTTPRequest/RequestMessage.hpp"
 #include "../HTTPResponse/SpecifiedConfig.hpp"
@@ -18,17 +19,16 @@ private:
 	std::vector<std::string> _cgi_extension;
 	bool _search_cgi_extension;
 	void update_path_translated(void);
+	class CGIexception: public std::exception{
+		const char* what() const _NOEXCEPT { return "internal server error"; }
+	};
 
-public:
+public:		
 	CGIHandler();
 	~CGIHandler();
-	// void parse_meta_variables(HTTPRequest::RequestMessage request_message);//TODO update later
 	void parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config);
 	void search_cgi(std::vector<std::string> &path);
-	// void parse_meta_variables(void);
 	void set_envp(void);
 	void set_argument(std::string cgi_name);
-	// char **get_argument();
-	char* execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int fd, int kq);
-	// int execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config);
+	std::string execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int fd, int kq);
 };

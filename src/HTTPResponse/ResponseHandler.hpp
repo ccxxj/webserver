@@ -46,7 +46,8 @@ namespace HTTPResponse
 
 		void create_http_response(int kq);
 		void handle_error(HTTPResponse::StatusCode code);
-		char* handle_cgi(int fd, int kq);
+		// char* handle_cgi(int fd, int kq);
+		std::string handle_cgi(int fd, int kq);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
 		std::string response_status();
 		std::string request_info();

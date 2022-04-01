@@ -20,7 +20,9 @@ namespace HTTP {
 	// , _listening_socket_fd(server_listening_sockfd)
 	//	, _client_addr(connection_addr)
 	// , _client_addr_len(connection_addr_len)
-		{}
+		{
+			(void)my_connection_addr;
+		}
 
 	Connection::~Connection(){
 	}
