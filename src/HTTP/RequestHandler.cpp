@@ -32,8 +32,6 @@ namespace HTTP {
 			perror("recv error");
 			_delegate.close();
 		} else {
-			// std::cout << "\nRead " << bytes_read << " bytes\n";
-			// std::cout.write(buf, bytes_read);
 			try {
 				_parser.parse_HTTP_request(buf, bytes_read);
 			}
