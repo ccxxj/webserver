@@ -23,6 +23,7 @@ namespace Utility
 
 		void set_path(const std::string &root, const std::vector<std::string> &uri_paths);
 		void set_target(const std::vector<std::string> &uri_paths);
+		void set_root(const std::string &root);
 		void set_index_page(const std::string &str);
 		const std::string& get_path(void);
 		const std::string& get_root(void);

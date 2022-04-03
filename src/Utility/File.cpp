@@ -44,6 +44,10 @@ namespace Utility
 		}
 	}
 
+	void File::set_root(const std::string &root) {
+		_root = root;
+	}
+
 	bool File::exists(void) {
 		struct stat buffer;
 		return  stat(_path.c_str(), &buffer) == 0;
@@ -179,7 +183,9 @@ namespace Utility
 		struct tm	*time;
 		char buf[32];
 
-		stat(path.c_str(), &statbuf);
+		int ret = stat(path.c_str(), &statbuf);
+		if (ret != 0)
+			return "";
 		time = gmtime(&statbuf.st_mtime);
 		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
 		std::string ret_val(buf); //FIXME abort error with 405 error get request
