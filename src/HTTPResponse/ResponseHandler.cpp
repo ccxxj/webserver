@@ -4,6 +4,7 @@
 
 #include <sstream> // for converting int to string
 #include <fstream>  // for ofstream
+
 size_t redirection_loop = 0; //FIXME is it okay here?
 
 namespace HTTPResponse {
@@ -36,8 +37,8 @@ namespace HTTPResponse {
 		// checks before moving on with methods
 		if(!_verify_method(_config.get_limit_except()))
 			return(handle_error(MethodNotAllowed));
-		// if (!_check_client_body_size())
-		// 	return(handle_error(ContentTooLarge));
+		if (!_check_client_body_size())
+			return(handle_error(ContentTooLarge));
 
 		//redirection: server stops processing, responds with redirected location
 		if (!_config.get_return().empty() && redirection_loop < 10) {
@@ -90,11 +91,11 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
 		//TODO CGI check? where?
-		if (!_file.exists()) //get file existence info
+		if (!_file.exists()) 
 			return handle_error(NotFound);
 
 		if (_file.is_directory()) {
-			if (_file.find_index_page())
+			if (_file.find_index_page(_config.get_index_page())) //automatically looks for an index page
 				return(_serve_found_file(_file.get_path() + "/" + _file.get_index_page()));
 			else { // directory listing
 				if (_config.get_autoindex() == OFF)
@@ -106,13 +107,6 @@ namespace HTTPResponse {
 
 		if (!_file.is_directory()) { // means its a file
 			_serve_found_file(_file.get_path());
-			//TODO look into Content negotiation
-				// find the file in dir
-				// get file directory path (last of / ?)
-				// open directory
-				// readdir into dirent
-				// match files and push to matched vectors
-				// close dir
 		}
 	}
 
@@ -131,9 +125,9 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_found_file(const std::string &str) {
-		//TODO CGI check again, everytime you find a file?
+		//TODO CGI check again, everytime you find a file? 
 		_http_response_message->set_message_body(_file.get_content(str));
-		if (_http_response_message->get_message_body().empty()) //FIXME what to do when file is empty?
+		if (_http_response_message->get_message_body() == "Forbidden")
 			return (handle_error(Forbidden));
 
 		//set necessary headers
@@ -154,28 +148,41 @@ namespace HTTPResponse {
 		if (!_file.is_directory()) //means it's a file and it already exists
 			return handle_error(Conflict);
 
-		else { //target resource is a directory and server creates a file inside it
-		std::string path_and_name = _file.get_path() + "/subject.txt"; //TODO when it's raw or binary?
+		//target resource is a directory and server creates a file inside it
+		std::string path_and_name = _file.get_path() + "/irem.png"; //TODO when it's raw or binary?
 		std::cout << "name " << path_and_name << std::endl;
 		std::ofstream file_stream(path_and_name.c_str()); //TODO decoding for pdf and image?
 		//std::cout << "Dis " << _http_request_message->get_header_value("Content-Disposition") << std::endl;
-		if(file_stream)
-		{
-			//Difference between sending from postman and html upload 
-			// std::cout << "body " << _http_request_message->get_message_body() << std::endl;
-			file_stream << _http_request_message->get_message_body();
-		}
-			// if (!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
-			// 	return handle_error(InternalServerError);
+		
+		//REMOVE after getting the request_body
+		std::ifstream myfile("www/image.png");
+		std::string fileStr = std::string((std::istreambuf_iterator<char>(myfile)), std::istreambuf_iterator<char>());
+		myfile.close();
 
-			// set up response for uploading
-			_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
-			_http_response_message->set_header_element("Content-Type", "text/html");
-			_http_response_message->set_status_code("201");
-			_http_response_message->set_reason_phrase("Created");
-			_http_response_message->set_header_element("Location", _file.get_target() + "/subject.txt"); //FIXME discuss
+		if (file_stream) {
+			//  std::cout << "body " << _http_request_message->get_message_body() << std::endl;
+			//  file_stream << _http_request_message->get_message_body();
+			file_stream << fileStr;
 		}
-		// TODO std::cout << "file: " << _http_request_message->get_header_value("Content-Type") << std::endl;
+
+		// REMOVE: for testing
+		// std::string line;
+		//  std::ifstream x_file("www/upload/irem.png");
+		//  if (x_file.is_open())
+		//  {
+		//  	while (std::getline(x_file, line))
+		//  		std::cout << "L: " << line << std::endl;
+		//  }
+
+		// if (!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
+		// 	return handle_error(InternalServerError);
+
+		// set up response for uploading
+		_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
+		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_status_code("201");
+		_http_response_message->set_reason_phrase("Created");
+		_http_response_message->set_header_element("Location", _file.get_target() + "/subject.txt"); // FIXME discuss
 		_build_final_response();
 	}
 
@@ -229,7 +236,7 @@ namespace HTTPResponse {
 	void ResponseHandler::_serve_custom_error_page(const std::string &str) {
 		//TODO CGI check again, everytime you find a file?
 		_http_response_message->set_message_body(_file.get_content(_file.get_root() + str));
-		if (_http_response_message->get_message_body().empty())
+		if (_http_response_message->get_message_body() == "Forbidden")
 			return (handle_error(Forbidden));
 
 		//log error_page redirection
@@ -312,6 +319,7 @@ namespace HTTPResponse {
 
 
 		_config.set_root_value(virtual_server->get_root()); //if loc has root, this will be overwritten
+		_config.set_index_page(virtual_server->get_index_page()); //if loc has index, this will be overwritten
 		_config.set_return_value(virtual_server->get_return()); //returns are appended within levels
 		if(location) { //location specific config rules, appends and overwrites
 			_config.set_specific_location(true);
@@ -321,6 +329,7 @@ namespace HTTPResponse {
 			_config.set_route(location->get_route());
 			if (!location->get_root().empty())
 				_config.set_root_value(location->get_root());
+			//TODO index page
 			_config.set_return_value(location->get_return());
 		}
 	}

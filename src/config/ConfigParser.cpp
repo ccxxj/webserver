@@ -21,11 +21,11 @@ namespace Config
 
 	int ConfigParser::find_directive(std::string& line)
 	{
-		const char *directive_list[10] =
+		const char *directive_list[11] =
 			{"listen", "server_name", "client_max_body_size",
 			 "error_page", "return", "root", "limit_except",
-			 "autoindex", "location", NULL};
-		for (size_t i = 0; i < 9; i++)
+			 "autoindex", "location", "index", NULL};
+		for (size_t i = 0; i < 10; i++)
 		{
 			if (Utility::check_first_keyword(line, directive_list[i]))
 				return i;
@@ -83,6 +83,8 @@ namespace Config
 			server.set_return_value(line);
 		else if (e_num == ROOT)
 			server.set_root_value(line);
+		else if (e_num == INDEX_PAGE)
+			server.set_index_page(line);
 		//TODO anything specific to valid location block directive outside of server context
 		// else
 		// 	throw std::runtime_error("unknown directive " + line);
@@ -105,6 +107,8 @@ namespace Config
 			location.set_limit_except(line);
 		else if (e_num == AUTOINDEX)
 			location.set_autoindex(line);
+		else if (e_num == INDEX_PAGE)
+			location.set_index_page(line);
 		else
 			throw std::runtime_error("unknown directive " + line);
 	}

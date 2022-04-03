@@ -30,6 +30,7 @@ namespace Config
         _error_page = other._error_page;
         _is_size_default = other._is_size_default;
         _id = other._id;
+        _index_page = other._index_page;
         return *this;
     }
 

@@ -7,6 +7,7 @@ namespace Config
 
     AConfigBlock::AConfigBlock() {
         _is_size_default = false;
+        _index_page = "index.html";
     }
 
     AConfigBlock::AConfigBlock(const AConfigBlock &other)
@@ -21,6 +22,7 @@ namespace Config
         _error_page = other._error_page;
         _client_max_body_size = other._client_max_body_size;
         _is_size_default = other._is_size_default;
+        _index_page = other._index_page;
         return *this;
     }
 
@@ -122,6 +124,15 @@ namespace Config
         _is_size_default = false;
     }
 
+    void AConfigBlock::set_index_page(std::string& str)
+    {
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
+		if (args.size() != 2)
+		    throw std::logic_error("invalid number of arguments in index directive");
+        _index_page = args[1];
+    }
+
     /* getters */
     int AConfigBlock::get_client_max_body_size(void) const
     {
@@ -146,5 +157,10 @@ namespace Config
     const std::map<int, std::string>& AConfigBlock::get_error_page(void) const
     {
         return _error_page;
+    }
+
+    const std::string& AConfigBlock::get_index_page(void) const
+    {
+        return _index_page;
     }
 } // namespace Config
