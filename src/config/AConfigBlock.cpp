@@ -8,7 +8,7 @@ namespace Config
 
     AConfigBlock::AConfigBlock() {
         _is_size_default = false;
-        _index_page = "index.html";
+        _index_page = "index.html"; //default
     }
 
     AConfigBlock::AConfigBlock(const AConfigBlock &other)

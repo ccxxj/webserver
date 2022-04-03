@@ -85,9 +85,8 @@ namespace Config
 			server.set_root_value(line);
 		else if (e_num == INDEX_PAGE)
 			server.set_index_page(line);
-		//TODO anything specific to valid location block directive outside of server context
-		// else
-		// 	throw std::runtime_error("unknown directive " + line);
+		else
+			throw std::runtime_error("unknown directive in server block" + line);
 
 	}
 
