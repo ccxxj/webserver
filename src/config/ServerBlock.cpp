@@ -105,7 +105,7 @@ namespace Config
         _locations.push_back(location);
     }
 
-    void ServerBlock::set_id(int num) 
+    void ServerBlock::set_id(int num)
     {
         _id = num;
     }
