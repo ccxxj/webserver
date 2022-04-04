@@ -58,11 +58,12 @@ void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 	_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
 	_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
-	// _meta_variables["PATH_INFO"](has been parsed during cgi searching)_meta_variables["PATH_INFO"];
+	_meta_variables["PATH_INFO"] = "/cgi-bin/cgi_tester";
+	//change only for cgi_tester(has been parsed during cgi searching)_meta_variables["PATH_INFO"];
 	update_path_translated();// if path_info is null, path_translated is null. otherwise: root + path_info
 	_meta_variables["QUERY_STRING"] = _http_request_message->get_uri().get_query();
-	// _meta_variables["REMOTE_ADDR"];//TODO @Irem//set to the server network address. can be void
-	// _meta_variables["REMOTE_HOST"]; //TODO @Irem//if not remote_host value provided (hostname), substitute with the remote_address value
+	_meta_variables["REMOTE_ADDR"] = "127.0.0.1";//TODO @Irem//set to the server network address. can be void
+	_meta_variables["REMOTE_HOST"] = _http_request_message->get_header_value("HOST"); //TODO @Irem//if not remote_host value provided (hostname), substitute with the remote_address value
 	// _meta_variables["REMOTE_IDENT"];//TODO @Irem
 	// _meta_variables["REMOTE_USER"];//TODO @Irem
 	_meta_variables["REQUEST_METHOD"] = _http_request_message->get_method();// from method
