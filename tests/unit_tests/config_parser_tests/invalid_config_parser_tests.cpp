@@ -202,7 +202,7 @@ TEST_CASE("client_max_body_size directive check")
 	Config::ConfigParser parser(&config, tokenizer.get_server_tokens());
 	CHECK_THROWS(parser.parse());
 	}
-	SECTION("invalid value 120K")
+	SECTION("invalid value 120G")
 	{
 	Config::ConfigValidator validator("config_parser_tests/conf_files/client_max_body_size_2");
 	validator.validate();

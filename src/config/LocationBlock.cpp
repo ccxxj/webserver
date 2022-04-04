@@ -9,8 +9,7 @@ namespace Config
     LocationBlock::LocationBlock()
     {
         _autoindex = OFF; //default nginx
-        //TODO default client max body size check (nginx default 1M = 1000000 in decimal)
-        _client_max_body_size = 1;
+        _client_max_body_size = Constants::DEFAULT_MAX_SIZE_BODY;
         _is_size_default = true;
     }
 
@@ -29,6 +28,7 @@ namespace Config
         _error_page = other._error_page;
         _client_max_body_size = other._client_max_body_size;
         _is_size_default = other._is_size_default;
+        _index_page = other._index_page;
         return *this;
     }
 
