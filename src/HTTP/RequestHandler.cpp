@@ -94,7 +94,7 @@ namespace HTTP {
 	}
 
 	const Config::ServerBlock* RequestHandler::_match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
-		std::string host = _http_request_message.get_header_value("Host");
+		std::string host = _http_request_message.get_header_value("HOST"); 
 		for (std::vector<const Config::ServerBlock*>::iterator it = matching_servers.begin(); it != matching_servers.end(); it++)
 			for (std::vector<std::string>::const_iterator srv_name = (*it)->get_server_name().begin(); srv_name != (*it)->get_server_name().end(); srv_name++)
 				if ((*srv_name).compare(host) == 0)
