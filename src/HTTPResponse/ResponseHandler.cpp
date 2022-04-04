@@ -79,8 +79,6 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_handle_methods(void) {
-
-
 		if (_http_request_message->get_method() == "DELETE")
 			_delete_file();
 		else if (_http_request_message->get_method() == "POST")
@@ -91,7 +89,7 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
 		//TODO CGI check? where?
-		if (!_file.exists()) 
+		if (!_file.exists())
 			return handle_error(NotFound);
 
 		if (_file.is_directory()) {
@@ -125,7 +123,7 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_found_file(const std::string &str) {
-		//TODO CGI check again, everytime you find a file? 
+		//TODO CGI check again, everytime you find a file?
 		_http_response_message->set_message_body(_file.get_content(str));
 		if (_http_response_message->get_message_body() == "Forbidden")
 			return (handle_error(Forbidden));
@@ -139,6 +137,9 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_upload_file(void) { //POST will upload a new resource
+		//if there is nothing to upload in request body
+		if (_http_request_message->get_message_body().empty())
+			return handle_error(BadRequest);
 		//URI will only hold directory info and should not point to an existing file
 		if (!_file.exists())
 			return handle_error(NotFound);
@@ -149,22 +150,22 @@ namespace HTTPResponse {
 			return handle_error(Conflict);
 
 		//target resource is a directory and server creates a file inside it
+		//std::cout << "Dis " << _http_request_message->get_header_value("Content-Disposition") << std::endl;
 		std::string path_and_name = _file.get_path() + "/irem.png"; //TODO when it's raw or binary?
 		std::cout << "name " << path_and_name << std::endl;
-		std::ofstream file_stream(path_and_name.c_str()); //TODO decoding for pdf and image?
-		//std::cout << "Dis " << _http_request_message->get_header_value("Content-Disposition") << std::endl;
-		
+		std::ofstream file_stream(path_and_name.c_str());
+		if (!file_stream.is_open())
+			return handle_error(InternalServerError);
+		//  std::cout << "body " << _http_request_message->get_message_body() << std::endl;
+			file_stream << _http_request_message->get_message_body();
+
 		//REMOVE after getting the request_body
-		std::ifstream myfile("www/image.png");
-		std::string fileStr = std::string((std::istreambuf_iterator<char>(myfile)), std::istreambuf_iterator<char>());
-		myfile.close();
-
-		if (file_stream) {
-			//  std::cout << "body " << _http_request_message->get_message_body() << std::endl;
-			//  file_stream << _http_request_message->get_message_body();
-			file_stream << fileStr;
-		}
-
+		// std::ifstream myfile("www/image.png");
+		// std::string fileStr = std::string((std::istreambuf_iterator<char>(myfile)), std::istreambuf_iterator<char>());
+		// myfile.close();
+		// if (file_stream) {
+		// 	// file_stream << fileStr;
+		// }
 		// REMOVE: for testing
 		// std::string line;
 		//  std::ifstream x_file("www/upload/irem.png");
@@ -173,7 +174,7 @@ namespace HTTPResponse {
 		//  	while (std::getline(x_file, line))
 		//  		std::cout << "L: " << line << std::endl;
 		//  }
-
+		//TODO remove from File.cpp
 		// if (!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
 		// 	return handle_error(InternalServerError);
 
@@ -235,18 +236,20 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_serve_custom_error_page(const std::string &str) {
 		//TODO CGI check again, everytime you find a file?
+		_file.set_root("www");
 		_http_response_message->set_message_body(_file.get_content(_file.get_root() + str));
 		if (_http_response_message->get_message_body() == "Forbidden")
 			return (handle_error(Forbidden));
 
 		//log error_page redirection
 		Utility::logger("Internal redirect [error_page " + str + "] " +
-						"[Root " + _config.get_root() + "] " +
-						"[Search Path " + _config.get_root() + str + "] "
+						"[Root " + _file.get_root() + "] " +
+						"[Search Path " + _file.get_root() + str + "] "
 						, MAGENTA);
 		//set necessary headers
 		_http_response_message->set_header_element("Content-Type", _file.get_mime_type(str));
-		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
+		std::cout << str << std::endl;
+		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(_file.get_root() + str));
 		_build_final_response();
 	}
 
