@@ -123,7 +123,6 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_found_file(const std::string &str) {
-		//TODO CGI check again, everytime you find a file?
 		_http_response_message->set_message_body(_file.get_content(str));
 		if (_http_response_message->get_message_body() == "Forbidden")
 			return (handle_error(Forbidden));
@@ -143,21 +142,27 @@ namespace HTTPResponse {
 		//URI will only hold directory info and should not point to an existing file
 		if (!_file.exists())
 			return handle_error(NotFound);
-
-		//TODO 415 type support check
-
 		if (!_file.is_directory()) //means it's a file and it already exists
 			return handle_error(Conflict);
+		//else target resource is a directory and server creates a file inside it
 
-		//target resource is a directory and server creates a file inside it
+		//extract file name from content-disposition
+		std::string disposition_header = "form-data; name=\"new_file\"; filename=\"aNewSpring.pdf\"";
+		std::string path_and_name = _file.get_path() + "/" + _file.extract_file_name(disposition_header);
+		//TODO what if no header is given? when it's raw or binary? = extension?
+		// std::cout << "name " << path_and_name << std::endl; 
 		//std::cout << "Dis " << _http_request_message->get_header_value("Content-Disposition") << std::endl;
-		std::string path_and_name = _file.get_path() + "/irem.png"; //TODO when it's raw or binary?
-		std::cout << "name " << path_and_name << std::endl;
+		
+		//TODO test mp4 and what mime types do we not support?
+		if(_file.get_mime_type(path_and_name) == "text/plain" && path_and_name.find("txt") == std::string::npos)
+			return handle_error(UnsupportedMediaType);
+		
+		//create the new resource with the path and put request body inside		
 		std::ofstream file_stream(path_and_name.c_str());
 		if (!file_stream.is_open())
 			return handle_error(InternalServerError);
 		//  std::cout << "body " << _http_request_message->get_message_body() << std::endl;
-			file_stream << _http_request_message->get_message_body();
+		file_stream << _http_request_message->get_message_body();
 
 		//REMOVE after getting the request_body
 		// std::ifstream myfile("www/image.png");
@@ -183,7 +188,7 @@ namespace HTTPResponse {
 		_http_response_message->set_header_element("Content-Type", "text/html");
 		_http_response_message->set_status_code("201");
 		_http_response_message->set_reason_phrase("Created");
-		_http_response_message->set_header_element("Location", _file.get_target() + "/subject.txt"); // FIXME discuss
+		_http_response_message->set_header_element("Location", path_and_name); // FIXME discuss
 		_build_final_response();
 	}
 
@@ -203,6 +208,7 @@ namespace HTTPResponse {
 		_http_response_message->set_reason_phrase("OK");
 		_http_response_message->set_header_element("Content-Type", "text/html");
 		_http_response_message->set_message_body("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
+		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
 		_build_final_response();
 	}
 
@@ -260,10 +266,11 @@ namespace HTTPResponse {
 		std::string msg_body = _http_response_message->get_message_body();
 
 		// set any remaining headers
-		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
-		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
+		_http_response_message->set_header_element("Connection", "closed");
 		if(_http_request_message->get_method() != "HEAD")
 			_http_response_message->set_header_element("Content-Length", Utility::to_string(msg_body.length()));
+		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
+		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
 
 		// build status line
 		response += _http_response_message->get_HTTP_version() + " ";
@@ -332,7 +339,8 @@ namespace HTTPResponse {
 			_config.set_route(location->get_route());
 			if (!location->get_root().empty())
 				_config.set_root_value(location->get_root());
-			//TODO index page
+			if (location->get_index_page() != "index.html") //different from the default one
+				_config.set_index_page(location->get_index_page());
 			_config.set_return_value(location->get_return());
 		}
 	}
