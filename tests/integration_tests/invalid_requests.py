@@ -20,13 +20,14 @@ def test_request_with_long_method_returns_error():
 	assert send_http_request("nonimplementedmethod", "", headers) == 501
 
 
-
 def test_request_with_invalid_content_length():
 	headers = {'content-length': 'a'}
 	assert send_http_request("post", "", headers) == 400
 
 
-
+def test_not_allowed_method():
+	response = requests.get("http://localhost/method-error/")
+	assert response.status_code == 405
 
 # TODO: check this test
 # def test_request_with_long_uri():
