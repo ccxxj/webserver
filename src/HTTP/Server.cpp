@@ -169,7 +169,6 @@ namespace HTTP {
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
-					std::cout << "> " << connection_addr.sin_addr.s_addr << std::endl;
 					if (connection_socket_fd == -1)
 					{
 						std::perror("accept socket error");

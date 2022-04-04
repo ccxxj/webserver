@@ -26,7 +26,6 @@ namespace HTTP {
 	}
 
 	void Connection::handle_http_request() {
-		std::cout << "C: " << my_connection_addr.sin_addr.s_addr << std::endl;
 		request_handler->handle_http_request();
 	}
 

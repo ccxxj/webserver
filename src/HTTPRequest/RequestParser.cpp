@@ -107,7 +107,7 @@ namespace HTTPRequest {
         URIData uri_data;
         uri_parser.parse(uri_data);
         _http_request_message->set_uri(uri_data);
-        
+
         _http_request_message->set_HTTP_version(segments[2]);
         _current_parsing_state = HEADER;
     }
@@ -368,7 +368,7 @@ namespace HTTPRequest {
 // this is the list of the header fields that are not allowed to be placed in Trailer headers
     void RequestParser::_check_disallowed_trailer_header_fields() {
        const std::string& trailer_value = _http_request_message->get_header_value("TRAILER");
-       if (Utility::is_found(trailer_value, "Transfer-Encoding") 
+       if (Utility::is_found(trailer_value, "Transfer-Encoding")
             || Utility::is_found(trailer_value, "Content-Length")
             || Utility::is_found(trailer_value, "Host")
             || Utility::is_found(trailer_value, "Cache-Control")

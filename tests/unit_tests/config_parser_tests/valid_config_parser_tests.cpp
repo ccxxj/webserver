@@ -57,7 +57,7 @@ TEST_CASE("Parsing basic conf file")
 			CHECK(servers[1].get_server_name().size() == 1);
 			CHECK(servers[1].get_server_name()[0] == "random_name");
 			CHECK(servers[1].get_root() == "/var/www/localhost");
-			CHECK(servers[1].get_client_max_body_size() == 1);
+			CHECK(servers[1].get_client_max_body_size() == 8000000);
 			CHECK(servers[1].get_error_page().size() == 1);
 			std::map<int, std::string>::const_iterator it = servers[1].get_error_page().find(404);
 			CHECK(it->second == "/custom-404.html");

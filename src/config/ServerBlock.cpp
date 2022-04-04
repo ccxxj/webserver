@@ -1,6 +1,7 @@
 #include "ServerBlock.hpp"
 #include "../Utility/Utility.hpp"
 #include <cstdlib> // for atoi
+#include "../Constants.hpp"
 
 namespace Config
 {
@@ -8,8 +9,7 @@ namespace Config
     ServerBlock::ServerBlock()
     {
         _is_default = false;
-        //TODO default client max body size check (nginx default 1M = 1000000 in decimal)
-        _client_max_body_size = 1;
+        _client_max_body_size = Constants::DEFAULT_MAX_SIZE_BODY;
          _is_size_default = true;
     }
 
@@ -30,6 +30,7 @@ namespace Config
         _error_page = other._error_page;
         _is_size_default = other._is_size_default;
         _id = other._id;
+        _index_page = other._index_page;
         return *this;
     }
 
@@ -105,7 +106,7 @@ namespace Config
         _locations.push_back(location);
     }
 
-    void ServerBlock::set_id(int num) 
+    void ServerBlock::set_id(int num)
     {
         _id = num;
     }
