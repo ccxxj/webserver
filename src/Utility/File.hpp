@@ -41,6 +41,7 @@ namespace Utility
 		std::string last_modified_info(const std::string &path);
 		std::string last_modified_info();
 		std::string get_mime_type(const std::string& str);
+		std::string extract_file_name(const std::string &path);
 	};
 
 }

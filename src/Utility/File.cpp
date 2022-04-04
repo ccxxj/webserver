@@ -196,6 +196,16 @@ namespace Utility
 		return _mimes.get_mime_type(str);
 	}
 
+	std::string File::extract_file_name(const std::string &str) {
+		//str example: form-data; name=\"new_file\"; filename=\"specific_name_for.pdf\";
+		std::string key = "filename=\"";
+		size_t match = str.find(key);
+		std::string file_name = str.substr(match + key.size(), str.size());
+		size_t last_quote = file_name.find_last_not_of("\"");
+		file_name  = file_name.substr(0, last_quote + 1);
+		return file_name;
+	}
+
 	void File::set_index_page(const std::string &str) {
 		_index_page = str;
 	}
