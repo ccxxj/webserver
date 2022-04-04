@@ -38,7 +38,7 @@ namespace HTTPRequest {
         RequestReader _request_reader;
         State _current_parsing_state;
         MessageBodyLength _payload_length_type;
-        size_t _payload_bytes_left_to_parse;
+        ssize_t _payload_bytes_left_to_parse;
 
         ssize_t _chunk_size;
 		size_t _decoded_body_length;

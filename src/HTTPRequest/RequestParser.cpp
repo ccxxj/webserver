@@ -34,38 +34,47 @@ namespace HTTPRequest {
 
     void RequestParser::parse_HTTP_request(char* buffer, size_t bytes_read) {
         size_t bytes_accumulated = 0;
-        while (bytes_accumulated != bytes_read || _current_parsing_state != FINISHED)
-        {
+        while (bytes_accumulated != bytes_read) {
             bool can_be_parsed = false;
             std::string line;
             if (_current_parsing_state == CHUNKED_PAYLOAD && _chunk_size > 0) {
                 line = _request_reader.read_chunk(_chunk_size, buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
             }
+            else if (_current_parsing_state == PAYLOAD) {
+                line = _request_reader.read_payload(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
+                size_t line_size = line.size();
+                _payload_bytes_left_to_parse -= line_size;
+                if (_payload_bytes_left_to_parse == 0) {
+                    can_be_parsed = true;
+                    break;
+                }
+                else if (_payload_bytes_left_to_parse < 0) {
+                    std::cout << "ERROR REASON: PAYLOAD LENGTH IS LARGER THAN THE CONTENT_LENGTH HEADER VALUE\n";  // TODO: remove
+                    _throw_request_exception(HTTPResponse::BadRequest);
+                }
+            }
             else {
                 line = _request_reader.read_line(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
-                if (_current_parsing_state == MULTIPART_PAYLOAD || _current_parsing_state == PAYLOAD) {
+                if (_current_parsing_state == MULTIPART_PAYLOAD) {
                     _payload_bytes_left_to_parse -= line.size();
-                    if (_payload_bytes_left_to_parse < 0) {
-                        std::cout << "ERROR REASON: PAYLOAD LENGTH IS LARGER THAN THE CONTENT_LENGTH HEADER VALUE\n";  // TODO: remove
-                        _throw_request_exception(HTTPResponse::BadRequest);
-                    }
                 }
-                // std::cout << line << std::endl; // TODO: remove debug info
+                if (can_be_parsed) {
+                    line.erase(line.size() - 2, 2);
+                }
             }
-            if ((_current_parsing_state == PAYLOAD || _current_parsing_state == MULTIPART_PAYLOAD) 
-                && _payload_bytes_left_to_parse == 0) {
-                can_be_parsed = true;
-            }
-            // if the buffer is read and the request is complete( means the reader reached end of line for request line or header or read message body or message body size == 0)
+            std::cout << line << std::endl; // TODO: remove debug info
             if (can_be_parsed == true) {
                 _handle_request_message_part(line);
-                if (_current_parsing_state == PAYLOAD && _boundary == "") { // validating headers only once, right after we've finished parsing them
+                if (_current_parsing_state == PAYLOAD && _boundary == "" && _http_request_message->get_message_body().size() == 0) { // validating headers only once, right after we've finished parsing them
                     _validate_headers();
                 }
             }
             else {
                 return;
             }
+        }
+        if (_payload_bytes_left_to_parse == 0 && _current_parsing_state == PAYLOAD) {
+            _current_parsing_state = FINISHED;
         }
     }
 
@@ -286,11 +295,7 @@ namespace HTTPRequest {
 
     void RequestParser::_parse_payload(std::string& line) {
         _http_request_message->set_payload(line);
-        if (_boundary != "") {
-            _current_parsing_state = MULTIPART_PAYLOAD;
-            return;
-        }
-        if (_current_parsing_state != TRAILER) {
+        if (_payload_bytes_left_to_parse == 0 &&  _current_parsing_state != TRAILER) {
             _current_parsing_state = FINISHED;
         }
     }
@@ -401,5 +406,4 @@ namespace HTTPRequest {
             _http_request_message->set_header_field(header_field);
         }
     }
-
 }
