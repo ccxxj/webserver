@@ -90,12 +90,8 @@ namespace HTTPResponse {
 	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
 		//TODO CGI check? where?
 		if (!_file.exists())
-		{
-			std::cout << _file.get_path() << std::endl;
 			return handle_error(NotFound);
-		}
-			
-
+	
 		if (_file.is_directory()) {
 			if (_file.find_index_page(_config.get_index_page())) //automatically looks for an index page
 				return(_serve_found_file(_file.get_path() + "/" + _file.get_index_page()));
@@ -152,8 +148,8 @@ namespace HTTPResponse {
 
 		//extract file name from content-disposition
 		std::string disposition_header = "form-data; name=\"new_file\"; filename=\"aNewSpring.pdf\"";
-		std::string path_and_name = _file.get_path() + "/" + _file.extract_file_name(disposition_header);
-		//TODO what if no header is given? when it's raw or binary? = content-type gives you extensio then. come up with random name?
+		std::string path_and_name = _file.get_path() + "/" + _file.extract_file_name(disposition_header); //replace disposition header with 
+		//TODO what if no header is given? when it's raw or binary? = content-type gives you extensio then. come up with random name? _http_request_message->get_header("CONTENT-DISPOSITION");
 		// std::cout << "name " << path_and_name << std::endl; 
 		//std::cout << "Dis " << _http_request_message->get_header_value("Content-Disposition") << std::endl;
 		
@@ -192,7 +188,7 @@ namespace HTTPResponse {
 		_http_response_message->set_header_element("Content-Type", "text/html");
 		_http_response_message->set_status_code("201");
 		_http_response_message->set_reason_phrase("Created");
-		_http_response_message->set_header_element("Location", path_and_name); // FIXME discuss
+		_http_response_message->set_header_element("Location", path_and_name);
 		_build_final_response();
 	}
 
@@ -258,7 +254,6 @@ namespace HTTPResponse {
 						, MAGENTA);
 		//set necessary headers
 		_http_response_message->set_header_element("Content-Type", _file.get_mime_type(str));
-		std::cout << str << std::endl;
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(_file.get_root() + str));
 		_build_final_response();
 	}
