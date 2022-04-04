@@ -9,7 +9,7 @@
 #include <errno.h>
 #include <string.h> //for strerror
 
-//stat path check: relative to the current working directory of the calling process //FIXME find path with realpath
+//stat path check: relative to the current working directory of the calling process
 namespace Utility
 {
 	MimeTypes File::_mimes;
@@ -112,7 +112,7 @@ namespace Utility
 		std::string file_content;
 		char buf[4096 + 1];
   		int ret;
-		//TODO does this count as: Checking the value of errno is strictly forbidden after a read or a write operation?
+	
 		int fd = open(str.c_str(), O_RDONLY);
 		if (fd == -1) {
 			Utility::logger("DEBUG open : " + std::string(strerror(errno)) , RED);
@@ -188,7 +188,7 @@ namespace Utility
 			return "";
 		time = gmtime(&statbuf.st_mtime);
 		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
-		std::string ret_val(buf); //FIXME abort error with 405 error get request
+		std::string ret_val(buf); 
 		return ret_val;
 	}
 

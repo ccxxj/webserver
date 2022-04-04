@@ -90,7 +90,11 @@ namespace HTTPResponse {
 	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
 		//TODO CGI check? where?
 		if (!_file.exists())
+		{
+			std::cout << _file.get_path() << std::endl;
 			return handle_error(NotFound);
+		}
+			
 
 		if (_file.is_directory()) {
 			if (_file.find_index_page(_config.get_index_page())) //automatically looks for an index page
@@ -149,7 +153,7 @@ namespace HTTPResponse {
 		//extract file name from content-disposition
 		std::string disposition_header = "form-data; name=\"new_file\"; filename=\"aNewSpring.pdf\"";
 		std::string path_and_name = _file.get_path() + "/" + _file.extract_file_name(disposition_header);
-		//TODO what if no header is given? when it's raw or binary? = extension?
+		//TODO what if no header is given? when it's raw or binary? = content-type gives you extensio then. come up with random name?
 		// std::cout << "name " << path_and_name << std::endl; 
 		//std::cout << "Dis " << _http_request_message->get_header_value("Content-Disposition") << std::endl;
 		

@@ -109,7 +109,7 @@ namespace HTTP {
 			const std::string loc_route = it->get_route();
 			std::string searched_uri = "";
 			for (size_t i = 0; i < uri_paths.size(); i++) {
-				searched_uri += uri_paths[i] + "/"; //FIXME no match if loc_route does not have a trailing slash
+				searched_uri += uri_paths[i] + "/";
 				if (loc_route.compare(searched_uri) == 0) {
 					matched_locations.push_back(&(*it));
 					break; // no need to look further
