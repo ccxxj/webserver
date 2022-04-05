@@ -169,8 +169,7 @@ namespace HTTP {
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
-					if (connection_socket_fd == -1)
-					{
+					if (connection_socket_fd == -1) {
 						std::perror("accept socket error");
 					}
 					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
@@ -182,6 +181,8 @@ namespace HTTP {
 					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
 						std::perror("kevent error");
 					}
+					Utility::logger("New connection on port  : " + Utility::to_string(_running_servers[current_event_fd].port), MAGENTA);
+
 				}
 				else if (event_fds[i].filter & EVFILT_READ) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);

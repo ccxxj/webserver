@@ -8,11 +8,17 @@ def send_http_request(method, path, headers):
 	server_response = requests.request(method, url, headers=headers)
 	return server_response.status_code
 
+def post_files(path, files):
+	url = host + path
+	server_response = requests.post(url, files=files)
+	return server_response.status_code
+
+
+
 
 def test_request_with_non_supported_method_returns_error():
 	headers = {'content-length': '0'}
 	assert send_http_request("bla", "", headers) == 400
-
 
 
 def test_request_with_long_method_returns_error():
@@ -24,10 +30,11 @@ def test_request_with_invalid_content_length():
 	headers = {'content-length': 'a'}
 	assert send_http_request("post", "", headers) == 400
 
+# def test_post_request_file_upload():
+# 	files = {'file': open('./tests/test_files/1.txt')}
+# 	assert post_files( "upload", files) == 201 # TODO: test will have to check if the file is created and if the following get request can get the same file
 
-def test_not_allowed_method():
-	response = requests.get("http://localhost/method-error/")
-	assert response.status_code == 405
+
 
 # TODO: check this test
 # def test_request_with_long_uri():
@@ -35,3 +42,56 @@ def test_not_allowed_method():
 # 
 
 
+# Response Tests
+def test_not_allowed_method():
+	response = requests.get("http://localhost/method-error/")
+	assert response.status_code == 405
+	assert response.headers["Allow"] == "POST"
+	assert response.headers["Content-Length"] == "2866"
+
+# def test_directory_listing_off():
+# 	response = requests.get("http://localhost/directory-listing-off/")
+# 	assert response.status_code == 403
+
+def test_directory_listing_on():
+	response = requests.get("http://localhost/directory-listing-on/")
+	assert response.status_code == 200
+
+def	test_redirection_not_followed():
+	response = requests.get("http://localhost/old/", allow_redirects=False)
+	assert response.status_code == 301
+	assert response.headers["Location"] == "http://localhost:80/redirect/301.html"
+
+def	test_redirection_followed():
+	response = requests.get("http://localhost/old/", allow_redirects=True)
+	assert response.status_code == 200
+
+def test_custom_not_found():
+	response = requests.get("http://localhost/xyz")
+	assert response.status_code == 404
+	assert response.headers["Content-Length"] == "12631"
+
+def test_specifiying_index_name():
+	response = requests.get("http://localhost/max-body-error/")
+	assert response.status_code == 200
+	assert response.headers["Content-Length"] == "654"
+
+def test_serving_png_img():
+	response = requests.get("http://localhost/image.png")
+	assert response.status_code == 200
+	assert response.headers["Content-Length"] == "675118"
+	assert response.headers["Content-Type"] == "image/png"
+
+def test_serving_pdf():
+	response = requests.get("http://localhost/Webserv.pdf")
+	assert response.status_code == 200
+	assert response.headers["Content-Length"] == "1315094"
+	assert response.headers["Content-Type"] == "application/pdf"
+
+def test_max_body_size():
+	response = requests.post("http://localhost/max-body-error", data={"irem": 5})
+	assert response.status_code == 413
+
+def test_different_port_servers():
+	response = requests.post("http://localhost:8080/", data={"irem": 5})
+	assert response.status_code == 413
