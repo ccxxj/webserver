@@ -68,7 +68,7 @@ namespace HTTPResponse {
 
 		// generate redirection page
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
@@ -115,7 +115,7 @@ namespace HTTPResponse {
 			return (handle_error(InternalServerError));
 
 		//set necessary headers
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info());
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
@@ -185,7 +185,7 @@ namespace HTTPResponse {
 
 		// set up response for uploading
 		_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_status_code("201");
 		_http_response_message->set_reason_phrase("Created");
 		_http_response_message->set_header_element("Location", path_and_name);
@@ -206,7 +206,7 @@ namespace HTTPResponse {
 
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_message_body("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
 		_build_final_response();
@@ -230,7 +230,7 @@ namespace HTTPResponse {
 
 		// generate error page
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
