@@ -46,7 +46,6 @@ namespace HTTPRequest {
                 _payload_bytes_left_to_parse -= line_size;
                 if (_payload_bytes_left_to_parse == 0) {
                     can_be_parsed = true;
-                    break;
                 }
                 else if (_payload_bytes_left_to_parse < 0) {
                     std::cout << "ERROR REASON: PAYLOAD LENGTH IS LARGER THAN THE CONTENT_LENGTH HEADER VALUE\n";  // TODO: remove
@@ -62,7 +61,7 @@ namespace HTTPRequest {
                     line.erase(line.size() - 2, 2);
                 }
             }
-            std::cout << line << std::endl; // TODO: remove debug info
+            // std::cout << line << std::endl; // TODO: remove debug info
             if (can_be_parsed == true) {
                 _handle_request_message_part(line);
                 if (_current_parsing_state == PAYLOAD && _boundary == "" && _http_request_message->get_message_body().size() == 0) { // validating headers only once, right after we've finished parsing them
@@ -75,6 +74,8 @@ namespace HTTPRequest {
         }
         if (_payload_bytes_left_to_parse == 0 && _current_parsing_state == PAYLOAD) {
             _current_parsing_state = FINISHED;
+                    //     std::cout << "PAYLOAD HERE: \n"
+                    //   << _http_request_message->get_message_body() << "\nEND\n";
         }
     }
 
