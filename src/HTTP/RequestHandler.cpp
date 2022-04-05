@@ -23,7 +23,6 @@ namespace HTTP {
 	RequestHandler::~RequestHandler(){}
 
 	void RequestHandler::handle_http_request() {
-		Utility::logger("New connection on port  : " + Utility::to_string(_connection_listen_info.port), MAGENTA);
 		char buf[4096];
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
@@ -32,8 +31,6 @@ namespace HTTP {
 			perror("recv error");
 			_delegate.close();
 		} else {
-			// std::cout << "\nRead " << bytes_read << " bytes\n";
-			// std::cout.write(buf, bytes_read);
 			try {
 				_parser.parse_HTTP_request(buf, bytes_read);
 			}
