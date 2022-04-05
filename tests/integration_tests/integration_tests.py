@@ -8,6 +8,13 @@ def send_http_request(method, path, headers):
 	server_response = requests.request(method, url, headers=headers)
 	return server_response.status_code
 
+def post_files(path, files):
+	url = host + path
+	server_response = requests.post(url, files=files)
+	return server_response.status_code
+
+
+
 
 def test_request_with_non_supported_method_returns_error():
 	headers = {'content-length': '0'}
@@ -22,6 +29,12 @@ def test_request_with_long_method_returns_error():
 def test_request_with_invalid_content_length():
 	headers = {'content-length': 'a'}
 	assert send_http_request("post", "", headers) == 400
+
+# def test_post_request_file_upload():
+# 	files = {'file': open('./tests/test_files/1.txt')}
+# 	assert post_files( "upload", files) == 201 # TODO: test will have to check if the file is created and if the following get request can get the same file
+
+
 
 # TODO: check this test
 # def test_request_with_long_uri():

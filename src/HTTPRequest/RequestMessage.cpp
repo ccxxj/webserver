@@ -58,7 +58,7 @@ namespace HTTPRequest {
     }
 
     void RequestMessage::set_payload(std::string& body) {
-        _payload = body;
+        _payload.append(body);
     }
 
     void RequestMessage::set_uri(URIData &uri)
