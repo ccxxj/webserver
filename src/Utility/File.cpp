@@ -138,7 +138,21 @@ namespace Utility
 	}
 
 	bool File::create_dir() {
+		struct stat buffer;
+		if (stat(_path.c_str(), &buffer) == 0) //if exists
+			return true;
 		if (mkdir(_path.c_str(), 0755) == -1) {
+			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
+			return false;
+		}
+		return true;
+	}
+
+	bool File::create_dir(const std::string &str) {
+		struct stat buffer;
+		if (stat(_path.c_str(), &buffer) == 0) //if exists
+			return true;
+		if (mkdir(str.c_str(), 0755) == -1) {
 			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 			return false;
 		}
