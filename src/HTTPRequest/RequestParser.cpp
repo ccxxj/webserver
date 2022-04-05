@@ -44,10 +44,8 @@ namespace HTTPRequest {
                 line = _request_reader.read_payload(buffer, bytes_read, &bytes_accumulated, &can_be_parsed);
                 size_t line_size = line.size();
                 _payload_bytes_left_to_parse -= line_size;
-                if (_payload_bytes_left_to_parse == 0) {
-                    can_be_parsed = true;
-                }
-                else if (_payload_bytes_left_to_parse < 0) {
+                can_be_parsed = true;
+                if (_payload_bytes_left_to_parse < 0) {
                     std::cout << "ERROR REASON: PAYLOAD LENGTH IS LARGER THAN THE CONTENT_LENGTH HEADER VALUE\n";  // TODO: remove
                     _throw_request_exception(HTTPResponse::BadRequest);
                 }
@@ -74,8 +72,6 @@ namespace HTTPRequest {
         }
         if (_payload_bytes_left_to_parse == 0 && _current_parsing_state == PAYLOAD) {
             _current_parsing_state = FINISHED;
-                    //     std::cout << "PAYLOAD HERE: \n"
-                    //   << _http_request_message->get_message_body() << "\nEND\n";
         }
     }
 
@@ -295,7 +291,9 @@ namespace HTTPRequest {
     }
 
     void RequestParser::_parse_payload(std::string& line) {
-        _http_request_message->set_payload(line);
+        if (line != _boundary + "--\r\n") {
+            _http_request_message->set_payload(line);
+        }
         if (_payload_bytes_left_to_parse == 0 &&  _current_parsing_state != TRAILER) {
             _current_parsing_state = FINISHED;
         }
