@@ -22,7 +22,7 @@ namespace HTTP {
 		Config::ConfigData *_config_data;
 		ListenInfo& _connection_listen_info; //added for host port match
         HTTPResponse::ResponseHandler response_handler;
-        bool _is_response_ready;
+        bool response_ready;
 
         void _handle_request_exception(HTTPResponse::StatusCode code);
         const std::string _convert_status_code_to_string(const int code);
