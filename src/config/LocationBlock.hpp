@@ -12,6 +12,7 @@ namespace Config
 	private:
 		int _autoindex;
 		std::string _route;
+		std::string _upload_dir;
 		std::vector<std::string> _limit_except;
 	
 		/* check methods */
@@ -26,10 +27,12 @@ namespace Config
 		
 		/* getters & setters */
 		void set_route(std::string str);
+		void set_upload_dir(std::string str);
 		void set_limit_except(std::string str);
 		void set_autoindex(std::string str);
 		int get_autoindex(void) const;
 		const std::string& get_route(void) const;
+		const std::string& get_upload_dir(void) const;
 		const std::vector<std::string>& get_limit_except(void) const;
 	};
 } // namespace Config

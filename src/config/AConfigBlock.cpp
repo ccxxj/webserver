@@ -1,12 +1,14 @@
 #include "AConfigBlock.hpp"
 #include "../Utility/Utility.hpp"
 #include <cstdlib> // for atoi
+#include "../Constants.hpp"
 
 namespace Config
 {
 
     AConfigBlock::AConfigBlock() {
         _is_size_default = false;
+        _index_page = "index.html"; //default
     }
 
     AConfigBlock::AConfigBlock(const AConfigBlock &other)
@@ -21,6 +23,7 @@ namespace Config
         _error_page = other._error_page;
         _client_max_body_size = other._client_max_body_size;
         _is_size_default = other._is_size_default;
+        _index_page = other._index_page;
         return *this;
     }
 
@@ -29,7 +32,6 @@ namespace Config
     /* check methods */
 	void AConfigBlock::_check_return_syntax(std::vector<std::string>& args) const
 	{
-		//TODO nginx works with return + 1 arg (2). Reconsider this.
 		if (args.size() != 3)
 			throw std::logic_error("invalid number of arguments in return directive");
 		if(Utility::is_positive_integer(args[1]) == false)
@@ -72,15 +74,14 @@ namespace Config
 
     void AConfigBlock::_check_size(std::string& size)
 	{
-        //TODO assuming we will have M or m. K and G are now invalid.
-        if(size[size.size() - 1] == 'M')
-            Utility::remove_last_of('M', size);
-        else if(size[size.size() - 1] == 'm')
-            Utility::remove_last_of('m', size);
+        if(size[size.size() - 1] == 'K')
+            Utility::remove_last_of('K', size);
+        else if(size[size.size() - 1] == 'k')
+            Utility::remove_last_of('k', size);
 		if(Utility::is_positive_integer(size) == false)
             throw std::logic_error("client_max_body_size directive invalid value " + size);
         size_t size_num = std::atoi(size.c_str());
-        if (size_num < 0 || size_num > 8000) //TODO I got thins from MAX_SIZE_BODY. Discuss with teammates.
+        if (size_num < 0 || size_num > Constants::DEFAULT_MAX_SIZE_BODY)
             throw std::out_of_range("client_max_body_size directive invalid valuee " + size);
 	}
 
@@ -101,7 +102,7 @@ namespace Config
 		_check_error_page_syntax(args);
         for (size_t i = 1; i < args.size() - 1; i++) {
             _error_page.insert(std::make_pair(std::atoi(args[i].c_str()), args[args.size() -1]));
-        }        
+        }
     }
 
     void AConfigBlock::set_root_value(std::string& str)
@@ -120,6 +121,15 @@ namespace Config
         _check_client_max_body_size_syntax(args);
         _client_max_body_size = atoi(args[1].c_str());
         _is_size_default = false;
+    }
+
+    void AConfigBlock::set_index_page(std::string& str)
+    {
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
+		if (args.size() != 2)
+		    throw std::logic_error("invalid number of arguments in index directive");
+        _index_page = args[1];
     }
 
     /* getters */
@@ -146,5 +156,10 @@ namespace Config
     const std::map<int, std::string>& AConfigBlock::get_error_page(void) const
     {
         return _error_page;
+    }
+
+    const std::string& AConfigBlock::get_index_page(void) const
+    {
+        return _index_page;
     }
 } // namespace Config

@@ -5,7 +5,7 @@
 #include <sys/types.h>// for ssize_t
 
 // TODO: get this macro from config
-#define MAX_SIZE_BODY 8000
+#define MAX_SIZE_BODY 8000000
 
 namespace HTTPRequest {
 	class RequestReader
@@ -23,5 +23,6 @@ namespace HTTPRequest {
 
 		std::string read_line(char* buffer, size_t bytes_read, size_t* bytes_accumulated, bool* can_be_parsed);
 		std::string read_chunk(ssize_t chunk_size, char *buffer, size_t bytes_read, size_t *bytes_accumulated, bool *can_be_parsed);
+		std::string read_payload(char *buffer, size_t bytes_read, size_t *bytes_accumulated, bool *can_be_parsed);
 	};
 }

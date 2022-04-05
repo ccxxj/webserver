@@ -23,7 +23,6 @@ namespace HTTP {
 	RequestHandler::~RequestHandler(){}
 
 	void RequestHandler::handle_http_request() {
-		Utility::logger("New connection on port  : " + Utility::to_string(_connection_listen_info.port), MAGENTA);
 		char buf[4096];
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
@@ -32,8 +31,6 @@ namespace HTTP {
 			perror("recv error");
 			_delegate.close();
 		} else {
-			// std::cout << "\nRead " << bytes_read << " bytes\n";
-			// std::cout.write(buf, bytes_read);
 			try {
 				_parser.parse_HTTP_request(buf, bytes_read);
 			}
@@ -49,7 +46,6 @@ namespace HTTP {
 			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
 				_process_http_request();
 			std::string response = _http_response_message.get_complete_response();
-			
 			_delegate.send(&response[0], response.size());
 			// _delegate.close();
 		}
@@ -95,7 +91,7 @@ namespace HTTP {
 	}
 
 	const Config::ServerBlock* RequestHandler::_match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
-		std::string host = _http_request_message.get_header_value("Host");
+		std::string host = _http_request_message.get_header_value("HOST"); 
 		for (std::vector<const Config::ServerBlock*>::iterator it = matching_servers.begin(); it != matching_servers.end(); it++)
 			for (std::vector<std::string>::const_iterator srv_name = (*it)->get_server_name().begin(); srv_name != (*it)->get_server_name().end(); srv_name++)
 				if ((*srv_name).compare(host) == 0)
@@ -110,7 +106,7 @@ namespace HTTP {
 			const std::string loc_route = it->get_route();
 			std::string searched_uri = "";
 			for (size_t i = 0; i < uri_paths.size(); i++) {
-				searched_uri += uri_paths[i] + "/"; //FIXME no match if loc_route does not have a trailing slash
+				searched_uri += uri_paths[i] + "/";
 				if (loc_route.compare(searched_uri) == 0) {
 					matched_locations.push_back(&(*it));
 					break; // no need to look further

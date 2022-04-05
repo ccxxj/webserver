@@ -3,6 +3,9 @@
 #include "../Constants.hpp"
 
 #include <sstream> // for converting int to string
+#include <fstream>  // for ofstream
+
+size_t redirection_loop = 0; //FIXME is it okay here?
 
 namespace HTTPResponse {
 	ResponseHandler::ResponseHandler(HTTPRequest::RequestMessage* request_message, ResponseMessage* response_message)
@@ -20,7 +23,6 @@ namespace HTTPResponse {
 		_http_response_message = other._http_response_message;
 		_config = other._config;
 		_file = other._file;
-		_redirection_loop = other._redirection_loop;
         return *this;
     }
 
@@ -28,7 +30,7 @@ namespace HTTPResponse {
 
 	void ResponseHandler::create_http_response() {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
-
+	
 		//log request info
 		Utility::logger(request_info(), YELLOW);
 
@@ -38,14 +40,13 @@ namespace HTTPResponse {
 		if (!_check_client_body_size())
 			return(handle_error(ContentTooLarge));
 
-		//redirection //TODO discuss where to check redirection in this function i.e. what happens if a method is forbidden
-		if (!_config.get_return().empty()) { //&& _redirection_loop < 10
+		//redirection: server stops processing, responds with redirected location
+		if (!_config.get_return().empty() && redirection_loop < 10) {
 			return (_handle_redirection());
-			//redirection loop? > where to build it? RequestHandler?
-			//add update status code with rediretion code?
 		}
-		// if (_redirection_loop == 10)
-		// 	_redirection_loop = 0;
+		if (redirection_loop == 10) { //redirection is limited to 10 times
+			redirection_loop = 0;
+		}
 
 		//HTTP method handling
 		_handle_methods();
@@ -53,17 +54,21 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_handle_redirection()
 	{
-		_redirection_loop++;
+		redirection_loop++;
+
+		//get the redirection information
+			//the return directive applies only inside the topmost context it’s defined in
+			//so, it's first return directive saved in specified config
 		std::map<int, std::string>::const_iterator it = _config.get_return().begin();
 		_http_response_message->set_status_code(Utility::to_string(it->first));
-		_http_response_message->set_reason_phrase("Moved Permanently");
+		_http_response_message->set_reason_phrase(HTTPResponse::get_reason_phrase(static_cast<HTTPResponse::StatusCode>(it->first)));
 
 		//Save the redirected URL
 		_http_response_message->set_header_element("Location", it->second);
 
 		// generate redirection page
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
@@ -74,8 +79,6 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_handle_methods(void) {
-
-
 		if (_http_request_message->get_method() == "DELETE")
 			_delete_file();
 		else if (_http_request_message->get_method() == "POST")
@@ -86,11 +89,11 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
 		//TODO CGI check? where?
-		if (!_file.exists()) //get file existence info
+		if (!_file.exists())
 			return handle_error(NotFound);
-
+	
 		if (_file.is_directory()) {
-			if (_file.find_index_page())
+			if (_file.find_index_page(_config.get_index_page())) //automatically looks for an index page
 				return(_serve_found_file(_file.get_path() + "/" + _file.get_index_page()));
 			else { // directory listing
 				if (_config.get_autoindex() == OFF)
@@ -102,13 +105,6 @@ namespace HTTPResponse {
 
 		if (!_file.is_directory()) { // means its a file
 			_serve_found_file(_file.get_path());
-			//TODO look into Content negotiation
-				// find the file in dir
-				// get file directory path (last of / ?)
-				// open directory
-				// readdir into dirent
-				// match files and push to matched vectors
-				// close dir
 		}
 	}
 
@@ -119,7 +115,7 @@ namespace HTTPResponse {
 			return (handle_error(InternalServerError));
 
 		//set necessary headers
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info());
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
@@ -127,10 +123,8 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_found_file(const std::string &str) {
-		//TODO redirection
-		//TODO CGI check again, everytime you find a file?
-		_http_response_message->set_message_body(_file.get_content(str)); //FIXME Olga: did you change it to payload?
-		if (_http_response_message->get_message_body().empty()) //FIXME what to do when file is empty?
+		_http_response_message->set_message_body(_file.get_content(str));
+		if (_http_response_message->get_message_body() == "Forbidden")
 			return (handle_error(Forbidden));
 
 		//set necessary headers
@@ -142,37 +136,70 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_upload_file(void) { //POST will upload a new resource
-		//TODO what if post req has no body?
+		//if there is nothing to upload in request body
+		if (_http_request_message->get_message_body().empty())
+			return handle_error(BadRequest);
+		//URI will only hold directory info and should not point to an existing file
+		if (!_file.exists())
+			return handle_error(NotFound);
+		if (!_file.is_directory()) //means it's a file and it already exists
+			return handle_error(Conflict);
+		//else target resource is a directory and server creates a file in the upload_dir from config
+		//get the upload_dir from config and create it
+		if (!_file.create_dir(_file.get_path() + "/"  + _config.get_upload_dir()))
+			return handle_error(InternalServerError);
 
-		if (_file.exists()) {
-			if (!_file.is_directory()) //means it's a file and it already exists
-				return handle_error(Conflict);
-			else { //target resource is a directory and server creates a file inside it
-				if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
-					return handle_error(InternalServerError);
-				//set up response for uploading
-				_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
-				_http_response_message->set_status_code("200");
-				_http_response_message->set_reason_phrase("OK");
-				// _http_response_message->set_header_element("Location", new path?);
-			}
-		}
-		if (!_file.exists()) { //means server will create a directory with target resource and also create a file inside to hold info
-			if (!_file.create_dir())
-				return handle_error(InternalServerError);
-			if(!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
-					return handle_error(InternalServerError);
-			_http_response_message->set_message_body("<h1><center> Successfully created the directory and the file! </center></h1>");
-			_http_response_message->set_status_code("201"); //code if resource dir has been created with POST request
-			_http_response_message->set_reason_phrase("Created");
-      	}
+		//extract file name from content-disposition
+		std::string disposition_header = "form-data; name=\"new_file\"; filename=\"aNewSpring.pdf\"";
+		std::string path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(disposition_header); //replace disposition header with 
+		//TODO what if no header is given? when it's raw or binary? = content-type gives you extensio then. come up with random name? _http_request_message->get_header("CONTENT-DISPOSITION");
+		std::cout << "name " << path_and_name << std::endl; 
+		//std::cout << "Dis " << _http_request_message->get_header_value("Content-Disposition") << std::endl;
+		
+		//TODO test mp4 and what mime types do we not support?
+		if(_file.get_mime_type(path_and_name) == "text/plain" && path_and_name.find("txt") == std::string::npos)
+			return handle_error(UnsupportedMediaType);
+		
+		//create the new resource with the path and put request body inside		
+		std::ofstream file_stream(path_and_name.c_str());
+		if (!file_stream.is_open())
+			return handle_error(InternalServerError);
+		//  std::cout << "body " << _http_request_message->get_message_body() << std::endl;
+		file_stream << _http_request_message->get_message_body();
+
+		//REMOVE after getting the request_body
+		// std::ifstream myfile("www/image.png");
+		// std::string fileStr = std::string((std::istreambuf_iterator<char>(myfile)), std::istreambuf_iterator<char>());
+		// myfile.close();
+		// if (file_stream) {
+		// 	// file_stream << fileStr;
+		// }
+		// REMOVE: for testing
+		// std::string line;
+		//  std::ifstream x_file("www/upload/irem.png");
+		//  if (x_file.is_open())
+		//  {
+		//  	while (std::getline(x_file, line))
+		//  		std::cout << "L: " << line << std::endl;
+		//  }
+		//TODO remove from File.cpp
+		// if (!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
+		// 	return handle_error(InternalServerError);
+
+		// set up response for uploading
+		_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
+		_http_response_message->set_status_code("201");
+		_http_response_message->set_reason_phrase("Created");
+		_http_response_message->set_header_element("Location", path_and_name);
 		_build_final_response();
 	}
 
 	void ResponseHandler::_delete_file(void) { //DELETE will delete a resource
 		//get file data check for errors with stat
-		if (!_file.exists()) //get file existence info
+		if (!_file.exists())
 			return handle_error(NotFound);
+
 		if (!_file.is_regular()) //allowing normal files to be removed
 			return handle_error(Forbidden);
 
@@ -182,8 +209,9 @@ namespace HTTPResponse {
 
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_message_body("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
+		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
 		_build_final_response();
 	}
 
@@ -205,7 +233,7 @@ namespace HTTPResponse {
 
 		// generate error page
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
@@ -217,18 +245,19 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_serve_custom_error_page(const std::string &str) {
 		//TODO CGI check again, everytime you find a file?
+		_file.set_root("www");
 		_http_response_message->set_message_body(_file.get_content(_file.get_root() + str));
-		if (_http_response_message->get_message_body().empty())
+		if (_http_response_message->get_message_body() == "Forbidden")
 			return (handle_error(Forbidden));
 
 		//log error_page redirection
 		Utility::logger("Internal redirect [error_page " + str + "] " +
-						"[Root " + _config.get_root() + "] " +
-						"[Search Path " + _config.get_root() + str + "] "
+						"[Root " + _file.get_root() + "] " +
+						"[Search Path " + _file.get_root() + str + "] "
 						, MAGENTA);
 		//set necessary headers
 		_http_response_message->set_header_element("Content-Type", _file.get_mime_type(str));
-		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
+		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(_file.get_root() + str));
 		_build_final_response();
 	}
 
@@ -239,10 +268,11 @@ namespace HTTPResponse {
 		std::string msg_body = _http_response_message->get_message_body();
 
 		// set any remaining headers
-		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
-		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
+		_http_response_message->set_header_element("Connection", "closed");
 		if(_http_request_message->get_method() != "HEAD")
 			_http_response_message->set_header_element("Content-Length", Utility::to_string(msg_body.length()));
+		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
+		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
 
 		// build status line
 		response += _http_response_message->get_HTTP_version() + " ";
@@ -301,6 +331,7 @@ namespace HTTPResponse {
 
 
 		_config.set_root_value(virtual_server->get_root()); //if loc has root, this will be overwritten
+		_config.set_index_page(virtual_server->get_index_page()); //if loc has index, this will be overwritten
 		_config.set_return_value(virtual_server->get_return()); //returns are appended within levels
 		if(location) { //location specific config rules, appends and overwrites
 			_config.set_specific_location(true);
@@ -308,8 +339,11 @@ namespace HTTPResponse {
 			_config.set_methods_line(location->get_limit_except());
 			_config.set_autoindex(location->get_autoindex());
 			_config.set_route(location->get_route());
+			_config.set_upload_dir(location->get_upload_dir());
 			if (!location->get_root().empty())
 				_config.set_root_value(location->get_root());
+			if (location->get_index_page() != "index.html") //different from the default one
+				_config.set_index_page(location->get_index_page());
 			_config.set_return_value(location->get_return());
 		}
 	}

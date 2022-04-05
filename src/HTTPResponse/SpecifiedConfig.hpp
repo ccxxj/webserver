@@ -12,11 +12,13 @@ namespace HTTPResponse
 	{
 	private:
 		std::string _root;
+		std::string _index_page;
 		std::map<int, std::string> _return;
 		std::map<int, std::string> _error_page;
 		std::vector<std::string> _limit_except;
 		std::string _route;
 		std::string _methods_line;
+		std::string _upload_dir;
 		int _autoindex;
 		int _client_max_body_size;
 		bool _has_specific_location;
@@ -36,10 +38,13 @@ namespace HTTPResponse
 		void set_limit_except(const std::vector<std::string>& methods);
 		void set_route(const std::string& str);
 		void set_methods_line(std::vector<std::string> methods);
+		void set_upload_dir(const std::string& str);
 		void set_autoindex(int autoindex);
 		void set_specific_location(bool value);
 		void set_id(int num);
-
+		void set_error_page_value(std::string& str);
+		void set_index_page(const std::string& str);
+		
 		int get_client_max_body_size(void) const;
 		bool get_is_size_default(void) const;
 		const std::string& get_root(void) const;
@@ -49,7 +54,9 @@ namespace HTTPResponse
 		const std::vector<std::string>& get_limit_except(void) const;
 		const std::string& get_route(void) const;
 		const std::string& get_methods_line(void) const;
+		const std::string& get_upload_dir(void) const;
 		bool has_specific_location(void) const;
 		int get_id(void) const;
+		const std::string& get_index_page(void) const;
 	};
 } // namespace Config

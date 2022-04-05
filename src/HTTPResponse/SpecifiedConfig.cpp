@@ -23,6 +23,7 @@ namespace HTTPResponse
 		_autoindex = other._autoindex;
         _client_max_body_size = other._client_max_body_size;
 		_has_specific_location = other._has_specific_location;
+        _index_page = other._index_page;
         return *this;
     }
 
@@ -73,6 +74,12 @@ namespace HTTPResponse
 		}
     }
 
+
+    void SpecifiedConfig::set_upload_dir(const std::string& str)
+    {
+        _upload_dir = str;
+    }
+
     void SpecifiedConfig::set_autoindex(int autoindex)
     {
 		_autoindex = autoindex;
@@ -88,6 +95,11 @@ namespace HTTPResponse
         _id = num;
     }
 
+    void SpecifiedConfig::set_index_page(const std::string& str)
+    {
+        _index_page = str;
+    }
+    
     /* getters */
     int SpecifiedConfig::get_client_max_body_size(void) const
     {
@@ -128,6 +140,10 @@ namespace HTTPResponse
         return _methods_line;
     }
 
+    const std::string& SpecifiedConfig::get_upload_dir() const {
+        return _upload_dir;
+    }
+
 	bool SpecifiedConfig::has_specific_location(void) const {
         return _has_specific_location;
     }
@@ -135,5 +151,10 @@ namespace HTTPResponse
     int SpecifiedConfig::get_id(void) const
     {
         return _id;
+    }
+
+    const std::string& SpecifiedConfig::get_index_page(void) const
+    {
+        return _index_page;
     }
 } // namespace Config
