@@ -18,6 +18,7 @@ namespace HTTPResponse
 		std::vector<std::string> _limit_except;
 		std::string _route;
 		std::string _methods_line;
+		std::string _upload_dir;
 		int _autoindex;
 		int _client_max_body_size;
 		bool _has_specific_location;
@@ -37,6 +38,7 @@ namespace HTTPResponse
 		void set_limit_except(const std::vector<std::string>& methods);
 		void set_route(const std::string& str);
 		void set_methods_line(std::vector<std::string> methods);
+		void set_upload_dir(const std::string& str);
 		void set_autoindex(int autoindex);
 		void set_specific_location(bool value);
 		void set_id(int num);
@@ -52,6 +54,7 @@ namespace HTTPResponse
 		const std::vector<std::string>& get_limit_except(void) const;
 		const std::string& get_route(void) const;
 		const std::string& get_methods_line(void) const;
+		const std::string& get_upload_dir(void) const;
 		bool has_specific_location(void) const;
 		int get_id(void) const;
 		const std::string& get_index_page(void) const;
