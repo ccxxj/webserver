@@ -181,10 +181,8 @@ namespace Utility
 		int ret = strftime(buf, 32, "%T", tm);
 		buf[ret] = '\0';
 		(void)color;
-		// std::cout << GREEN << "[" << buf << "] " << RESET;
-		// std::cout << color << str << RESET << std::endl;
-		std::cout << "[" << buf << "] ";
-		std::cout << str << std::endl;
+		std::cout << GREEN << "[" << buf << "] " << RESET;
+		std::cout << color << str << RESET << std::endl;
 	}
 
     bool is_found(const std::string& haystack, const std::string& needle) {

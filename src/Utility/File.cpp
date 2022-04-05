@@ -159,27 +159,6 @@ namespace Utility
 		return true;
 	}
 
-	bool File::create_random_named_file_put_msg_body_in(const std::string& str) {
-		//just to create get the fiel count in dir to create a random name
-		struct dirent *entry;
-		int i = 0;
-		DIR *dir_p = opendir(_path.c_str());
-		if (!dir_p) {
-			Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
-			return false;
-		}
-		while ((entry = readdir(dir_p))) {
-			i++;
-		}
-		closedir(dir_p);
-
-		//create the file
-		int fd = open((_path + "/file" + Utility::to_string(i - 1)).c_str(), O_CREAT | O_RDWR | O_TRUNC, 00755);
-		if (str.length() &&  write(fd, str.c_str(), str.length()) <= 0) // write the request body to the file
-			return false;
-		return true;
-	}
-
 	std::string File::last_modified_info() {
 		struct stat statbuf;
 		struct tm	*time;
@@ -218,6 +197,29 @@ namespace Utility
 		size_t last_quote = file_name.find_last_not_of("\"");
 		file_name  = file_name.substr(0, last_quote + 1);
 		return file_name;
+	}
+
+	std::string File::extract_file_type(const std::string &str) {
+		//str example: image/png or application/pdf;
+		std::string file_type;
+		file_type = str.substr(str.find_last_of("/") + 1, str.size());
+		return file_type;
+	}
+
+	std::string File::random_name_creator(const std::string &str) {
+		//str example: image/png or application/pdf;
+		struct dirent *entry;
+		int i = 0;
+		DIR *dir_p = opendir(str.c_str());
+		if (!dir_p) {
+			Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
+			return "";
+		}
+		while ((entry = readdir(dir_p))) {
+			i++;
+		}
+		closedir(dir_p);
+		return "binary_file_" + Utility::to_string(i);
 	}
 
 	void File::set_index_page(const std::string &str) {
