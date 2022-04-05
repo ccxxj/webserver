@@ -32,7 +32,7 @@ def test_request_with_invalid_content_length():
 
 def test_post_request_file_upload():
 	files = {'file': open('./tests/test_files/1.txt')}
-	assert post_files( "", files) == 201 # TODO: test will have to check if the file is created and if the following get request can get the same file
+	assert post_files( "upload", files) == 201 # TODO: test will have to check if the file is created and if the following get request can get the same file
 
 
 
