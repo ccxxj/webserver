@@ -30,7 +30,7 @@ namespace HTTPResponse {
 
 	void ResponseHandler::create_http_response() {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
-
+	
 		//log request info
 		Utility::logger(request_info(), YELLOW);
 
@@ -68,7 +68,7 @@ namespace HTTPResponse {
 
 		// generate redirection page
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
@@ -115,7 +115,7 @@ namespace HTTPResponse {
 			return (handle_error(InternalServerError));
 
 		//set necessary headers
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info());
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
@@ -144,13 +144,16 @@ namespace HTTPResponse {
 			return handle_error(NotFound);
 		if (!_file.is_directory()) //means it's a file and it already exists
 			return handle_error(Conflict);
-		//else target resource is a directory and server creates a file inside it
+		//else target resource is a directory and server creates a file in the upload_dir from config
+		//get the upload_dir from config and create it
+		if (!_file.create_dir(_file.get_path() + "/"  + _config.get_upload_dir()))
+			return handle_error(InternalServerError);
 
 		//extract file name from content-disposition
 		std::string disposition_header = "form-data; name=\"new_file\"; filename=\"aNewSpring.pdf\"";
-		std::string path_and_name = _file.get_path() + "/" + _file.extract_file_name(disposition_header); //replace disposition header with 
+		std::string path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(disposition_header); //replace disposition header with 
 		//TODO what if no header is given? when it's raw or binary? = content-type gives you extensio then. come up with random name? _http_request_message->get_header("CONTENT-DISPOSITION");
-		// std::cout << "name " << path_and_name << std::endl; 
+		std::cout << "name " << path_and_name << std::endl; 
 		//std::cout << "Dis " << _http_request_message->get_header_value("Content-Disposition") << std::endl;
 		
 		//TODO test mp4 and what mime types do we not support?
@@ -185,7 +188,7 @@ namespace HTTPResponse {
 
 		// set up response for uploading
 		_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_status_code("201");
 		_http_response_message->set_reason_phrase("Created");
 		_http_response_message->set_header_element("Location", path_and_name);
@@ -206,7 +209,7 @@ namespace HTTPResponse {
 
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_message_body("<html>\r\n<body><center>\r\n<h1>File deleted.\r\n</h1>\r\n</center></body>\r\n</html>");
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
 		_build_final_response();
@@ -230,7 +233,7 @@ namespace HTTPResponse {
 
 		// generate error page
 		_http_response_message->set_header_element("Last-Modified", Utility::get_formatted_date()); //as it has newly created below
-		_http_response_message->set_header_element("Content-Type", "text/html");
+		_http_response_message->set_header_element("Content-Type", "text/html; charset=utf-8");
 		_http_response_message->set_message_body(std::string("<html>\r\n<center><h1>")
 								+ _http_response_message->get_status_code() + "</h1><center>"
 								+ "</center><h2>" + _http_response_message->get_reason_phrase() + "</h2></center>"
@@ -336,6 +339,7 @@ namespace HTTPResponse {
 			_config.set_methods_line(location->get_limit_except());
 			_config.set_autoindex(location->get_autoindex());
 			_config.set_route(location->get_route());
+			_config.set_upload_dir(location->get_upload_dir());
 			if (!location->get_root().empty())
 				_config.set_root_value(location->get_root());
 			if (location->get_index_page() != "index.html") //different from the default one

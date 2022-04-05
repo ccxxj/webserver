@@ -74,6 +74,12 @@ namespace HTTPResponse
 		}
     }
 
+
+    void SpecifiedConfig::set_upload_dir(const std::string& str)
+    {
+        _upload_dir = str;
+    }
+
     void SpecifiedConfig::set_autoindex(int autoindex)
     {
 		_autoindex = autoindex;
@@ -132,6 +138,10 @@ namespace HTTPResponse
 
 	const std::string& SpecifiedConfig::get_methods_line(void) const {
         return _methods_line;
+    }
+
+    const std::string& SpecifiedConfig::get_upload_dir() const {
+        return _upload_dir;
     }
 
 	bool SpecifiedConfig::has_specific_location(void) const {
