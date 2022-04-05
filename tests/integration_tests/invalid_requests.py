@@ -34,7 +34,6 @@ def test_not_allowed_method():
 	response = requests.get("http://localhost/method-error/")
 	assert response.status_code == 405
 	assert response.headers["Allow"] == "POST"
-	assert response.headers["Last-Modified"] == "Mon, 04 Apr 2022 05:54:35 GMT"
 	assert response.headers["Content-Length"] == "2866"
 
 def test_directory_listing_off():
@@ -57,26 +56,22 @@ def	test_redirection_followed():
 def test_custom_not_found():
 	response = requests.get("http://localhost/xyz")
 	assert response.status_code == 404
-	assert response.headers["Last-Modified"] == "Mon, 04 Apr 2022 05:54:35 GMT"
 	assert response.headers["Content-Length"] == "12631"
 
 def test_specifiying_index_name():
 	response = requests.get("http://localhost/max-body-error/")
 	assert response.status_code == 200
-	assert response.headers["Last-Modified"] == "Fri, 01 Apr 2022 09:05:50 GMT"
 	assert response.headers["Content-Length"] == "654"
 
 def test_serving_png_img():
 	response = requests.get("http://localhost/image.png")
 	assert response.status_code == 200
-	assert response.headers["Last-Modified"] == "Tue, 20 Apr 2021 13:52:14 GMT"
 	assert response.headers["Content-Length"] == "675118"
 	assert response.headers["Content-Type"] == "image/png"
 
 def test_serving_pdf():
 	response = requests.get("http://localhost/Webserv.pdf")
 	assert response.status_code == 200
-	assert response.headers["Last-Modified"] == "Fri, 01 Apr 2022 09:05:50 GMT"
 	assert response.headers["Content-Length"] == "1315094"
 	assert response.headers["Content-Type"] == "application/pdf"
 
