@@ -28,6 +28,5 @@ namespace HTTP {
 		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(const void *buffer, size_t buffer_size);
 		virtual void close();
-		bool is_response_ready();
 	};
 }

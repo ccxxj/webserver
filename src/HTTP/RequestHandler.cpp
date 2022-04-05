@@ -53,10 +53,6 @@ namespace HTTP {
 		}
 	}
 
-	bool RequestHandler::is_response_ready() {
-		return response_ready;
-	}
-
 	void RequestHandler::send_response() {
 		if (response_ready) {
 			std::string response = _http_response_message.get_complete_response();

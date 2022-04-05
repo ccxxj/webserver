@@ -33,10 +33,6 @@ namespace HTTP {
 		return _is_open;
 	}
 
-	bool Connection::is_response_ready() {
-		return request_handler->is_response_ready();
-	}
-
 	void Connection::send(const void* buffer, size_t buffer_size) {
 		size_t bytes_sent = 0;
 		while (bytes_sent < buffer_size) {
@@ -56,7 +52,7 @@ namespace HTTP {
 				break;
 			}
 			bytes_sent += ret;
-			usleep(10000);
+			usleep(100000);
 		}
 		this->close();
 	}

@@ -36,6 +36,5 @@ namespace HTTP {
         ~RequestHandler();
         void handle_http_request();
         void send_response();
-        bool is_response_ready();
     };
 }
