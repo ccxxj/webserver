@@ -11,6 +11,7 @@ namespace Config
         _autoindex = OFF; //default nginx
         _client_max_body_size = Constants::DEFAULT_MAX_SIZE_BODY;
         _is_size_default = true;
+        _upload_dir = "files"; //default
     }
 
     LocationBlock::LocationBlock(const LocationBlock &other)
@@ -29,6 +30,7 @@ namespace Config
         _client_max_body_size = other._client_max_body_size;
         _is_size_default = other._is_size_default;
         _index_page = other._index_page;
+        _upload_dir = other._upload_dir;
         return *this;
     }
 
@@ -78,6 +80,16 @@ namespace Config
         	_route.assign(args[1]);
     }
 
+    void LocationBlock::set_upload_dir(std::string str)
+    {
+		 Utility::remove_last_of(';', str);
+         std::cout << str << std::endl;
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
+		if (args.size() != 2)
+		    throw std::logic_error("invalid number of arguments in upload_dir directive");
+        _upload_dir = args[1];
+    }
+
     void LocationBlock::set_limit_except(std::string str)
     {
         Utility::remove_last_of('{', str);
@@ -102,6 +114,11 @@ namespace Config
     const std::string& LocationBlock::get_route() const
     {
         return _route;
+    }
+
+    const std::string& LocationBlock::get_upload_dir() const
+    {
+        return _upload_dir;
     }
 
     const std::vector<std::string>& LocationBlock::get_limit_except(void) const

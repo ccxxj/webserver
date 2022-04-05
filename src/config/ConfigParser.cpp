@@ -21,11 +21,11 @@ namespace Config
 
 	int ConfigParser::find_directive(std::string& line)
 	{
-		const char *directive_list[11] =
+		const char *directive_list[12] =
 			{"listen", "server_name", "client_max_body_size",
 			 "error_page", "return", "root", "limit_except",
-			 "autoindex", "location", "index", NULL};
-		for (size_t i = 0; i < 10; i++)
+			 "autoindex", "location", "index","upload_dir", NULL};
+		for (size_t i = 0; i < 11; i++)
 		{
 			if (Utility::check_first_keyword(line, directive_list[i]))
 				return i;
@@ -108,6 +108,8 @@ namespace Config
 			location.set_autoindex(line);
 		else if (e_num == INDEX_PAGE)
 			location.set_index_page(line);
+		else if (e_num == UPLOAD)
+			location.set_upload_dir(line);
 		else
 			throw std::runtime_error("unknown directive " + line);
 	}
