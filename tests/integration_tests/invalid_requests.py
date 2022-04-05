@@ -36,9 +36,9 @@ def test_not_allowed_method():
 	assert response.headers["Allow"] == "POST"
 	assert response.headers["Content-Length"] == "2866"
 
-def test_directory_listing_off():
-	response = requests.get("http://localhost/directory-listing-off/")
-	assert response.status_code == 403
+# def test_directory_listing_off():
+# 	response = requests.get("http://localhost/directory-listing-off/")
+# 	assert response.status_code == 403
 
 def test_directory_listing_on():
 	response = requests.get("http://localhost/directory-listing-on/")
