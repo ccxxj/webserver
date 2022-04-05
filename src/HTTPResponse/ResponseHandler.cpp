@@ -149,13 +149,15 @@ namespace HTTPResponse {
 		if (!_file.create_dir(_file.get_path() + "/"  + _config.get_upload_dir()))
 			return handle_error(InternalServerError);
 
-		//extract file name from content-disposition
-		std::string disposition_header = "form-data; name=\"new_file\"; filename=\"aNewSpring.pdf\"";
-		std::string path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(disposition_header); //replace disposition header with 
-		//TODO what if no header is given? when it's raw or binary? = content-type gives you extensio then. come up with random name? _http_request_message->get_header("CONTENT-DISPOSITION");
-		std::cout << "name " << path_and_name << std::endl; 
-		//std::cout << "Dis " << _http_request_message->get_header_value("Content-Disposition") << std::endl;
-		
+		//extract file name from content-disposition or create randomly named files
+		std::string path_and_name ;
+		if(!_http_request_message->get_header_value("CONTENT_DISPOSITION").empty())
+			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(_http_request_message->get_header_value("CONTENT_DISPOSITION")); 
+		else
+			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + 
+			_file.random_name_creator(_file.get_path() + "/"  + _config.get_upload_dir()) +
+			 "." + _file.extract_file_type(_http_request_message->get_header_value("CONTENT_TYPE"));
+
 		//TODO test mp4 and what mime types do we not support?
 		if(_file.get_mime_type(path_and_name) == "text/plain" && path_and_name.find("txt") == std::string::npos)
 			return handle_error(UnsupportedMediaType);
@@ -164,27 +166,7 @@ namespace HTTPResponse {
 		std::ofstream file_stream(path_and_name.c_str());
 		if (!file_stream.is_open())
 			return handle_error(InternalServerError);
-		//  std::cout << "body " << _http_request_message->get_message_body() << std::endl;
 		file_stream << _http_request_message->get_message_body();
-
-		//REMOVE after getting the request_body
-		// std::ifstream myfile("www/image.png");
-		// std::string fileStr = std::string((std::istreambuf_iterator<char>(myfile)), std::istreambuf_iterator<char>());
-		// myfile.close();
-		// if (file_stream) {
-		// 	// file_stream << fileStr;
-		// }
-		// REMOVE: for testing
-		// std::string line;
-		//  std::ifstream x_file("www/upload/irem.png");
-		//  if (x_file.is_open())
-		//  {
-		//  	while (std::getline(x_file, line))
-		//  		std::cout << "L: " << line << std::endl;
-		//  }
-		//TODO remove from File.cpp
-		// if (!_file.create_random_named_file_put_msg_body_in(_http_request_message->get_message_body()))
-		// 	return handle_error(InternalServerError);
 
 		// set up response for uploading
 		_http_response_message->set_message_body("<h1><center> Successfully created file! </center></h1>");
