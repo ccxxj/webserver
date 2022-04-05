@@ -8,10 +8,8 @@ namespace Utility
     {
         std::map<std::string, std::string> mimes;
 
-        mimes["aac"] = "audio/aac";
         mimes["abw"] = "application/x-abiword";
         mimes["arc"] = "application/octet-stream";
-        mimes["avi"] = "video/x-msvideo";
         mimes["avif"] = "image/avif";
         mimes["azw"] = "application/vnd.amazon.ebook";
         mimes["bin"] = "application/octet-stream";
@@ -37,20 +35,12 @@ namespace Utility
         mimes["js"] = "application/javascript";
         mimes["json"] = "application/json";
         mimes["jsonld"] = "application/ld+json";
-        mimes["mid"] = "audio/midi";
-        mimes["midi"] = "audio/midi";
         mimes["mjs"] = "text/javascript";
-        mimes["mp3"] = "audio/mpeg";
-        mimes["mp4"] = "video/mp4";
-        mimes["mpeg"] = "video/mpeg";
         mimes["mpkg"] = "application/vnd.apple.installer+xml";
         mimes["odp"] = "application/vnd.oasis.opendocument.presentation";
         mimes["ods"] = "application/vnd.oasis.opendocument.spreadsheet";
         mimes["odt"] = "application/vnd.oasis.opendocument.text";
-        mimes["oga"] = "audio/ogg";
-        mimes["ogv"] = "video/ogg";
         mimes["ogx"] = "application/ogg";
-        mimes["opus"] = "audio/opus";
         mimes["otf"] = "font/otf";
         mimes["png"] = "image/png";
         mimes["pdf"] = "application/pdf";
@@ -69,9 +59,6 @@ namespace Utility
         mimes["ttf"] = "font/ttf";
         mimes["txt"] = "text/plain";
         mimes["vsd"] = "application/vnd.visio";
-        mimes["wav"] = "audio/x-wav";
-        mimes["weba"] = "audio/webm";
-        mimes["webm"] = "video/webm";
         mimes["webp"] = "image/webp";
         mimes["woff"] = "font/woff";
         mimes["woff2"] = "font/woff2";
@@ -81,8 +68,6 @@ namespace Utility
         mimes["xml"] = "application/xml";
         mimes["xul"] = "application/vnd.mozilla.xul+xml";
         mimes["zip"] = "application/zip";
-        mimes["3gp"] = "video/3gpp";
-        mimes["3g2"] = "video/3gpp2";
         mimes["7z"] = "application/x-7x-compressed";
 
         return mimes;

@@ -38,11 +38,12 @@ namespace Utility
 		bool un_link(const std::string &str);
 		bool create_dir();
 		bool create_dir(const std::string &str);
-		bool create_random_named_file_put_msg_body_in(const std::string &str);
 		std::string last_modified_info(const std::string &path);
 		std::string last_modified_info();
 		std::string get_mime_type(const std::string& str);
-		std::string extract_file_name(const std::string &path);
+		std::string extract_file_name(const std::string &str);
+		std::string extract_file_type(const std::string &str);
+		std::string random_name_creator(const std::string &str);
 	};
 
 }
