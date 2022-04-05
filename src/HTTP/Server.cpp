@@ -186,12 +186,12 @@ namespace HTTP {
 					// Register a read events for the client:
 					EV_SET(&kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
 					if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
-						std::perror("kevent error");
+						std::perror("kevent error - read");
 					}
 					// Register write events for the client
 					EV_SET(&kev, connection_socket_fd, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
 					if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
-						std::perror("kevent error");
+						std::perror("kevent error - write");
 					}
 					//now wait for it to be writable - this will return immediately because the socket is writable.
 					new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, NULL);
