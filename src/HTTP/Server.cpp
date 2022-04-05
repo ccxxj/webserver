@@ -199,14 +199,10 @@ namespace HTTP {
 						std::perror("kevent");
 						std::exit(1);
 					}
-					std::cout << "Write event registered\n";
-
 				}
 				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
-						std::cout << "READABLE!\n";
-
 						(connection_iter->second)->handle_http_request();
 						break;
 					}
@@ -214,11 +210,7 @@ namespace HTTP {
 				else if (event_fds.filter == EVFILT_WRITE) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connectio
-						if(connection_iter->second->is_response_ready()) {
-							connection_iter->second->send_response();
-							std::cout << "WRITABLE!\n";
-						}
-							// write(connection_iter->first, "hey", 4);
+						connection_iter->second->send_response();
 						break;
 					}
 				}
