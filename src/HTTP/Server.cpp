@@ -103,6 +103,8 @@ namespace HTTP {
 				struct kevent kev;
 				EV_SET(&kev, temp_iter->first, EVFILT_READ, EV_DELETE, 0, 0, NULL);
 				kevent(sock_kqueue, &kev, 1, NULL, 0, NULL);
+				EV_SET(&kev, temp_iter->first, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+				kevent(sock_kqueue, &kev, 1, NULL, 0, NULL);
 #endif
 				_destroy_connection(temp_iter);
 			}
