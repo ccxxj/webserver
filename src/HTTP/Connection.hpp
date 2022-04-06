@@ -26,7 +26,7 @@ namespace HTTP {
 		void send_response();
 		bool is_connection_open() const;
 		virtual size_t receive(char *buffer, size_t buffer_size);
-		virtual void send(const void *buffer, size_t buffer_size);
+		virtual void send(std::string& buffer, size_t buffer_size);
 		virtual void close();
 	};
 }

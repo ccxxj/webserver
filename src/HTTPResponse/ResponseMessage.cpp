@@ -67,7 +67,7 @@ namespace HTTPResponse {
          return _message_body;
     }
 
-    const std::string& ResponseMessage::get_complete_response() const {
+    std::string& ResponseMessage::get_complete_response() {
         return _complete_response;
     }
 

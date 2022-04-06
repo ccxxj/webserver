@@ -47,16 +47,13 @@ namespace HTTP {
 			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
 				_process_http_request();
 			response_ready = true;
-			// std::string response = _http_response_message.get_complete_response();
-			// _delegate.send(&response[0], response.size());
-			// _delegate.close();
 		}
 	}
 
 	void RequestHandler::send_response() {
 		if (response_ready) {
-			std::string response = _http_response_message.get_complete_response();
-			_delegate.send(&response[0], response.size());
+			std::string& response = _http_response_message.get_complete_response();
+			_delegate.send(response, response.size());
 		}
 	}
 
