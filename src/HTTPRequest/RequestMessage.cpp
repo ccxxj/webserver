@@ -31,6 +31,10 @@ namespace HTTPRequest {
         return (*_request_headers.find(header_name)).second;
     }
 
+    bool RequestMessage::has_header_field(const std::string& header_name) {
+        return _request_headers.find(header_name) != _request_headers.end();
+    }
+
     const std::map<std::string, std::string>& RequestMessage::get_headers() const {
         return _request_headers;
     }

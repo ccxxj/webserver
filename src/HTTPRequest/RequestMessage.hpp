@@ -32,6 +32,7 @@ namespace HTTPRequest {
         void set_HTTP_version(std::string& version);
         const std::map<std::string, std::string>& get_headers() const;
         const std::string& get_header_value(const std::string& header_name) const;
+        bool has_header_field(const std::string& header_name);
         void set_header_field(std::pair<std::string, std::string>& header_field);
         void update_header_field(const std::string& header_name, const std::string& new_value);
         const std::string& get_message_body() const;
