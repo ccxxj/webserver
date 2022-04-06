@@ -218,6 +218,9 @@ namespace HTTPRequest {
             }
         }
         _payload_bytes_left_to_parse = std::atoi(content_length_value.c_str());
+        if (_payload_bytes_left_to_parse > Constants::PAYLOAD_MAX_LENGTH) {
+            _throw_request_exception(HTTPResponse::ContentTooLarge);
+        }
     }
 
     void RequestParser::_check_multipart_content_type() {
