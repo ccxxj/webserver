@@ -40,13 +40,16 @@ namespace HTTP {
 				_handle_request_exception(e.get_error_status_code());
 				Utility::logger("Request  [Bad Request]", YELLOW);
 				response_handler.handle_error(e.get_error_status_code()); //error response is built, and will be sent below
+				response_ready = true;
 			}
 			if (!_parser.is_parsing_finished()) {
 				return;
 			}
-			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
+			// if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
+			if (!response_ready) { // checking if the response with the error code has been filled
 				_process_http_request();
-			response_ready = true;
+				response_ready = true;
+			}
 		}
 	}
 
