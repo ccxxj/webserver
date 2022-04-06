@@ -89,7 +89,7 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
-		//TODO CGI check? where?
+		//TODO CGI check? where? what if the index page of a directory is a cgi file? You won't be able to catch this from the URI
 		if (!_file.exists())
 			return handle_error(NotFound);
 
@@ -233,7 +233,6 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_custom_error_page(const std::string &str) {
-		//TODO CGI check again, everytime you find a file?
 		_file.set_root("www");
 		_http_response_message->set_message_body(_file.get_content(_file.get_root() + str));
 		if (_http_response_message->get_message_body() == "Forbidden")
@@ -323,7 +322,6 @@ namespace HTTPResponse {
 		_config.set_index_page(virtual_server->get_index_page()); //if loc has index, this will be overwritten
 		_config.set_return_value(virtual_server->get_return()); //returns are appended within levels
 		if(location) { //location specific config rules, appends and overwrites
-			_config.set_specific_location(true);
 			_config.set_limit_except(location->get_limit_except());
 			_config.set_methods_line(location->get_limit_except());
 			_config.set_autoindex(location->get_autoindex());
