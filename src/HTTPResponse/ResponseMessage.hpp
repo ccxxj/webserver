@@ -30,7 +30,7 @@ namespace HTTPResponse {
         const std::string& get_status_code() const;
         const std::string& get_reason_phrase() const;
         const std::string& get_message_body() const;
-        const std::string& get_complete_response() const;
+        std::string& get_complete_response();
 		const std::map<std::string, std::string>& get_response_headers() const;
     };
 }

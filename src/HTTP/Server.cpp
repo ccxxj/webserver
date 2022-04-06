@@ -103,6 +103,8 @@ namespace HTTP {
 				struct kevent kev;
 				EV_SET(&kev, temp_iter->first, EVFILT_READ, EV_DELETE, 0, 0, NULL);
 				kevent(sock_kqueue, &kev, 1, NULL, 0, NULL);
+				EV_SET(&kev, temp_iter->first, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+				kevent(sock_kqueue, &kev, 1, NULL, 0, NULL);
 #endif
 				_destroy_connection(temp_iter);
 			}
@@ -115,15 +117,18 @@ namespace HTTP {
 	}
 
 	void Server::_handle_events() {
+		int new_events = 0;
 		int sock_kqueue = kqueue(); //creates a new kernel event queue and returns a descriptor.
 		if (sock_kqueue < 0) {
 			Utility::logger("Error creating kqueue. errno: "  +  Utility::to_string(errno), RED);
 			std::exit(EXIT_FAILURE);
 		}
-		struct kevent kev[10], event_fds[10]; // kernel event
+		struct kevent kev, event_fds; // First - kernel events we want to monitor, second - events triggered
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
-			EV_SET(kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
-			if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
+			// Prepare a read event:
+			EV_SET(&kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
+			// Register an event:
+			if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
 				std::perror("kevent");
 				std::exit(1);
 			}
@@ -132,7 +137,8 @@ namespace HTTP {
 			struct timespec timeout;
 			timeout.tv_sec = 30;
 			timeout.tv_nsec = 0;
-			int new_events = kevent(sock_kqueue, NULL, 0, event_fds, 1, &timeout); //look out for events and register to event list; one event per time
+			// Receive events:
+			new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, &timeout); //look out for events and register to event list; one event per time
 			if(new_events == -1) {
 				std::perror("kevent");
 				std::exit(1);
@@ -152,20 +158,20 @@ namespace HTTP {
 				}
 			}
 			for(int i = 0; i < new_events; i++) {
-				int current_event_fd = event_fds[i].ident;
-				if (event_fds[i].flags & EV_ERROR) {
-					std::cout << "Event error: %s", strerror(event_fds[i].data);
+				int current_event_fd = event_fds.ident;
+				if (event_fds.flags & EV_ERROR) {
+					std::cout << "Event error: %s", strerror(event_fds.data);
 					std::exit(EXIT_FAILURE);
 				}
-				else if (event_fds[i].flags & EV_EOF) {
+				else if (event_fds.flags & EV_EOF) {
 					Utility::logger("The client has disconnected.", RED);
 					close(current_event_fd);
 					_remove_disconnected_client(current_event_fd);
 					Utility::logger("FD " + Utility::to_string(current_event_fd) + " is closed and removed from _connections." , RED);
 				}
-				else if(_is_in_listen_sockfd_list(current_event_fd)) {
+				else if(_is_in_listen_sockfd_list(current_event_fd)) { // if a new client is establishing a connection
 					// iterate the map of connections and if any connection is closed remov it from the map:
-					_remove_connection_closed_by_server(sock_kqueue); // THis iS TEMP solution. TODO: set up a listener
+					_remove_connection_closed_by_server(sock_kqueue); // TODO: THis iS TEMP solution.  set up a listener
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
@@ -177,17 +183,36 @@ namespace HTTP {
 					}
 					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd], connection_addr);
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
-					EV_SET(kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
-					if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
-						std::perror("kevent error");
-					}
 					Utility::logger("New connection on port  : " + Utility::to_string(_running_servers[current_event_fd].port), MAGENTA);
 
+					// Register a read events for the client:
+					EV_SET(&kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
+					if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
+						std::perror("kevent error - read");
+					}
+					// Register write events for the client
+					EV_SET(&kev, connection_socket_fd, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
+					if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
+						std::perror("kevent error - write");
+					}
+					//now wait for it to be writable - this will return immediately because the socket is writable.
+					new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, NULL);
+					if(new_events == -1) {
+						std::perror("kevent");
+						std::exit(1);
+					}
 				}
-				else if (event_fds[i].filter & EVFILT_READ) {
+				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
+					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
+					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
+						(connection_iter->second)->handle_http_request();
+						break;
+					}
+				}
+				else if (event_fds.filter == EVFILT_WRITE) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connectio
-						(connection_iter->second)->handle_http_request();
+						connection_iter->second->send_response();
 						break;
 					}
 				}

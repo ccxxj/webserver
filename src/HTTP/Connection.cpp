@@ -11,15 +11,11 @@
 
 namespace HTTP {
 	Connection::Connection(int connection_socket_fd, Config::ConfigData *config_data, ListenInfo& listen_info, sockaddr_in connection_addr)
-		// Connection::Connection(int connection_socket_fd, int server_listening_sockfd, sockaddr_in& connection_addr, int connection_addr_len)
 		: _socket_fd(connection_socket_fd)
 		, _listen_info(listen_info)
 		, _is_open(true)
 		, request_handler(new RequestHandler(*this, config_data, _listen_info))
 		, my_connection_addr(connection_addr)
-	// , _listening_socket_fd(server_listening_sockfd)
-	//	, _client_addr(connection_addr)
-	// , _client_addr_len(connection_addr_len)
 		{}
 
 	Connection::~Connection(){
@@ -29,32 +25,34 @@ namespace HTTP {
 		request_handler->handle_http_request();
 	}
 
+	void Connection::send_response() {
+		request_handler->send_response();
+	}
+
 	bool Connection::is_connection_open() const {
 		return _is_open;
 	}
 
-	void Connection::send(const void* buffer, size_t buffer_size) {
-		size_t bytes_sent = 0;
-		while (bytes_sent < buffer_size) {
-			size_t current_buffer_size;
-			size_t bytes_left = buffer_size - bytes_sent;
-			if (bytes_left < Constants::SEND_BUFFER_SIZE) {
-				current_buffer_size = bytes_left;
-			}
-			else {
-				current_buffer_size = Constants::SEND_BUFFER_SIZE;
-			}
-			const char *pbuffer = (const char*) buffer;
-			ssize_t ret = ::send(_socket_fd, pbuffer + bytes_sent, current_buffer_size, 0);
-			if (ret < 0) {
-				Utility::logger("Send failed. errno: " + Utility::to_string(errno), RED);
-				this->close();
-				break;
-			}
-			bytes_sent += ret;
-			usleep(10000);
+	void Connection::send(std::string& buffer, size_t buffer_size) {
+		size_t current_buffer_size;
+		if (buffer_size < Constants::SEND_BUFFER_SIZE) {
+			current_buffer_size = buffer_size;
 		}
-		this->close();
+		else {
+			current_buffer_size = Constants::SEND_BUFFER_SIZE;
+		}
+		ssize_t bytes_sent = ::send(_socket_fd, buffer.c_str(), current_buffer_size, 0);
+		if (bytes_sent < 0) {
+			Utility::logger("Send failed. errno: " + Utility::to_string(errno), RED);
+			this->close();
+		}
+		if (buffer_size > (size_t)bytes_sent) { // erasing the part that has been sent if the buffer is bigger than we can handle
+			buffer.erase(0, (size_t)bytes_sent);
+		}
+		else {
+			buffer.clear();
+			this->close();
+		}
 	}
 
 	void Connection::close() {

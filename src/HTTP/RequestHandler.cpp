@@ -17,6 +17,7 @@ namespace HTTP {
 	, _config_data(config_data)
 	, _connection_listen_info(listen_info)
 	, response_handler(&_http_request_message, &_http_response_message)
+	, response_ready(false)
 	{
 	}
 
@@ -45,9 +46,14 @@ namespace HTTP {
 			}
 			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
 				_process_http_request();
-			std::string response = _http_response_message.get_complete_response();
-			_delegate.send(&response[0], response.size());
-			// _delegate.close();
+			response_ready = true;
+		}
+	}
+
+	void RequestHandler::send_response() {
+		if (response_ready) {
+			std::string& response = _http_response_message.get_complete_response();
+			_delegate.send(response, response.size());
 		}
 	}
 
