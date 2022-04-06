@@ -51,7 +51,6 @@ namespace HTTPRequest {
         void _parse_header(std::string& line);
         void _validate_headers();
         void _define_payload_length_type();
-        bool _has_header_field(const std::string& header_name);
         void _check_multipart_content_type();
         void _set_multipart_boundary(std::string& content_type_value);
         void _parse_transfer_encoding(std::string &coding_names_list);

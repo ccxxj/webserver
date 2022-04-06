@@ -4,6 +4,7 @@
 
 #include <sstream> // for converting int to string
 #include <fstream>  // for ofstream
+#include <string.h> //for strerror
 
 size_t redirection_loop = 0; //FIXME is it okay here?
 
@@ -30,7 +31,7 @@ namespace HTTPResponse {
 
 	void ResponseHandler::create_http_response() {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
-	
+
 		//log request info
 		Utility::logger(request_info(), YELLOW);
 
@@ -88,10 +89,10 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
-		//TODO CGI check? where?
+		//TODO CGI check? where? what if the index page of a directory is a cgi file? You won't be able to catch this from the URI
 		if (!_file.exists())
 			return handle_error(NotFound);
-	
+
 		if (_file.is_directory()) {
 			if (_file.find_index_page(_config.get_index_page())) //automatically looks for an index page
 				return(_serve_found_file(_file.get_path() + "/" + _file.get_index_page()));
@@ -150,22 +151,28 @@ namespace HTTPResponse {
 			return handle_error(InternalServerError);
 
 		//extract file name from content-disposition or create randomly named files
-		std::string path_and_name ;
-		if(!_http_request_message->get_header_value("CONTENT_DISPOSITION").empty())
-			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(_http_request_message->get_header_value("CONTENT_DISPOSITION")); 
-		else
-			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + 
+		std::string path_and_name;
+		if(_http_request_message->has_header_field("CONTENT_DISPOSITION"))
+			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(_http_request_message->get_header_value("CONTENT_DISPOSITION"));
+		else {
+			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" +
 			_file.random_name_creator(_file.get_path() + "/"  + _config.get_upload_dir()) +
-			 "." + _file.extract_file_type(_http_request_message->get_header_value("CONTENT_TYPE"));
-
+			 "." + _file.get_extension(_http_request_message->get_header_value("CONTENT_TYPE"));
+		}
+	
 		//TODO test mp4 and what mime types do we not support?
-		if(_file.get_mime_type(path_and_name) == "text/plain" && path_and_name.find("txt") == std::string::npos)
+		std::cout << path_and_name << std::endl;
+		if(_file.get_extension(_http_request_message->get_header_value("CONTENT_TYPE")) == "NotSupported")
 			return handle_error(UnsupportedMediaType);
-		
-		//create the new resource with the path and put request body inside		
+
+		//create the new resource with the path and put request body inside
 		std::ofstream file_stream(path_and_name.c_str());
-		if (!file_stream.is_open())
+		if (!file_stream.is_open()) {
+			Utility::logger("DEBUG file_path: " + path_and_name, RED);
+			Utility::logger("DEBUG is_open: " + std::string(strerror(errno)), RED);
 			return handle_error(InternalServerError);
+		}
+
 		file_stream << _http_request_message->get_message_body();
 
 		// set up response for uploading
@@ -226,7 +233,6 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_custom_error_page(const std::string &str) {
-		//TODO CGI check again, everytime you find a file?
 		_file.set_root("www");
 		_http_response_message->set_message_body(_file.get_content(_file.get_root() + str));
 		if (_http_response_message->get_message_body() == "Forbidden")
@@ -316,7 +322,6 @@ namespace HTTPResponse {
 		_config.set_index_page(virtual_server->get_index_page()); //if loc has index, this will be overwritten
 		_config.set_return_value(virtual_server->get_return()); //returns are appended within levels
 		if(location) { //location specific config rules, appends and overwrites
-			_config.set_specific_location(true);
 			_config.set_limit_except(location->get_limit_except());
 			_config.set_methods_line(location->get_limit_except());
 			_config.set_autoindex(location->get_autoindex());

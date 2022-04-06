@@ -45,6 +45,8 @@ namespace HTTPResponse
 		void create_http_response();
 		void handle_error(HTTPResponse::StatusCode code);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
+
+		/* logger helpers */
 		std::string response_status();
 		std::string request_info();
 	};

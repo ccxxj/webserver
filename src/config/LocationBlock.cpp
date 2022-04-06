@@ -82,8 +82,7 @@ namespace Config
 
     void LocationBlock::set_upload_dir(std::string str)
     {
-		 Utility::remove_last_of(';', str);
-         std::cout << str << std::endl;
+		Utility::remove_last_of(';', str);
         std::vector<std::string> args = Utility::split_string_by_white_space(str);
 		if (args.size() != 2)
 		    throw std::logic_error("invalid number of arguments in upload_dir directive");
