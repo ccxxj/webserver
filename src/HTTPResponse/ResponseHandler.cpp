@@ -30,7 +30,7 @@ namespace HTTPResponse {
 
 	void ResponseHandler::create_http_response() {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
-	
+
 		//log request info
 		Utility::logger(request_info(), YELLOW);
 
@@ -91,7 +91,7 @@ namespace HTTPResponse {
 		//TODO CGI check? where?
 		if (!_file.exists())
 			return handle_error(NotFound);
-	
+
 		if (_file.is_directory()) {
 			if (_file.find_index_page(_config.get_index_page())) //automatically looks for an index page
 				return(_serve_found_file(_file.get_path() + "/" + _file.get_index_page()));
@@ -152,20 +152,24 @@ namespace HTTPResponse {
 		//extract file name from content-disposition or create randomly named files
 		std::string path_and_name ;
 		if(!_http_request_message->get_header_value("CONTENT_DISPOSITION").empty())
-			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(_http_request_message->get_header_value("CONTENT_DISPOSITION")); 
+			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(_http_request_message->get_header_value("CONTENT_DISPOSITION"));
 		else
-			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + 
+			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" +
 			_file.random_name_creator(_file.get_path() + "/"  + _config.get_upload_dir()) +
 			 "." + _file.extract_file_type(_http_request_message->get_header_value("CONTENT_TYPE"));
 
 		//TODO test mp4 and what mime types do we not support?
 		if(_file.get_mime_type(path_and_name) == "text/plain" && path_and_name.find("txt") == std::string::npos)
 			return handle_error(UnsupportedMediaType);
-		
-		//create the new resource with the path and put request body inside		
+
+		//create the new resource with the path and put request body inside
 		std::ofstream file_stream(path_and_name.c_str());
-		if (!file_stream.is_open())
+		if (!file_stream.is_open()) {
+			Utility::logger("DEBUG file_path: " + path_and_name, RED);
+			Utility::logger("DEBUG is_open: " + std::string(strerror(errno)), RED);
 			return handle_error(InternalServerError);
+		}
+
 		file_stream << _http_request_message->get_message_body();
 
 		// set up response for uploading

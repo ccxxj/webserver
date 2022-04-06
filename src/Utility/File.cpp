@@ -112,7 +112,7 @@ namespace Utility
 		std::string file_content;
 		char buf[4096 + 1];
   		int ret;
-	
+
 		int fd = open(str.c_str(), O_RDONLY);
 		if (fd == -1) {
 			Utility::logger("DEBUG open : " + std::string(strerror(errno)) , RED);
@@ -150,7 +150,7 @@ namespace Utility
 
 	bool File::create_dir(const std::string &str) {
 		struct stat buffer;
-		if (stat(_path.c_str(), &buffer) == 0) //if exists
+		if (stat(str.c_str(), &buffer) == 0) //if exists
 			return true;
 		if (mkdir(str.c_str(), 0755) == -1) {
 			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
@@ -181,7 +181,7 @@ namespace Utility
 			return "";
 		time = gmtime(&statbuf.st_mtime);
 		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
-		std::string ret_val(buf); 
+		std::string ret_val(buf);
 		return ret_val;
 	}
 
