@@ -6,7 +6,8 @@ namespace Utility
     //taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
     std::map<std::string, std::string> MimeTypes::create_mime_type_map()
     {
-        std::map<std::string, std::string> mimes;
+        
+      std::map<std::string, std::string> mimes;
 
         mimes["abw"] = "application/x-abiword";
         mimes["arc"] = "application/octet-stream";
@@ -73,15 +74,95 @@ namespace Utility
         return mimes;
     }
 
+    std::map<std::string, std::string> MimeTypes::create_extension_map()
+    {
+        std::map<std::string, std::string> ext;
+
+        ext["application/x-abiword"] = "abw";
+        ext["application/octet-stream"] = "arc";
+        ext["image/avif"] = "avif";
+        ext["application/vnd.amazon.ebook"] = "azw";
+        ext["application/octet-stream"] = "bin";
+        ext["image/bmp"] = "bmp";
+        ext["application/x-bzip"] = "bz";
+        ext["application/x-bzip2"] = "bz2";
+        ext["application/x-cdf"] = "cda";
+        ext["application/x-csh"] = "csh";
+        ext["text/css"] = "css";
+        ext["text/csv"] = "csv";
+        ext["application/msword"] = "doc";
+        ext["application/vnd.openxmlformats-officedocument.wordprocessingml.document"] = "docx";
+        ext["application/vnd.ms-fontobject"] = "eot";
+        ext["application/epub+zip"] = "epub";
+        ext["application/gzip"] = "gz";
+        ext["image/gif"] = "gif";
+        ext["text/html"] = "html";
+        ext["image/x-icon"] = "ico";
+        ext["text/calendar"] = "ics";
+        ext["application/java-archive"] = "jar";
+        ext["image/jpeg"] = "jpeg";
+        ext["application/javascript"] = "js";
+        ext["application/json"] = "json";
+        ext["application/ld+json"] = "jsonld";
+        ext["text/javascript"] = "mjs";
+        ext["application/vnd.apple.installer+xml"] = "mpkg";
+        ext["application/vnd.oasis.opendocument.presentation"] = "odp";
+        ext["application/vnd.oasis.opendocument.spreadsheet"] = "ods";
+        ext["application/vnd.oasis.opendocument.text"] = "odt";
+        ext["application/ogg"] = "ogx";
+        ext["font/otf"] = "otf";
+        ext["image/png"] = "png";
+        ext["application/pdf"] = "pdf";
+        ext["application/x-httpd-php"] = "php";
+        ext["application/vnd.ms-powerpoint"] = "ppt";
+        ext["application/vnd.openxmlformats-officedocument.presentationml.presentation"] = "pptx";
+        ext["application/x-rar-compressed"] = "rar";
+        ext["application/rtf"] = "rtf";
+        ext["application/x-sh"] = "sh";
+        ext["image/svg+xml"] = "svg";
+        ext["application/x-shockwave-flash"] = "swf";
+        ext["application/x-tar"] = "tar";
+        ext["image/tiff"] = "tiff";
+        ext["application/typescript"] = "ts";
+        ext["font/tttf"] = "tf";
+        ext["text/plain"] = "txt";
+        ext["application/vnd.visio"] = "vsd";
+        ext["image/webp"] = "webp";
+        ext["font/woff"] = "woff";
+        ext["font/woff2"] = "woff2";
+        ext["application/xhtml+xml"] = "xhtml";
+        ext["application/vnd.ms-excel"] = "xls";
+        ext["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"] = "xlsx";
+        ext["application/xml"] = "xml";
+        ext["application/vnd.mozilla.xul+xml"] = "xul";
+        ext["application/zip"] = "zip";
+        ext["application/x-7x-compressed"] = "7z";
+
+        return ext;
+    }
+
     const std::map<std::string, std::string> MimeTypes::_mimes = MimeTypes::create_mime_type_map();
+    const std::map<std::string, std::string> MimeTypes::_exts = MimeTypes::create_extension_map();
 
     std::string MimeTypes::get_mime_type(const std::string &file_path) {
+        if(file_path.empty())
+            return "";
         std::string file_ext = file_path.substr(file_path.find_last_of(".") + 1);
         std::map<std::string, std::string>::const_iterator	mime_type;
         mime_type = _mimes.find(file_ext);
         if (mime_type == _mimes.end())
             mime_type = _mimes.find("txt"); //the default for textual files
         return mime_type->second;
+    }
+
+    std::string MimeTypes::get_extension(const std::string &mime_type) {
+        if(mime_type.empty())
+            return "";
+        std::map<std::string, std::string>::const_iterator	extension;
+        	extension = _exts.find(mime_type);
+        if (extension == _exts.end())
+            extension = _mimes.find("NotSupported"); //the default for textual files
+        return extension->second;
     }
 
     MimeTypes::MimeTypes() {}
