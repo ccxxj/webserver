@@ -10,7 +10,9 @@ namespace Utility
     private:
         /* data */
         static const std::map<std::string, std::string> _mimes;
+        static const std::map<std::string, std::string> _exts;
         static std::map<std::string, std::string> create_mime_type_map();
+        static std::map<std::string, std::string> create_extension_map();
     
     public:
         MimeTypes(/* args */);
@@ -19,5 +21,7 @@ namespace Utility
         MimeTypes& operator=(const MimeTypes &rhs);
 
         std::string get_mime_type(const std::string &file_path);
+        std::string get_extension(const std::string &mime_type);
     };   
 }
+

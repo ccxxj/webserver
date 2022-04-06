@@ -187,6 +187,10 @@ namespace Utility
 		return _mimes.get_mime_type(str);
 	}
 
+	std::string File::get_extension(const std::string& str) {
+		return _mimes.get_extension(str);
+	}
+
 	std::string File::extract_file_name(const std::string &str) {
 		//str example: form-data; name=\"new_file\"; filename=\"specific_name_for.pdf\";
 		if (str.empty())
@@ -198,16 +202,7 @@ namespace Utility
 		file_name  = file_name.substr(0, last_quote);
 		return file_name;
 	}
-
-	std::string File::extract_file_type(const std::string &str) {
-		//str example: image/png or application/pdf;
-		if (str.empty())
-			return "";
-		std::string file_type;
-		file_type = str.substr(str.find_last_of("/") + 1, str.size());
-		return file_type;
-	}
-
+	
 	std::string File::random_name_creator(const std::string &str) {
 		struct dirent *entry;
 		int i = 0;

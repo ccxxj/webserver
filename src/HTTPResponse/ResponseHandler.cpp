@@ -157,12 +157,12 @@ namespace HTTPResponse {
 		else {
 			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" +
 			_file.random_name_creator(_file.get_path() + "/"  + _config.get_upload_dir()) +
-			 "." + _file.extract_file_type(_http_request_message->get_header_value("CONTENT_TYPE"));
+			 "." + _file.get_extension(_http_request_message->get_header_value("CONTENT_TYPE"));
 		}
 	
 		//TODO test mp4 and what mime types do we not support?
 		std::cout << path_and_name << std::endl;
-		if(_file.get_mime_type(path_and_name) == "text/plain" && path_and_name.find("txt") == std::string::npos)
+		if(_file.get_extension(_http_request_message->get_header_value("CONTENT_TYPE")) == "NotSupported")
 			return handle_error(UnsupportedMediaType);
 
 		//create the new resource with the path and put request body inside
