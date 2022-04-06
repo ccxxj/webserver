@@ -151,13 +151,15 @@ namespace HTTPResponse {
 			return handle_error(InternalServerError);
 
 		//extract file name from content-disposition or create randomly named files
-		std::string path_and_name ;
+		std::string path_and_name;
 		if(!_http_request_message->get_header_value("CONTENT_DISPOSITION").empty())
 			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(_http_request_message->get_header_value("CONTENT_DISPOSITION"));
-		else
+		else {
 			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" +
 			_file.random_name_creator(_file.get_path() + "/"  + _config.get_upload_dir()) +
 			 "." + _file.extract_file_type(_http_request_message->get_header_value("CONTENT_TYPE"));
+		}
+	
 
 		//TODO test mp4 and what mime types do we not support?
 		if(_file.get_mime_type(path_and_name) == "text/plain" && path_and_name.find("txt") == std::string::npos)

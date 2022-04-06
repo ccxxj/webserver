@@ -194,8 +194,8 @@ namespace Utility
 		std::string key = "filename=\"";
 		size_t match = str.find(key);
 		std::string file_name = str.substr(match + key.size(), str.size());
-		size_t last_quote = file_name.find_last_not_of("\"");
-		file_name  = file_name.substr(0, last_quote + 1);
+		size_t last_quote = file_name.find_last_of("\"");
+		file_name  = file_name.substr(0, last_quote);
 		return file_name;
 	}
 
