@@ -4,6 +4,7 @@
 
 #include <sstream> // for converting int to string
 #include <fstream>  // for ofstream
+#include <string.h> //for strerror
 
 size_t redirection_loop = 0; //FIXME is it okay here?
 
