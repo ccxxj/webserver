@@ -14,13 +14,9 @@ namespace Utility
 {
 	MimeTypes File::_mimes;
 
-	File::File(/* args */)
-	{
-	}
+	File::File() { }
 
-	File::~File()
-	{
-	}
+	File::~File() { }
 
 	void File::set_path(const std::string &root, const std::vector<std::string> &uri_paths) {
 		_root = root;
@@ -164,7 +160,9 @@ namespace Utility
 		struct tm	*time;
 		char buf[32];
 
-		stat(_path.c_str(), &statbuf);
+		int ret = stat(_path.c_str(), &statbuf);
+		if (ret != 0)
+			return "";
 		time = gmtime(&statbuf.st_mtime);
 		strftime(buf, 32, "%a, %d %b %Y %T GMT", time);
 		std::string ret_val(buf);
@@ -191,23 +189,26 @@ namespace Utility
 
 	std::string File::extract_file_name(const std::string &str) {
 		//str example: form-data; name=\"new_file\"; filename=\"specific_name_for.pdf\";
+		if (str.empty())
+			return "";
 		std::string key = "filename=\"";
 		size_t match = str.find(key);
 		std::string file_name = str.substr(match + key.size(), str.size());
-		size_t last_quote = file_name.find_last_not_of("\"");
-		file_name  = file_name.substr(0, last_quote + 1);
+		size_t last_quote = file_name.find_last_of("\"");
+		file_name  = file_name.substr(0, last_quote);
 		return file_name;
 	}
 
 	std::string File::extract_file_type(const std::string &str) {
 		//str example: image/png or application/pdf;
+		if (str.empty())
+			return "";
 		std::string file_type;
 		file_type = str.substr(str.find_last_of("/") + 1, str.size());
 		return file_type;
 	}
 
 	std::string File::random_name_creator(const std::string &str) {
-		//str example: image/png or application/pdf;
 		struct dirent *entry;
 		int i = 0;
 		DIR *dir_p = opendir(str.c_str());

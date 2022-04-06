@@ -5,8 +5,7 @@ namespace HTTPResponse {
         : _HTTP_version("HTTP/1.1")
         , _status_code("")
         , _reason_phrase("")
-        , _is_redirected(false)
-        {}
+    {}
 
     ResponseMessage::ResponseMessage(const ResponseMessage& other)
         : _HTTP_version("HTTP/1.1")
@@ -15,9 +14,7 @@ namespace HTTPResponse {
         , _message_body(other._message_body)
         , _complete_response(other._complete_response)
         , _response_headers(other._response_headers)
-        , _is_redirected(other._is_redirected)
-        {
-        }
+    {}
 
     ResponseMessage::~ResponseMessage() {}
 
@@ -41,15 +38,10 @@ namespace HTTPResponse {
         _complete_response +=  response_part;
     }
 
-	void ResponseMessage::set_header_element(std::string header, std::string value)
-	{
+	void ResponseMessage::set_header_element(std::string header, std::string value) {
 		std::pair<std::string, std::string> header_field(header, value);
 		_response_headers.insert(header_field);
 	}
-
-    void ResponseMessage::set_is_redirected(bool value) {
-        _is_redirected = value;
-    }
 
     const std::string& ResponseMessage::get_HTTP_version() const {
         return _HTTP_version;
@@ -74,8 +66,5 @@ namespace HTTPResponse {
 	const std::map<std::string, std::string>& ResponseMessage::get_response_headers() const {
 		return _response_headers;
 	}
+} // namespace HTTPResponse
 
-    bool ResponseMessage::get_is_redirected(void) const {
-        return _is_redirected;
-    }
-}

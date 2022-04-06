@@ -89,7 +89,7 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
-		//TODO CGI check? where?
+		//TODO CGI check? where? what if the index page of a directory is a cgi file? You won't be able to catch this from the URI
 		if (!_file.exists())
 			return handle_error(NotFound);
 
@@ -151,15 +151,17 @@ namespace HTTPResponse {
 			return handle_error(InternalServerError);
 
 		//extract file name from content-disposition or create randomly named files
-		std::string path_and_name ;
-		if(!_http_request_message->get_header_value("CONTENT_DISPOSITION").empty())
+		std::string path_and_name;
+		if(_http_request_message->has_header_field("CONTENT_DISPOSITION"))
 			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(_http_request_message->get_header_value("CONTENT_DISPOSITION"));
-		else
+		else {
 			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" +
 			_file.random_name_creator(_file.get_path() + "/"  + _config.get_upload_dir()) +
 			 "." + _file.extract_file_type(_http_request_message->get_header_value("CONTENT_TYPE"));
-
+		}
+	
 		//TODO test mp4 and what mime types do we not support?
+		std::cout << path_and_name << std::endl;
 		if(_file.get_mime_type(path_and_name) == "text/plain" && path_and_name.find("txt") == std::string::npos)
 			return handle_error(UnsupportedMediaType);
 
@@ -231,7 +233,6 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_custom_error_page(const std::string &str) {
-		//TODO CGI check again, everytime you find a file?
 		_file.set_root("www");
 		_http_response_message->set_message_body(_file.get_content(_file.get_root() + str));
 		if (_http_response_message->get_message_body() == "Forbidden")
@@ -321,7 +322,6 @@ namespace HTTPResponse {
 		_config.set_index_page(virtual_server->get_index_page()); //if loc has index, this will be overwritten
 		_config.set_return_value(virtual_server->get_return()); //returns are appended within levels
 		if(location) { //location specific config rules, appends and overwrites
-			_config.set_specific_location(true);
 			_config.set_limit_except(location->get_limit_except());
 			_config.set_methods_line(location->get_limit_except());
 			_config.set_autoindex(location->get_autoindex());
