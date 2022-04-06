@@ -49,7 +49,6 @@ namespace HTTP {
 				Utility::logger("Setting SO_REUSEADDR failed. errno: " + Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
-			// TODO: adding other socket options like TCP_DEFER_ACCEPT?
 			sockaddr_in sockaddr;
 			sockaddr.sin_family = AF_INET;
 			sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);// this is the address for this socket. The special adress for this is 0.0.0.0, defined by symbolic constant INADDR_ANY
@@ -71,7 +70,6 @@ namespace HTTP {
 		}
 	}
 
-	// TODO: is the size of listening_sockfd changing? if not create an attribute
 	bool Server::_is_in_listen_sockfd_list(int fd) {
 		for(size_t i = 0; i < _listening_sockfds.size(); i++) {
 			if(fd == _listening_sockfds[i]) {
@@ -182,7 +180,7 @@ namespace HTTP {
 						std::perror("fcntl error");
 					}
 					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd], connection_addr);
-					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr)); // TODO: either make sure you're deleting connection or implement a smart_pointer class
+					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr));
 					Utility::logger("New connection on port  : " + Utility::to_string(_running_servers[current_event_fd].port), MAGENTA);
 
 					// Register a read events for the client:
