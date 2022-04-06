@@ -161,10 +161,6 @@ namespace HTTPRequest {
         return header_name;
     }
 
-    bool RequestParser::_has_header_field(const std::string& header_name) {
-        return _http_request_message->get_headers().find(header_name) != _http_request_message->get_headers().end();
-    }
-
     void RequestParser::_validate_headers() {
         _define_payload_length_type();
         _check_multipart_content_type();
@@ -173,8 +169,8 @@ namespace HTTPRequest {
     void RequestParser::_define_payload_length_type() {
         std::map<std::string, std::string> headers_map = _http_request_message->get_headers();
         std::map<std::string, std::string>::iterator transfer_encoding_iter = headers_map.find("TRANSFER_ENCODING");
-        if (_has_header_field("CONTENT_LENGTH")) {
-            if (!_has_header_field("TRANSFER_ENCODING")) {
+        if (_http_request_message->has_header_field("CONTENT_LENGTH")) {
+            if (!(_http_request_message->has_header_field("TRANSFER_ENCODING"))) {
                 _payload_length_type = CONTENT_LENGTH;
                 _set_content_length();
             }
@@ -188,7 +184,7 @@ namespace HTTPRequest {
                 }
             }
         }
-        else if (_has_header_field("TRANSFER_ENCODING")) { // if headers contain Transfer-Encoding without Content-length
+        else if (_http_request_message->has_header_field("TRANSFER_ENCODING")) { // if headers contain Transfer-Encoding without Content-length
             _parse_transfer_encoding(transfer_encoding_iter->second);
             if (_payload_length_type != CHUNKED) {
                 _throw_request_exception(HTTPResponse::LengthRequired);
@@ -225,7 +221,7 @@ namespace HTTPRequest {
     }
 
     void RequestParser::_check_multipart_content_type() {
-        if (!_has_header_field("CONTENT_TYPE")) {
+        if (!(_http_request_message->has_header_field("CONTENT_TYPE"))) {
             return;
         }
         std::string content_type_value = _http_request_message->get_header_value("CONTENT_TYPE");
@@ -313,7 +309,7 @@ namespace HTTPRequest {
         else { // the chunk_size is reset to -1 before the chunk_length will be defined
             _set_chunk_size(line);
             if (_is_last_chunk()) {
-                if (_has_header_field("TRAILER")) {
+                if (_http_request_message->has_header_field("TRAILER")) {
                     _check_disallowed_trailer_header_fields();
                     _current_parsing_state = TRAILER;
                 }
@@ -332,7 +328,7 @@ namespace HTTPRequest {
     void RequestParser::_assign_decoded_body_length_to_content_length() {
         std::string content_length_header_name = "CONTENT_LENGTH";
         const std::string content_length_value = Utility::to_string(_decoded_body_length);
-        if (_has_header_field(content_length_header_name)) {
+        if (_http_request_message->has_header_field(content_length_header_name)) {
             _http_request_message->update_header_field(content_length_header_name, content_length_value);
         }
         else {
