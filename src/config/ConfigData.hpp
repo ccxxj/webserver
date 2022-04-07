@@ -36,5 +36,6 @@ namespace Config
 		void print_error_pages(ServerBlock &server);
 		void print_multiple_locations_info(ServerBlock &server);
 		void print_limit_except(LocationBlock &location);
+		void print_extention_list(ServerBlock &server);
 	};
 } // namespace Config

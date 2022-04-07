@@ -342,6 +342,7 @@ namespace HTTPResponse {
 
 		_config.set_root_value(virtual_server->get_root()); //if loc has root, this will be overwritten
 		_config.set_return_value(virtual_server->get_return()); //returns are appended within levels
+		_config.set_extention_list(virtual_server->get_extention_list());
 		if(location) { //location specific config rules, appends and overwrites
 			_config.set_specific_location(true);
 			_config.set_limit_except(location->get_limit_except());

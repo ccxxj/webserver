@@ -28,7 +28,8 @@ namespace Config
 			ROOT,
 			LIMIT_EXCEPT,
 			AUTOINDEX,
-			ROUTE
+			ROUTE,
+			EXT
 		};
 
 		/* methods */

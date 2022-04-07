@@ -23,6 +23,7 @@ namespace HTTPResponse
 		_autoindex = other._autoindex;
         _client_max_body_size = other._client_max_body_size;
 		_has_specific_location = other._has_specific_location;
+        _cgi_extention_list = other._cgi_extention_list;
         return *this;
     }
 
@@ -50,6 +51,12 @@ namespace HTTPResponse
     void SpecifiedConfig::set_root_value(const std::string& str)
     {
 		_root = str;
+    }
+
+	void SpecifiedConfig::set_extention_list(const std::vector<std::string>& extentions)
+    {
+        for (std::vector<std::string>::const_iterator it = extentions.begin(); it != extentions.end(); it++)
+            _cgi_extention_list.push_back(*it);
     }
 
     void SpecifiedConfig::set_client_max_body_size(int client_max_body_size)
@@ -123,6 +130,17 @@ namespace HTTPResponse
     {
         return _route;
     }
+
+    const std::vector<std::string>& SpecifiedConfig::get_extention_list(void) const
+    {
+        std::cout << "this is inside the specific config \n";
+        for (size_t i = 0; i < _cgi_extention_list.size(); i++)
+	    {
+		    std::cout <<"this is extention: " << _cgi_extention_list[i] << " ";
+	    }
+        return _cgi_extention_list;
+    }
+
 
 	const std::string& SpecifiedConfig::get_methods_line(void) const {
         return _methods_line;

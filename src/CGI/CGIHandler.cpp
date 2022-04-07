@@ -28,14 +28,6 @@ CGIHandler::CGIHandler(){
 	_meta_variables["SERVER_PORT"];
 	_meta_variables["SERVER_PROTOCOL"];
 	_meta_variables["SERVER_SOFTWARE"];
-
-//initialize the extensions to search for
-//TODO add directive "ext" for user to define the extention to handle. should I implement?
-	_cgi_extension.push_back(".php");
-	_cgi_extension.push_back("cgi_tester");
-	_cgi_extension.push_back(".cgi");
-	_cgi_extension.push_back(".py");
-	_cgi_extension.push_back(".pl");//TODO decide later if we want to let user to decide what are the extension can be executed as cgi
 }
 
 CGIHandler::~CGIHandler(){
@@ -54,25 +46,41 @@ void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 	_meta_variables["SERVER_PROTOCOL"] = "HTTP/1.1";
 
 //actual data
+	std::string authorization = _http_request_message->get_header_value("AUTHORIZATION");
+	if(authorization.size() > 0){
+		int start = authorization.find_first_not_of(" ");
+		int end = authorization.find_first_of(" ", start + 1);
+		_meta_variables["AUTH_TYPE"] = authorization.substr(start, end - start + 1);
+		start = authorization.find_first_not_of(" ", end + 1);
+		_meta_variables["REMOTE_USER"] = authorization.substr(start);
+	}
 	_meta_variables["AUTH_TYPE"] = _http_request_message->get_header_value("AUTHORIZATION");
 	_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
 	_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
-	_meta_variables["PATH_INFO"] = "/cgi-bin/cgi_tester";
-	//change only for cgi_tester(has been parsed during cgi searching)_meta_variables["PATH_INFO"];
+	// _meta_variables["PATH_INFO"] = "/cgi-bin/" + _cgi_name;//this is contradicting with the RFC
+	_meta_variables["PATH_INFO"] = "/directory/youpi.bla";
+	/*
+	possible solution to fill in the path_info for cgi_tester
+	/Volumes/Storage/goinfre/xxu/webserver/cgi-bin/cgi_tester
+	/Volumes/Storage/goinfre/xxu/webserver/cgi-bin
+	/cgi-bin/cgi_tester
+	/cgi-bin
+	*/
 	update_path_translated();// if path_info is null, path_translated is null. otherwise: root + path_info
+	_meta_variables["PATH_TRANSLATED"] = _meta_variables["PATH_INFO"];//TODO REMOVE LATER THIS IS ONLY FOR CGI_TESTER
 	_meta_variables["QUERY_STRING"] = _http_request_message->get_uri().get_query();
 	_meta_variables["REMOTE_ADDR"] = "127.0.0.1";//TODO @Irem//set to the server network address. can be void
 	_meta_variables["REMOTE_HOST"] = _http_request_message->get_header_value("HOST"); //TODO @Irem//if not remote_host value provided (hostname), substitute with the remote_address value
-	// _meta_variables["REMOTE_IDENT"];//TODO @Irem
-	// _meta_variables["REMOTE_USER"];//TODO @Irem
+	_meta_variables["REMOTE_IDENT"] = "";//not applicable in our server (not necessary feature according to the RFC)
 	_meta_variables["REQUEST_METHOD"] = _http_request_message->get_method();// from method
 	_meta_variables["SCRIPT_NAME"] = "/cgi-bin/" + _cgi_name; //path + script name
-	_meta_variables["SERVER_NAME"] = _http_request_message->get_header_value("Host");//from config
+	// _meta_variables["SCRIPT_NAME"] = "/directory/youpi.bla"; //TODO change back later
+	_meta_variables["SERVER_NAME"] = _http_request_message->get_header_value("HOST");//from config
 	// _meta_variables["SERVER_PORT"];//TODO @Irem
-	// _meta_variables["SERVER_PROTOCOL"];
-	// _meta_variables["SERVER_SOFTWARE"];
-}	
+	_meta_variables["SERVER_PROTOCOL"] = "HTTP/1.1";
+	_meta_variables["SERVER_SOFTWARE"] = "HungerWeb 1.0";//TODO @Irem
+}
 
 void CGIHandler::set_envp(void)
 {
@@ -98,15 +106,19 @@ void CGIHandler::set_argument(std::string cgi_name)
 	std::string executable_path(buf);//get the current executable location
 	std::string full_path = executable_path + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
 	_argument[0] = strdup(full_path.c_str());
-	_argument[1] = NULL;//TODO is it always NULL?
+	// _argument[1] = NULL;//TODO is it always NULL?
+	//TODO this need to change 
+	// _argument[1] = strdup("/Volumes/Storage/goinfre/xxu/webserver/www");
+	_argument[1] = strdup("/Volumes/Storage/goinfre/xxu/webserver");
+	_argument[2] = NULL;
 }
 
 //input parameter will be uriData->get_path()
 void CGIHandler::search_cgi(std::vector<std::string> &path){
 	int size = path.size();
 	for(int i = 0; i < size; i++){
-		std::vector<std::string>::iterator it = _cgi_extension.begin();
-		while(it != _cgi_extension.end()){
+		std::vector<std::string>::iterator it = _cgi_extention.begin();
+		while(it != _cgi_extention.end()){
 			if(path[i].find(*it) != (unsigned long)std::string::npos){
 				_cgi_name = path[i];
 				for(int j = i + 1; j < size; j++)
@@ -133,6 +145,14 @@ void print_array(char **envp){
 // int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
 std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int fd, int kq)
 {
+	std::cout << "check if there is cgi: \n";
+	_cgi_extention = _config.get_extention_list();
+	std::cout << "is there anything in hte origin " <<  _config.get_extention_list().size() << std::endl;
+	for (size_t i = 0; i < _cgi_extention.size(); i++)
+	{
+		std::cout <<"this is extention: " <<  _cgi_extention[i] << " ";
+	}
+	std::cout << std::endl;
 	std::vector<std::string> path = _http_request_message->get_uri().get_path();
 	search_cgi(path);
 	if(_search_cgi_extension == false)
@@ -183,6 +203,7 @@ std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_m
 		close(inputPipe[1]);
 		close(outputPipe[0]);
 		//TODO fcntl() set non-blocking flag??
+
 		if(execve(_argument[0], _argument, _envp) == -1){
 			perror("execution error");//TODO create exception later??
 			return "";

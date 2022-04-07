@@ -15,6 +15,7 @@ namespace HTTPResponse
 		std::map<int, std::string> _return;
 		std::map<int, std::string> _error_page;
 		std::vector<std::string> _limit_except;
+		std::vector<std::string> _cgi_extention_list;
 		std::string _route;
 		std::string _methods_line;
 		int _autoindex;
@@ -38,6 +39,7 @@ namespace HTTPResponse
 		void set_methods_line(std::vector<std::string> methods);
 		void set_autoindex(int autoindex);
 		void set_specific_location(bool value);
+		void set_extention_list(const std::vector<std::string>& extentions);
 		void set_id(int num);
 
 		int get_client_max_body_size(void) const;
@@ -47,6 +49,7 @@ namespace HTTPResponse
 		const std::map<int, std::string>& get_error_page(void) const;
 		int get_autoindex(void) const;
 		const std::vector<std::string>& get_limit_except(void) const;
+		const std::vector<std::string>& get_extention_list(void) const;
 		const std::string& get_route(void) const;
 		const std::string& get_methods_line(void) const;
 		bool has_specific_location(void) const;
