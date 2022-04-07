@@ -188,29 +188,29 @@ namespace HTTP {
 					if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
 						std::perror("kevent error - read");
 					}
-					// Register write events for the client
-					EV_SET(&kev, connection_socket_fd, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
-					if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
-						std::perror("kevent error - write");
-					}
-					//now wait for it to be writable - this will return immediately because the socket is writable.
-					new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, NULL);
-					if(new_events == -1) {
-						std::perror("kevent");
-						std::exit(1);
-					}
 				}
 				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
 						(connection_iter->second)->handle_http_request();
+						// Register write events for the client
+						EV_SET(&kev, connection_iter->first, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
+						if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
+							std::perror("kevent error - write");
+						}
+						new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, NULL);
+						if(new_events == -1) {
+							std::perror("kevent");
+							std::exit(1);
+						}
 						break;
 					}
 				}
 				else if (event_fds.filter == EVFILT_WRITE) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-					if (connection_iter != _connections.end()) { // handling request by the corresponding connectio
+					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
 						connection_iter->second->send_response();
+						std::cout << "WRITEABLE\n";
 						break;
 					}
 				}
