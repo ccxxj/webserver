@@ -14,6 +14,7 @@ namespace HTTP {
 		: _socket_fd(connection_socket_fd)
 		, _listen_info(listen_info)
 		, _is_open(true)
+		, logtime_counter()
 		, request_handler(new RequestHandler(*this, config_data, _listen_info))
 		, my_connection_addr(connection_addr)
 		{}
@@ -23,10 +24,12 @@ namespace HTTP {
 
 	void Connection::handle_http_request() {
 		request_handler->handle_http_request();
+		logtime_counter.set_last_activity_time();
 	}
 
 	void Connection::send_response() {
 		request_handler->send_response();
+		logtime_counter.set_last_activity_time();
 	}
 
 	bool Connection::is_connection_open() const {
