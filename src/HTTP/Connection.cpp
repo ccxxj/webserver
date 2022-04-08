@@ -1,6 +1,5 @@
 #include "Connection.hpp"
 #include "../config/ConfigData.hpp"
-#include "../Constants.hpp"
 #include "../Utility/Utility.hpp"
 
 #include <string>
@@ -24,16 +23,20 @@ namespace HTTP {
 
 	void Connection::handle_http_request() {
 		request_handler->handle_http_request();
-		logtime_counter.set_last_activity_time();
+		logtime_counter.update_last_activity_logtime();
 	}
 
 	void Connection::send_response() {
 		request_handler->send_response();
-		logtime_counter.set_last_activity_time();
+		logtime_counter.update_last_activity_logtime();
 	}
 
 	bool Connection::is_connection_open() const {
 		return _is_open;
+	}
+
+	bool Connection::is_hanging_connection() {
+		return logtime_counter.is_bigger_than_time_limit(Constants::NO_ACTIVITY_TIMEOUT);
 	}
 
 	void Connection::send(std::string& buffer, size_t buffer_size) {

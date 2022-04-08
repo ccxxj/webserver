@@ -3,6 +3,8 @@
 #include <ctime>
 #include <iostream> // TODO remove
 
+#include "../Constants.hpp"
+
 namespace Utility {
 
 	class LogTimeCounter
@@ -13,7 +15,9 @@ namespace Utility {
 	public:
 		LogTimeCounter();
 		~LogTimeCounter();
-		void set_last_activity_time();
-		bool is_last_activity_longer_than_30_sec();
+
+		void update_last_activity_logtime();
+		bool should_check_hanging_connections();
+		bool is_bigger_than_time_limit(double time_limit);
 	};
 }

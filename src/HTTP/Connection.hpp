@@ -5,9 +5,9 @@
 
 #include "RequestHandler.hpp"
 #include "RequestHandlerDelegate.hpp"
+#include "ServerStructs.hpp"
 #include "../Utility/SmartPointer.hpp"
 #include "../Utility/LogTimeCounter.hpp"
-#include "ServerStructs.hpp"
 
 namespace HTTP {
 	class Connection : public RequestHandlerDelegate
@@ -27,6 +27,8 @@ namespace HTTP {
 		void handle_http_request();
 		void send_response();
 		bool is_connection_open() const;
+		bool is_hanging_connection();
+		void set_last_activity_time();
 		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(std::string& buffer, size_t buffer_size);
 		virtual void close();
