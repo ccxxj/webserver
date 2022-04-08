@@ -146,6 +146,10 @@ namespace HTTPRequest {
             return;
         }
         std::vector<std::string> segments = Utility::_split_line(line, ':');
+        if (segments.size() < 2) {
+            std::cout << "ERROR REASON: INVALID HEADER FIELD SYNTax\n";  // TODO: remove
+            _throw_request_exception(HTTPResponse::BadRequest);
+        }
         if (Utility::contains_whitespace(segments[0])) {
             std::cout << "ERROR REASON: HEADER NAME CANNOT CONTAIN WHITESPACE\n";  // TODO: remove
             _throw_request_exception(HTTPResponse::BadRequest);
