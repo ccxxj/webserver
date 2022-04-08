@@ -185,8 +185,6 @@ namespace HTTP {
 					Utility::logger("FD " + Utility::to_string(current_event_fd) + " is closed and removed from _connections." , RED);
 				}
 				else if(_is_in_listen_sockfd_list(current_event_fd)) { // if a new client is establishing a connection
-				// iterate the map of connections and if any connection is closed remov it from the map:
-					_remove_connection_closed_by_server(sock_kqueue); // TODO: THis iS TEMP solution.  set up a listener
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
@@ -227,6 +225,9 @@ namespace HTTP {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
 						connection_iter->second->send_response();
+						if (!(connection_iter->second->is_connection_open())) {
+							_destroy_connection(connection_iter);
+						}
 						break;
 					}
 				}
