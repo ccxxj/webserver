@@ -21,14 +21,8 @@ namespace HTTP {
 	Connection::~Connection(){
 	}
 
-<<<<<<< HEAD
-	void Connection::handle_http_request() {
-		request_handler->handle_http_request();
-		logtime_counter.update_last_activity_logtime();
-=======
 	void Connection::handle_http_request(int kq) {
 		request_handler->handle_http_request(kq);
->>>>>>> 4ff2bc0358d72216228c9d6402f4254cf68ef57b
 	}
 
 	void Connection::send_response() {
