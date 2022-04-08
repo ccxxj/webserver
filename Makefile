@@ -16,8 +16,6 @@ HEADERS = Webserver.hpp \
 	HTTP/RequestHandler.hpp \
 	HTTP/RequestHandlerDelegate.hpp \
 	HTTP/Server.hpp \
-	HTTP/Exceptions/ClientErrorException.hpp \
-	HTTP/Exceptions/ServerErrorException.hpp \
 	HTTP/Exceptions/RequestException.hpp \
 	HTTPResponse/StatusCodes.hpp \
 	HTTPResponse/ResponseHandler.hpp \
