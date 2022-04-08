@@ -16,27 +16,13 @@ namespace HTTP {
 		, _is_open(true)
 		, request_handler(new RequestHandler(*this, config_data, _listen_info))
 		, my_connection_addr(connection_addr)
-<<<<<<< HEAD
-	// , _listening_socket_fd(server_listening_sockfd)
-	//	, _client_addr(connection_addr)
-	// , _client_addr_len(connection_addr_len)
-		{
-			(void)my_connection_addr;
-		}
-=======
 		{}
->>>>>>> origin
 
 	Connection::~Connection(){
 	}
 
-<<<<<<< HEAD
 	void Connection::handle_http_request(int kq) {
 		request_handler->handle_http_request(kq);
-=======
-	void Connection::handle_http_request() {
-		request_handler->handle_http_request();
->>>>>>> origin
 	}
 
 	void Connection::send_response() {

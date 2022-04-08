@@ -34,11 +34,7 @@ namespace HTTP {
     public:
         RequestHandler(RequestHandlerDelegate& delegate, Config::ConfigData *config_data, ListenInfo& listen_info);
         ~RequestHandler();
-<<<<<<< HEAD
         void handle_http_request(int kq);
-=======
-        void handle_http_request();
         void send_response();
->>>>>>> origin
     };
 }

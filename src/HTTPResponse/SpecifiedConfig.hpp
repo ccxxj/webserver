@@ -20,8 +20,6 @@ namespace HTTPResponse
 		std::map<int, std::string> _error_page;
 		std::vector<std::string> _limit_except;
 		std::vector<std::string> _cgi_extention_list;
-		std::string _route;
-		std::string _methods_line;
 		int _autoindex;
 		int _client_max_body_size;
 		int _id;

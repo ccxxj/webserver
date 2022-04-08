@@ -118,11 +118,6 @@ namespace HTTPResponse
 
     const std::vector<std::string>& SpecifiedConfig::get_extention_list(void) const
     {
-        std::cout << "this is inside the specific config \n";
-        for (size_t i = 0; i < _cgi_extention_list.size(); i++)
-	    {
-		    std::cout <<"this is extention: " << _cgi_extention_list[i] << " ";
-	    }
         return _cgi_extention_list;
     }
 

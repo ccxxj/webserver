@@ -125,21 +125,10 @@ namespace HTTP {
 		}
 		struct kevent kev, event_fds; // First - kernel events we want to monitor, second - events triggered
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
-<<<<<<< HEAD
-			// EV_SET(kev, _listening_sockfds[i], EVFILT_READ | EVFILT_PROC, EV_ADD | EV_ENABLE | NOTE_FORK | NOTE_EXIT | NOTE_EXEC |NOTE_TRACK |NOTE_TRACKERR, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
-			EV_SET(kev, _listening_sockfds[i], EVFILT_READ , EV_ADD | EV_ENABLE | NOTE_EXEC, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
-			// EV_SET(kev, _listening_sockfds[i], EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR,
-            //            NOTE_DELETE|NOTE_WRITE|NOTE_EXTEND|NOTE_ATTRIB|NOTE_LINK|
-            //            NOTE_RENAME|NOTE_REVOKE, 0, 0);
-			// EV_SET(kev,	_listening_sockfds[i], EVFILT_VNODE, EV_ADD | EV_CLEAR, 0	,0,0);
-			if (kevent(sock_kqueue, kev, 1, NULL, 0, NULL) < 0) {
-				std::cerr << "caused by EV_SET\n";
-=======
 			// Prepare a read event:
 			EV_SET(&kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
 			// Register an event:
 			if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
->>>>>>> origin
 				std::perror("kevent");
 				std::exit(1);
 			}
@@ -148,17 +137,8 @@ namespace HTTP {
 			struct timespec timeout;
 			timeout.tv_sec = 30;
 			timeout.tv_nsec = 0;
-<<<<<<< HEAD
-			//print the event_fds
-			// std::cout << "event fds are:\n";
-			// for(int i = 0; i < 10; i++){
-			// 	std::cout << event_fds[i].ident << " ";
-			// }
-			int new_events = kevent(sock_kqueue, NULL, 0, event_fds, 1, &timeout); //look out for events and register to event list; one event per time
-=======
 			// Receive events:
 			new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, &timeout); //look out for events and register to event list; one event per time
->>>>>>> origin
 			if(new_events == -1) {
 				std::cerr << "it is caused by new events register failure \n";
 				std::perror("kevent");
@@ -225,13 +205,8 @@ namespace HTTP {
 				}
 				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-<<<<<<< HEAD
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connectio
 						(connection_iter->second)->handle_http_request(sock_kqueue);
-=======
-					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
-						(connection_iter->second)->handle_http_request();
->>>>>>> origin
 						break;
 					}
 				}

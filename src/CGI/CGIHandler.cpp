@@ -140,7 +140,6 @@ void print_array(char **envp){
 std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int fd, int kq)
 {
 	_cgi_extention = _config.get_extention_list();
-	std::cout << std::endl;
 	std::vector<std::string> path = _http_request_message->get_uri().get_path();
 	search_cgi(path);
 	if(_search_cgi_extension == false)
@@ -161,28 +160,23 @@ std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_m
 	int inputPipe[2], outputPipe[2];
 	// int outputPipe[2];
 	if(pipe(inputPipe) == -1){
-		std::perror("pipe");//TODO create exception later??
+		std::perror("pipe");
 		throw(CGIexception());
 	}
 	if(pipe(outputPipe) == -1){
-		std::perror("pipe");//TODO create exception later??
+		std::perror("pipe");
 		throw(CGIexception());
 	}
 	set_argument(_cgi_name);//TODO replace by the actual path, currently I am only use the predefined path
 	parse_meta_variables(_http_request_message, _config);//TODO replace by input from http request get_message_body
 	set_envp();
-	std::cout << "message body is " << requestMessageBody << std::endl;
 	write(inputPipe[1], requestMessageBody.c_str(), requestMessageBody.size());
 	pid_t pid = fork();
 	if(pid < 0){
 		perror("fork failure");//TODO create exception later??
 	}
 	else if(pid == 0){
-		// if(kevent(kq, &ev, 1, NULL, 0, NULL))
-			// perror("kevent");
-		std::cout << "child process" << std::endl;
 		if(dup2(inputPipe[0], 0) < 0){
-		// if(dup2(inputFD, 0) < 0){
 			throw(CGIexception());
 			perror("dup failure");
 		}
@@ -190,7 +184,6 @@ std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_m
 			throw(CGIexception());
 			perror("dup failure");
 		}
-		// close(inputPipe[1]);
 		close(outputPipe[0]);
 		//TODO fcntl() set non-blocking flag??
 
@@ -210,7 +203,6 @@ std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_m
     	read(outputPipe[0], (char*)(response.data()), sb.st_size);
     	close(outputPipe[0]);
 		close(inputPipe[0]);
-		// close(inputFD);
 	}
 	return response;
 }

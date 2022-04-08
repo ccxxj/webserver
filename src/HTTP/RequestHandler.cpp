@@ -23,12 +23,7 @@ namespace HTTP {
 
 	RequestHandler::~RequestHandler(){}
 
-<<<<<<< HEAD
 	void RequestHandler::handle_http_request(int kq) {
-		Utility::logger("New connection on port  : " + Utility::to_string(_connection_listen_info.port), MAGENTA);
-=======
-	void RequestHandler::handle_http_request() {
->>>>>>> origin
 		char buf[4096];
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
@@ -50,16 +45,9 @@ namespace HTTP {
 			if (!_parser.is_parsing_finished()) {
 				return;
 			}
-<<<<<<< HEAD
-			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
-				_process_http_request(kq);
-			std::string response = _http_response_message.get_complete_response();
-			_delegate.send(&response[0], response.size());
-			// _delegate.close();
-=======
 			// if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
 			if (!response_ready) { // checking if the response with the error code has been filled
-				_process_http_request();
+				_process_http_request(kq);
 				response_ready = true;
 			}
 		}
@@ -69,7 +57,6 @@ namespace HTTP {
 		if (response_ready) {
 			std::string& response = _http_response_message.get_complete_response();
 			_delegate.send(response, response.size());
->>>>>>> origin
 		}
 	}
 
