@@ -6,7 +6,7 @@ namespace Utility
     //taken from https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
     std::map<std::string, std::string> MimeTypes::create_mime_type_map()
     {
-        
+
       std::map<std::string, std::string> mimes;
 
         mimes["abw"] = "application/x-abiword";
@@ -95,6 +95,7 @@ namespace Utility
         ext["application/vnd.ms-fontobject"] = "eot";
         ext["application/epub+zip"] = "epub";
         ext["application/gzip"] = "gz";
+		ext["application/x-gzip"] = "gz";
         ext["image/gif"] = "gif";
         ext["text/html"] = "html";
         ext["image/x-icon"] = "ico";
@@ -155,14 +156,15 @@ namespace Utility
         return mime_type->second;
     }
 
-    std::string MimeTypes::get_extension(const std::string &mime_type) {
-        if(mime_type.empty())
-            return "";
+    std::string MimeTypes::get_extension(const std::string &str) {
+        if(str.empty())
+            return "NotSupported";
+		std::string mime_type = str.substr(str.find_last_of(" ") + 1);
         std::map<std::string, std::string>::const_iterator	extension;
-        	extension = _exts.find(mime_type);
+        extension = _exts.find(mime_type);
         if (extension == _exts.end())
-            extension = _mimes.find("NotSupported"); //the default for textual files
-        return extension->second;
+            return "NotSupported"; 
+		return extension->second;
     }
 
     MimeTypes::MimeTypes() {}

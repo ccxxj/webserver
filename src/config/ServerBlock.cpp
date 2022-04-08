@@ -30,6 +30,7 @@ namespace Config
         _error_page = other._error_page;
         _is_size_default = other._is_size_default;
         _id = other._id;
+        _cgi_extention_list = other._cgi_extention_list;
         _index_page = other._index_page;
         return *this;
     }
@@ -106,7 +107,15 @@ namespace Config
         _locations.push_back(location);
     }
 
-    void ServerBlock::set_id(int num)
+    void ServerBlock::set_extention_list(std::string str)
+    {
+        Utility::remove_last_of(';', str);
+        std::vector<std::string> args = Utility::split_string_by_white_space(str);
+        for (size_t i = 1; i < args.size(); i++)
+            _cgi_extention_list.push_back(args[i]);
+    }
+
+    void ServerBlock::set_id(int num) 
     {
         _id = num;
     }
@@ -136,4 +145,10 @@ namespace Config
     {
         return _id;
     }
+
+    const std::vector<std::string> &ServerBlock::get_extention_list(void) const
+    {
+        return _cgi_extention_list;
+    }
+
 } // namespace Config

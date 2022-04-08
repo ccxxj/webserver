@@ -19,6 +19,7 @@ namespace HTTPResponse
 		_methods_line = other. _methods_line;
 		_autoindex = other._autoindex;
         _client_max_body_size = other._client_max_body_size;
+        _cgi_extention_list = other._cgi_extention_list;
         _index_page = other._index_page;
         return *this;
     }
@@ -45,7 +46,14 @@ namespace HTTPResponse
 		_root = str;
     }
 
-    void SpecifiedConfig::set_client_max_body_size(int client_max_body_size) {
+	void SpecifiedConfig::set_extention_list(const std::vector<std::string>& extentions)
+    {
+        for (std::vector<std::string>::const_iterator it = extentions.begin(); it != extentions.end(); it++)
+            _cgi_extention_list.push_back(*it);
+    }
+
+    void SpecifiedConfig::set_client_max_body_size(int client_max_body_size)
+    {
         _client_max_body_size = client_max_body_size;
     }
 
@@ -107,6 +115,12 @@ namespace HTTPResponse
     const std::string& SpecifiedConfig::get_route(void) const {
         return _route;
     }
+
+    const std::vector<std::string>& SpecifiedConfig::get_extention_list(void) const
+    {
+        return _cgi_extention_list;
+    }
+
 
 	const std::string& SpecifiedConfig::get_methods_line(void) const {
         return _methods_line;

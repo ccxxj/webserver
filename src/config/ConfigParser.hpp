@@ -29,6 +29,7 @@ namespace Config
 			LIMIT_EXCEPT,
 			AUTOINDEX,
 			ROUTE,
+			EXT,
 			INDEX_PAGE,
 			UPLOAD
 		};

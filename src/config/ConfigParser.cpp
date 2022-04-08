@@ -21,11 +21,11 @@ namespace Config
 
 	int ConfigParser::find_directive(std::string& line)
 	{
-		const char *directive_list[12] =
+		const char *directive_list[13] =
 			{"listen", "server_name", "client_max_body_size",
 			 "error_page", "return", "root", "limit_except",
-			 "autoindex", "location", "index","upload_dir", NULL};
-		for (size_t i = 0; i < 11; i++)
+			 "autoindex", "location", "ext", "index", "upload_dir", NULL};
+		for (size_t i = 0; i < 12; i++)
 		{
 			if (Utility::check_first_keyword(line, directive_list[i]))
 				return i;
@@ -83,6 +83,8 @@ namespace Config
 			server.set_return_value(line);
 		else if (e_num == ROOT)
 			server.set_root_value(line);
+		else if (e_num == EXT)
+			server.set_extention_list(line);
 		else if (e_num == INDEX_PAGE)
 			server.set_index_page(line);
 		else

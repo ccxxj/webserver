@@ -29,13 +29,21 @@ namespace HTTPResponse {
 
 	ResponseHandler::~ResponseHandler(){}
 
-	void ResponseHandler::create_http_response() {
+	void ResponseHandler::create_http_response(int kq) {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
-
 		//log request info
 		Utility::logger(request_info(), YELLOW);
+		try{
+			std::string cgi_response = handle_cgi(0, kq);
+			if(!cgi_response.empty()){
+				return _build_final_cgi_response(cgi_response);
+			}
+		}
+		catch(std::exception){
+			return(handle_error(InternalServerError));
+		}
 
-		// checks before moving on with methods
+// checks before moving on with methods
 		if(!_verify_method(_config.get_limit_except()))
 			return(handle_error(MethodNotAllowed));
 		if (!_check_client_body_size())
@@ -77,6 +85,40 @@ namespace HTTPResponse {
 								+ "</html>\r\n");
 
 		_build_final_response();
+	}
+		
+	void ResponseHandler::_build_final_cgi_response(std::string &cgi_response)
+	{
+		std::string response;
+		std::size_t position = cgi_response.find("\r\n\r\n");
+		std::string message_body = cgi_response;
+		if(position != std::string::npos){
+			message_body = cgi_response.substr(position + 4);
+		}
+		// set any remaining headers
+		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
+		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
+		_http_response_message->set_header_element("Content-Length", Utility::to_string(message_body.length())); //TODO header is also included
+		//get the last-modified info from the File utility and add it to headers
+
+		// build status line
+		response += _http_response_message->get_HTTP_version() + " ";
+		response += "200 ";
+		response += "OK\r\n";
+
+		// add all the headers to response. Format is {Header}: {Header value} \r\n
+		for (std::map<std::string, std::string>::const_iterator it = _http_response_message->get_response_headers().begin(); it != _http_response_message->get_response_headers().end(); it++) {
+			if (!it->first.empty())
+				response += it->first + ": " + it->second;
+			response += "\r\n";
+		}
+
+		// if body is not empty add it to  response. Format: \r\n {body}
+		// response += "\r\n";
+		response += cgi_response;
+		// std::cout << response << std::endl;
+		//final step
+		_http_response_message->append_complete_response(response);
 	}
 
 	void ResponseHandler::_handle_methods(void) {
@@ -159,9 +201,7 @@ namespace HTTPResponse {
 			_file.random_name_creator(_file.get_path() + "/"  + _config.get_upload_dir()) +
 			 "." + _file.get_extension(_http_request_message->get_header_value("CONTENT_TYPE"));
 		}
-	
-		//TODO test mp4 and what mime types do we not support?
-		std::cout << path_and_name << std::endl;
+
 		if(_file.get_extension(_http_request_message->get_header_value("CONTENT_TYPE")) == "NotSupported")
 			return handle_error(UnsupportedMediaType);
 
@@ -321,6 +361,7 @@ namespace HTTPResponse {
 		_config.set_root_value(virtual_server->get_root()); //if loc has root, this will be overwritten
 		_config.set_index_page(virtual_server->get_index_page()); //if loc has index, this will be overwritten
 		_config.set_return_value(virtual_server->get_return()); //returns are appended within levels
+		_config.set_extention_list(virtual_server->get_extention_list());
 		if(location) { //location specific config rules, appends and overwrites
 			_config.set_limit_except(location->get_limit_except());
 			_config.set_methods_line(location->get_limit_except());
@@ -357,5 +398,12 @@ namespace HTTPResponse {
 		tmp += "[Search Path " + _file.get_path() + "] ";
 
 		return tmp;
+	}
+
+	// char* ResponseHandler::handle_cgi(int fd, int kq)
+	std::string ResponseHandler::handle_cgi(int fd, int kq)
+	{
+		// return _cgi_handler.execute_cgi(_http_request_message, _config, fd);
+		return _cgi_handler.execute_cgi(_http_request_message, _config, fd, kq);
 	}
 }

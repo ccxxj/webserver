@@ -21,9 +21,14 @@ namespace HTTP {
 	Connection::~Connection(){
 	}
 
+<<<<<<< HEAD
 	void Connection::handle_http_request() {
 		request_handler->handle_http_request();
 		logtime_counter.update_last_activity_logtime();
+=======
+	void Connection::handle_http_request(int kq) {
+		request_handler->handle_http_request(kq);
+>>>>>>> 4ff2bc0358d72216228c9d6402f4254cf68ef57b
 	}
 
 	void Connection::send_response() {
@@ -72,5 +77,9 @@ namespace HTTP {
 
 	size_t Connection::receive(char* buffer, size_t buffer_size) {
 		return ::recv(_socket_fd, buffer, buffer_size, 0);
+	}
+
+	int Connection::get_fd(){
+		return _socket_fd;
 	}
 }

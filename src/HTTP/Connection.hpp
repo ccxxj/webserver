@@ -24,8 +24,9 @@ namespace HTTP {
 		~Connection();
 
 		sockaddr_in my_connection_addr;
-		void handle_http_request();
+		void handle_http_request(int kq);
 		void send_response();
+		virtual int get_fd();
 		bool is_connection_open() const;
 		bool is_hanging_connection();
 		void set_last_activity_time();

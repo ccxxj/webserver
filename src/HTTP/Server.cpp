@@ -167,8 +167,9 @@ namespace HTTP {
 			// Receive events:
 			new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, &timeout); //look out for events and register to event list; one event per time
 			if(new_events == -1) {
+				std::cerr << "it is caused by new events register failure \n";
 				std::perror("kevent");
-				std::exit(1);
+				exit(1);
 			}
 			_close_hanging_connections(sock_kqueue);
 			for (int i = 0; i < new_events; i++)
@@ -207,7 +208,7 @@ namespace HTTP {
 				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
-						(connection_iter->second)->handle_http_request();
+						(connection_iter->second)->handle_http_request(sock_kqueue);
 						// Register write events for the client
 						EV_SET(&kev, connection_iter->first, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
 						if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {

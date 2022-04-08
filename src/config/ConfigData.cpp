@@ -101,6 +101,18 @@ namespace Config
         std::cout << RESET << std::endl;
     }
 
+	void ConfigData::print_extention_list(ServerBlock &server)
+    {
+        std::vector<std::string> extentions = server.get_extention_list();
+        std::cout << MAGENTA << "extentiot_list: ";
+        for(size_t i = 0; i < extentions.size(); i++)
+        {
+            std::cout << i + 1 << ")" << extentions[i] << " ";
+        }
+        std::cout << RESET << std::endl;
+    }
+
+
     void ConfigData::print_limit_except(LocationBlock &location)
     {
 
