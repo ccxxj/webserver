@@ -18,14 +18,14 @@
 #endif
 
 #include "RequestHandler.hpp"
-#include "../Constants.hpp"
 #include "../Utility/Utility.hpp"
 
 namespace HTTP {
 
-	Server::Server(Config::ConfigData *config_data): config_data(config_data)
-	{
-	}
+	Server::Server(Config::ConfigData *config_data)
+	: config_data(config_data)
+	, _logtime_checker()
+	{}
 
 	Server::~Server(){
 		std::vector<int>::iterator it = _listening_sockfds.begin();
@@ -79,6 +79,53 @@ namespace HTTP {
 		return false;
 	}
 
+	void Server::_delete_events(int sock_kqueue, int identifier) {
+		struct kevent kev;
+		EV_SET(&kev, identifier, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+		kevent(sock_kqueue, &kev, 1, NULL, 0, NULL);
+		EV_SET(&kev, identifier, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+		kevent(sock_kqueue, &kev, 1, NULL, 0, NULL);
+	}
+
+	void Server::_close_hanging_connections(int sock_kqueue) {
+		if (!(_logtime_checker.should_check_hanging_connections())) {
+			return;
+		}
+		std::map<int, Connection*>::iterator iter = _connections.begin();
+		std::map<int, Connection*>::iterator temp_iter;
+		while (iter != _connections.end()) {
+			if (iter->second->is_hanging_connection()) {
+				temp_iter = iter;
+				iter++;
+				if (temp_iter->second->is_connection_open()) {
+					temp_iter->second->close();
+					Utility::logger("Connection closed on timeout.", PURPLE); // for debug
+				}
+#ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
+				_delete_events(sock_kqueue, temp_iter->first);
+#endif
+				_destroy_connection(temp_iter);
+				std::cout << "Connection destroyed by timer" << std::endl;
+			}
+		}
+		_logtime_checker.update_last_activity_logtime();
+	}
+
+		void Server::_remove_connection_closed_by_server(int sock_kqueue) {
+		std::map<int, Connection*>::iterator iter = _connections.begin();
+		std::map<int, Connection*>::iterator temp_iter;
+		while (iter != _connections.end()) {
+			temp_iter = iter;
+			iter++;
+			if (!(temp_iter->second->is_connection_open())) {
+#ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
+				_delete_events(sock_kqueue, temp_iter->first);
+#endif
+				_destroy_connection(temp_iter);
+			}
+		}
+	}
+
 	void Server::_remove_disconnected_client(int fd) {
 		std::map<int, Connection*>::iterator iter = _connections.begin();
 		while (iter != _connections.end()) {
@@ -90,28 +137,10 @@ namespace HTTP {
 		}
 	}
 
-	void Server::_remove_connection_closed_by_server(int sock_kqueue) {
-		std::map<int, Connection*>::iterator iter = _connections.begin();
-		std::map<int, Connection*>::iterator temp_iter;
-		while (iter != _connections.end()) {
-			temp_iter = iter;
-			iter++;
-			if (!(temp_iter->second->is_connection_open())) {
-#ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
-				struct kevent kev;
-				EV_SET(&kev, temp_iter->first, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-				kevent(sock_kqueue, &kev, 1, NULL, 0, NULL);
-				EV_SET(&kev, temp_iter->first, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-				kevent(sock_kqueue, &kev, 1, NULL, 0, NULL);
-#endif
-				_destroy_connection(temp_iter);
-			}
-		}
-	}
-
 	void Server::_destroy_connection(std::map<int, Connection*>::iterator iterator) {
 		delete iterator->second;
 		_connections.erase(iterator);
+		std::cout << "Connection destroyed\n";
 	}
 
 	void Server::_handle_events() {
@@ -141,21 +170,9 @@ namespace HTTP {
 				std::perror("kevent");
 				std::exit(1);
 			}
-			// if no new events are appearing within the timeout the server is closing all the connections
-			//TODO: might be replaced by the kevent timeout filter which will be checking not only incoming but outcoming connections as well (what if the server is sending a large video file, so there is no incoming data but we srtill cannot close the connection)
-			if(new_events == 0) {
-				std::map<int, Connection*>::iterator iter = _connections.begin();
-				std::map<int, Connection*>::iterator temp_iter;
-				while (iter != _connections.end()) {
-					if (iter->second->is_connection_open()) {
-						close(iter->first);
-					}
-					temp_iter = iter;
-					iter++;
-					_destroy_connection(temp_iter);
-				}
-			}
-			for(int i = 0; i < new_events; i++) {
+			_close_hanging_connections(sock_kqueue);
+			for (int i = 0; i < new_events; i++)
+			{
 				int current_event_fd = event_fds.ident;
 				if (event_fds.flags & EV_ERROR) {
 					std::cout << "Event error: %s", strerror(event_fds.data);
@@ -168,7 +185,7 @@ namespace HTTP {
 					Utility::logger("FD " + Utility::to_string(current_event_fd) + " is closed and removed from _connections." , RED);
 				}
 				else if(_is_in_listen_sockfd_list(current_event_fd)) { // if a new client is establishing a connection
-					// iterate the map of connections and if any connection is closed remov it from the map:
+				// iterate the map of connections and if any connection is closed remov it from the map:
 					_remove_connection_closed_by_server(sock_kqueue); // TODO: THis iS TEMP solution.  set up a listener
 					sockaddr_in connection_addr;
 					int connection_addr_len = sizeof(connection_addr);
@@ -210,7 +227,6 @@ namespace HTTP {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
 						connection_iter->second->send_response();
-						std::cout << "WRITEABLE\n";
 						break;
 					}
 				}
