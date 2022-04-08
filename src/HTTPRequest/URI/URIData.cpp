@@ -25,7 +25,11 @@ namespace HTTPRequest {
 	}
 
 
-	void URIData::set_query(std::map<std::string, std::string> &query)
+	// void URIData::set_query(std::map<std::string, std::string> &query)
+	// {
+	// 	_query = query;
+	// }
+	void URIData::set_query(std::string &query)
 	{
 		_query = query;
 	}
@@ -35,7 +39,7 @@ namespace HTTPRequest {
 		return _path;
 	}
 
-	const std::map<std::string, std::string> URIData::get_query(void) const
+	const std::string URIData::get_query(void) const
 	{
 		return _query;
 	}
@@ -47,9 +51,10 @@ namespace HTTPRequest {
 		{
 			std::cout << *it << std::endl;
 		}
-		for(std::map<std::string, std::string>::const_iterator it2 = _query.begin(); it2 != _query.end(); it2++)
-		{
-			std::cout << it2->first << "=" << it2->second << std::endl;
-		}
+		std::cout << "query is: " << _query << std::endl;
+		// for(std::map<std::string, std::string>::const_iterator it2 = _query.begin(); it2 != _query.end(); it2++)
+		// {
+		// 	std::cout << it2->first << "=" << it2->second << std::endl;
+		// }
 	}
 }

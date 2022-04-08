@@ -1,0 +1,21 @@
+<html>
+	<head>
+		<title>Input Request Page</title>
+	</head>
+
+	<body>
+		<h1>Time to provide some input</h1>
+		<!--this line is to connect the input to the cgi executable, python will have the form module to handle the input-->
+		<!--action need to be replaced to the actual cgi_path-->
+		<form id="form1" name="form1" action="../cgi_tester" method="post" enctype="multipart/form-data"></form>
+		<input type="text" style="height:200px; width:400px"/>
+		<br>
+		<br>
+		<input type="checkbox" name="usefile" id="usefile"/> Load your file form your local computer:    
+		<!--this is the input field where user can upload the local file-->
+		<input type="file" name="filename" id="filename"/>
+		<br>
+		<br>
+		<input type="submit" name="submit" value="Submit">
+	</body>
+</html>

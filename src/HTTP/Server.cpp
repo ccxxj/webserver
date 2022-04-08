@@ -140,8 +140,9 @@ namespace HTTP {
 			// Receive events:
 			new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, &timeout); //look out for events and register to event list; one event per time
 			if(new_events == -1) {
+				std::cerr << "it is caused by new events register failure \n";
 				std::perror("kevent");
-				std::exit(1);
+				exit(1);
 			}
 			// if no new events are appearing within the timeout the server is closing all the connections
 			//TODO: might be replaced by the kevent timeout filter which will be checking not only incoming but outcoming connections as well (what if the server is sending a large video file, so there is no incoming data but we srtill cannot close the connection)
@@ -204,8 +205,8 @@ namespace HTTP {
 				}
 				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
-						(connection_iter->second)->handle_http_request();
+					if (connection_iter != _connections.end()) { // handling request by the corresponding connectio
+						(connection_iter->second)->handle_http_request(sock_kqueue);
 						break;
 					}
 				}

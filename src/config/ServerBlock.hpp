@@ -17,6 +17,7 @@ namespace Config
 		std::set<std::string> _listen;
 		std::vector<std::string> _server_name;
 		std::vector<LocationBlock> _locations;
+		std::vector<std::string> _cgi_extention_list;
 		int _id;
 		
 		/* check methods */
@@ -37,10 +38,12 @@ namespace Config
 		void set_server_name(std::string str);
 		void set_a_location(const LocationBlock &location);
 		void set_id(int num);
+		void set_extention_list(std::string str);
 		bool get_default(void) const;
 		const std::set<std::string> &get_listen(void) const;
 		const std::vector<std::string> &get_server_name(void) const;
 		const std::vector<LocationBlock> &get_location(void) const;
+		const std::vector<std::string> &get_extention_list(void) const;
 		int get_id(void) const;
 	};
 } // namespace Config

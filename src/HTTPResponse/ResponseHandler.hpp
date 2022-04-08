@@ -8,6 +8,7 @@
 #include "../Utility/File.hpp"
 #include "ResponseMessage.hpp"
 #include "SpecifiedConfig.hpp"
+#include "../CGI/CGIHandler.hpp"
 
 extern size_t redirection_loop;
 
@@ -20,6 +21,8 @@ namespace HTTPResponse
 		ResponseMessage *_http_response_message;
 		SpecifiedConfig _config;
 		Utility::File _file;
+		CGIHandler _cgi_handler;
+		size_t _redirection_loop;
 
 		bool _verify_method(const std::vector<std::string> methods);
 		const std::string& _create_allowed_methods_line(const std::vector<std::string> methods);
@@ -33,6 +36,7 @@ namespace HTTPResponse
 		void _delete_file(void);
 		void _upload_file(void);
 		void _build_final_response();
+		void _build_final_cgi_response(std::string &cgi_response);
 		void _handle_redirection();
 
 
@@ -42,8 +46,10 @@ namespace HTTPResponse
 		const ResponseHandler &operator=(const ResponseHandler &other);
 		~ResponseHandler();
 
-		void create_http_response();
+		void create_http_response(int kq);
 		void handle_error(HTTPResponse::StatusCode code);
+		// char* handle_cgi(int fd, int kq);
+		std::string handle_cgi(int fd, int kq);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
 
 		/* logger helpers */

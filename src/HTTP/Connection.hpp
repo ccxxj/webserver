@@ -22,8 +22,9 @@ namespace HTTP {
 		~Connection();
 
 		sockaddr_in my_connection_addr;
-		void handle_http_request();
+		void handle_http_request(int kq);
 		void send_response();
+		virtual int get_fd();
 		bool is_connection_open() const;
 		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(std::string& buffer, size_t buffer_size);
