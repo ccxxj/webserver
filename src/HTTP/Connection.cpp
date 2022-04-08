@@ -27,7 +27,6 @@ namespace HTTP {
 
 	void Connection::send_response() {
 		request_handler->send_response();
-		logtime_counter.update_last_activity_logtime();
 	}
 
 	bool Connection::is_connection_open() const {
@@ -51,6 +50,7 @@ namespace HTTP {
 			Utility::logger("Send failed. errno: " + Utility::to_string(errno), RED);
 			this->close();
 		}
+		logtime_counter.update_last_activity_logtime();
 		if (buffer_size > (size_t)bytes_sent) { // erasing the part that has been sent if the buffer is bigger than we can handle
 			buffer.erase(0, (size_t)bytes_sent);
 		}
@@ -70,6 +70,7 @@ namespace HTTP {
 	}
 
 	size_t Connection::receive(char* buffer, size_t buffer_size) {
+		logtime_counter.update_last_activity_logtime();
 		return ::recv(_socket_fd, buffer, buffer_size, 0);
 	}
 
