@@ -92,20 +92,19 @@ namespace HTTP {
 			return;
 		}
 		std::map<int, Connection*>::iterator iter = _connections.begin();
-		std::map<int, Connection*>::iterator temp_iter;
 		while (iter != _connections.end()) {
 			if (iter->second->is_hanging_connection()) {
-				temp_iter = iter;
-				iter++;
-				if (temp_iter->second->is_connection_open()) {
-					temp_iter->second->close();
+				if (iter->second->is_connection_open()) {
+					iter->second->close();
 					Utility::logger("Connection closed on timeout.", PURPLE); // for debug
 				}
 #ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
 				_delete_events(sock_kqueue, temp_iter->first);
 #endif
-				_destroy_connection(temp_iter);
+				iter = _destroy_connection(iter);
 				std::cout << "Connection destroyed by timer" << std::endl;
+			} else {
+				++iter;
 			}
 		}
 		_logtime_checker.update_last_activity_logtime();
@@ -113,15 +112,14 @@ namespace HTTP {
 
 		void Server::_remove_connection_closed_by_server(int sock_kqueue) {
 		std::map<int, Connection*>::iterator iter = _connections.begin();
-		std::map<int, Connection*>::iterator temp_iter;
 		while (iter != _connections.end()) {
-			temp_iter = iter;
-			iter++;
-			if (!(temp_iter->second->is_connection_open())) {
+			if (!(iter->second->is_connection_open())) {
 #ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
 				_delete_events(sock_kqueue, temp_iter->first);
 #endif
-				_destroy_connection(temp_iter);
+				iter = _destroy_connection(iter);
+			} else {
+				++iter;
 			}
 		}
 	}
@@ -137,10 +135,10 @@ namespace HTTP {
 		}
 	}
 
-	void Server::_destroy_connection(std::map<int, Connection*>::iterator iterator) {
+	std::map<int, Connection*>::iterator Server::_destroy_connection(std::map<int, Connection*>::iterator iterator) {
+		std::cout << "Connection " << iterator->first << "destroyed\n";
 		delete iterator->second;
-		_connections.erase(iterator);
-		std::cout << "Connection destroyed\n";
+		return _connections.erase(iterator);
 	}
 
 	void Server::_handle_events() {
@@ -195,6 +193,12 @@ namespace HTTP {
 					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
 						std::perror("fcntl error");
 					}
+
+					std::map<int, Connection *>::iterator it = _connections.find(connection_socket_fd);
+					if (it != _connections.end()) {
+						_destroy_connection(it);
+					}
+
 					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd], connection_addr);
 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr));
 					Utility::logger("New connection on port  : " + Utility::to_string(_running_servers[current_event_fd].port), MAGENTA);

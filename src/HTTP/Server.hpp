@@ -26,7 +26,7 @@ namespace HTTP {
 		void _remove_connection_closed_by_server(int sock_kqueue);
 		void _close_hanging_connections(int sock_kqueue);
 		void _delete_events(int sock_kqueue, int identifier);
-		void _destroy_connection(std::map<int, Connection *>::iterator iterator);
+		std::map<int, Connection*>::iterator _destroy_connection(std::map<int, Connection *>::iterator iterator);
 
 		std::vector<int> _listen_ports;
 		std::vector<int> _listening_sockfds;
