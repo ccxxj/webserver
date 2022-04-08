@@ -17,7 +17,7 @@ int main(int argc, char const *argv[])
    
     int sock = 0;
     struct sockaddr_in serv_addr;
-    std::string http_request_mes = "GET / HTTP/1.1\r\n"
+    std::string http_request_mes = "GET /doc/?query%31=%6ebc&query%32=%6Ecd&a%6z=bb HTTP/1.1\r\n"
                             "User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\r\n"
                             "Host: www.tutorialspoint.com\r\n"
                             "Content-Type: application/x-www-form-urlencoded\r\n"

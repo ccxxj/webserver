@@ -111,7 +111,12 @@ namespace HTTPRequest {
 
         URIParser uri_parser(segments[1]);
         URIData uri_data;
-        uri_parser.parse(uri_data);
+        try{
+            uri_parser.parse(uri_data);
+        }
+        catch(const Exception::RequestException& e){
+            _throw_request_exception(HTTPResponse::BadRequest);
+        }
         _http_request_message->set_uri(uri_data);
 
         _http_request_message->set_HTTP_version(segments[2]);
