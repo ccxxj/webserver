@@ -101,6 +101,7 @@ namespace Utility
 				return true;
 			}
 		}
+		closedir(dir_p);
 		return false;
 	}
 
@@ -117,11 +118,13 @@ namespace Utility
 		while ((ret = read(fd, buf, 4096)) != 0) {
 			if (ret == -1) {
 				Utility::logger("DEBUG read : " + std::string(strerror(errno)), RED);
+				close(fd);
 				return "Forbidden";
 			}
 			buf[ret] = '\0';
 			file_content.insert(file_content.length(), buf, ret);
 		}
+		close(fd);
 		return file_content;
 	}
 
