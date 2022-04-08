@@ -30,6 +30,8 @@ namespace Config
 			AUTOINDEX,
 			ROUTE,
 			EXT
+			INDEX_PAGE,
+			UPLOAD
 		};
 
 		/* methods */
@@ -40,7 +42,6 @@ namespace Config
 		void parse_server_directive(std::string& line, ServerBlock &server, int e_num);
 		void parse_location_directive(std::string& line, LocationBlock &location, int e_num);
 		void parse_limit_except(std::string& line, LocationBlock &location, std::istringstream &stream);
-		// TODO ConfigParser(); do we need default constructor?
 
 	public:
 		ConfigParser(ConfigData *config_data, std::vector<std::string> server_tokens);

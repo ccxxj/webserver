@@ -16,7 +16,7 @@ trap _int SIGINT
 ./webserver &
 child=$!
 
-pytest tests/integration_tests/invalid_requests.py
+pytest tests/integration_tests/integration_tests.py
 res=$?
 kill -TERM "$child"
 exit $res

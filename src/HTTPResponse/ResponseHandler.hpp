@@ -10,6 +10,8 @@
 #include "SpecifiedConfig.hpp"
 #include "../CGI/CGIHandler.hpp"
 
+extern size_t redirection_loop;
+
 namespace HTTPResponse
 {
 	class ResponseHandler
@@ -49,6 +51,8 @@ namespace HTTPResponse
 		// char* handle_cgi(int fd, int kq);
 		std::string handle_cgi(int fd, int kq);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
+
+		/* logger helpers */
 		std::string response_status();
 		std::string request_info();
 	};

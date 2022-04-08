@@ -212,3 +212,12 @@ int CGIRequest::execute_cgi()
 	}
 	return 1;
 }
+
+	
+	/*set up kevent and kqueue to monitor also child process*/
+	// struct kevent ev;
+
+	// signal(SIGINT, SIG_IGN);
+	// EV_SET(&ev, outputPipe[0], EVFILT_PROC, EV_ADD | EV_ENABLE, NOTE_FORK | NOTE_EXEC, 0, 0);
+	
+	// EV_SET(&ev, outputPipe[0], EVFILT_PROC, EV_ADD | EV_ENABLE, NULL, 0, 0);

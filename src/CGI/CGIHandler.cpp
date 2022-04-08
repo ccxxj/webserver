@@ -60,13 +60,6 @@ void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
 	// _meta_variables["PATH_INFO"] = "/cgi-bin/" + _cgi_name;//this is contradicting with the RFC
 	_meta_variables["PATH_INFO"] = "/directory/youpi.bla";
-	/*
-	possible solution to fill in the path_info for cgi_tester
-	/Volumes/Storage/goinfre/xxu/webserver/cgi-bin/cgi_tester
-	/Volumes/Storage/goinfre/xxu/webserver/cgi-bin
-	/cgi-bin/cgi_tester
-	/cgi-bin
-	*/
 	update_path_translated();// if path_info is null, path_translated is null. otherwise: root + path_info
 	_meta_variables["PATH_TRANSLATED"] = _meta_variables["PATH_INFO"];//TODO REMOVE LATER THIS IS ONLY FOR CGI_TESTER
 	_meta_variables["QUERY_STRING"] = _http_request_message->get_uri().get_query();
@@ -109,7 +102,8 @@ void CGIHandler::set_argument(std::string cgi_name)
 	// _argument[1] = NULL;//TODO is it always NULL?
 	//TODO this need to change 
 	// _argument[1] = strdup("/Volumes/Storage/goinfre/xxu/webserver/www");
-	_argument[1] = strdup("/Volumes/Storage/goinfre/xxu/webserver");
+	// _argument[1] = strdup("/Volumes/Storage/goinfre/xxu/webserver");
+	_argument[1] = NULL;
 	_argument[2] = NULL;
 }
 
@@ -145,13 +139,7 @@ void print_array(char **envp){
 // int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
 std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int fd, int kq)
 {
-	std::cout << "check if there is cgi: \n";
 	_cgi_extention = _config.get_extention_list();
-	std::cout << "is there anything in hte origin " <<  _config.get_extention_list().size() << std::endl;
-	for (size_t i = 0; i < _cgi_extention.size(); i++)
-	{
-		std::cout <<"this is extention: " <<  _cgi_extention[i] << " ";
-	}
 	std::cout << std::endl;
 	std::vector<std::string> path = _http_request_message->get_uri().get_path();
 	search_cgi(path);
@@ -159,8 +147,19 @@ std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_m
 		return "";	
 	// char *buf = (char *)malloc(4086 * sizeof(char));
 	std::string response;
-
+	// int inputFD = open("inputFile", O_WRONLY|O_CREAT|O_TRUNC, 755);
+	// if(inputFD == -1){
+	// 	std::perror("open");
+	// 	throw(CGIexception());
+	// }
+	std::string requestMessageBody = _http_request_message->get_message_body();
+	// int writeReturn = write(inputFD, requestMessageBody.c_str(), requestMessageBody.size());
+	// if(writeReturn == -1){
+	// 	std::perror("write");
+	// 	throw(CGIexception());
+	// }
 	int inputPipe[2], outputPipe[2];
+	// int outputPipe[2];
 	if(pipe(inputPipe) == -1){
 		std::perror("pipe");//TODO create exception later??
 		throw(CGIexception());
@@ -172,18 +171,8 @@ std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_m
 	set_argument(_cgi_name);//TODO replace by the actual path, currently I am only use the predefined path
 	parse_meta_variables(_http_request_message, _config);//TODO replace by input from http request get_message_body
 	set_envp();
-	std::string request_message_body = _http_request_message->get_message_body();
-	std::cout << "message body is " << request_message_body << std::endl;
-	write(inputPipe[1], request_message_body.c_str(), request_message_body.size());
-	
-	/*set up kevent and kqueue to monitor also child process*/
-	// struct kevent ev;
-
-	// signal(SIGINT, SIG_IGN);
-	// EV_SET(&ev, outputPipe[0], EVFILT_PROC, EV_ADD | EV_ENABLE, NOTE_FORK | NOTE_EXEC, 0, 0);
-	
-	// EV_SET(&ev, outputPipe[0], EVFILT_PROC, EV_ADD | EV_ENABLE, NULL, 0, 0);
-	
+	std::cout << "message body is " << requestMessageBody << std::endl;
+	write(inputPipe[1], requestMessageBody.c_str(), requestMessageBody.size());
 	pid_t pid = fork();
 	if(pid < 0){
 		perror("fork failure");//TODO create exception later??
@@ -193,6 +182,7 @@ std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_m
 			// perror("kevent");
 		std::cout << "child process" << std::endl;
 		if(dup2(inputPipe[0], 0) < 0){
+		// if(dup2(inputFD, 0) < 0){
 			throw(CGIexception());
 			perror("dup failure");
 		}
@@ -200,7 +190,7 @@ std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_m
 			throw(CGIexception());
 			perror("dup failure");
 		}
-		close(inputPipe[1]);
+		// close(inputPipe[1]);
 		close(outputPipe[0]);
 		//TODO fcntl() set non-blocking flag??
 
@@ -219,6 +209,8 @@ std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_m
     	response.resize(sb.st_size);
     	read(outputPipe[0], (char*)(response.data()), sb.st_size);
     	close(outputPipe[0]);
+		close(inputPipe[0]);
+		// close(inputFD);
 	}
 	return response;
 }

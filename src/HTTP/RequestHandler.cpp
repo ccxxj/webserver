@@ -17,13 +17,18 @@ namespace HTTP {
 	, _config_data(config_data)
 	, _connection_listen_info(listen_info)
 	, response_handler(&_http_request_message, &_http_response_message)
+	, response_ready(false)
 	{
 	}
 
 	RequestHandler::~RequestHandler(){}
 
+<<<<<<< HEAD
 	void RequestHandler::handle_http_request(int kq) {
 		Utility::logger("New connection on port  : " + Utility::to_string(_connection_listen_info.port), MAGENTA);
+=======
+	void RequestHandler::handle_http_request() {
+>>>>>>> origin
 		char buf[4096];
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
@@ -32,8 +37,6 @@ namespace HTTP {
 			perror("recv error");
 			_delegate.close();
 		} else {
-			// std::cout << "\nRead " << bytes_read << " bytes\n";
-			// std::cout.write(buf, bytes_read);
 			try {
 				_parser.parse_HTTP_request(buf, bytes_read);
 			}
@@ -42,15 +45,31 @@ namespace HTTP {
 				_handle_request_exception(e.get_error_status_code());
 				Utility::logger("Request  [Bad Request]", YELLOW);
 				response_handler.handle_error(e.get_error_status_code()); //error response is built, and will be sent below
+				response_ready = true;
 			}
 			if (!_parser.is_parsing_finished()) {
 				return;
 			}
+<<<<<<< HEAD
 			if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
 				_process_http_request(kq);
 			std::string response = _http_response_message.get_complete_response();
 			_delegate.send(&response[0], response.size());
 			// _delegate.close();
+=======
+			// if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
+			if (!response_ready) { // checking if the response with the error code has been filled
+				_process_http_request();
+				response_ready = true;
+			}
+		}
+	}
+
+	void RequestHandler::send_response() {
+		if (response_ready) {
+			std::string& response = _http_response_message.get_complete_response();
+			_delegate.send(response, response.size());
+>>>>>>> origin
 		}
 	}
 
@@ -94,7 +113,7 @@ namespace HTTP {
 	}
 
 	const Config::ServerBlock* RequestHandler::_match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers) {
-		std::string host = _http_request_message.get_header_value("Host");
+		std::string host = _http_request_message.get_header_value("HOST"); 
 		for (std::vector<const Config::ServerBlock*>::iterator it = matching_servers.begin(); it != matching_servers.end(); it++)
 			for (std::vector<std::string>::const_iterator srv_name = (*it)->get_server_name().begin(); srv_name != (*it)->get_server_name().end(); srv_name++)
 				if ((*srv_name).compare(host) == 0)
@@ -109,7 +128,7 @@ namespace HTTP {
 			const std::string loc_route = it->get_route();
 			std::string searched_uri = "";
 			for (size_t i = 0; i < uri_paths.size(); i++) {
-				searched_uri += uri_paths[i] + "/"; //FIXME no match if loc_route does not have a trailing slash
+				searched_uri += uri_paths[i] + "/";
 				if (loc_route.compare(searched_uri) == 0) {
 					matched_locations.push_back(&(*it));
 					break; // no need to look further
