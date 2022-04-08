@@ -57,7 +57,7 @@ namespace HTTP {
 				Utility::logger("Failed to bind to port " +  Utility::to_string(_listen_ports[i]) + " errno: " +  Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
-			if (listen(_listening_sockfds[i], 10) < 0) {
+			if (listen(_listening_sockfds[i], 100) < 0) { // defines the maximum length to which the queue of pending connections for sockfd may grow.
 				Utility::logger("Failed to listen on socket. errno: " +  Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
