@@ -112,8 +112,10 @@ namespace HTTPRequest {
 
 	void URIParser::parse_queries(URIData &uri)
 	{
+		pct_decoding(query_string);
 		uri.set_query(query_string);
-	}//TODO do I need to check the quality of the query? is it only going to be used in uri
+	}
+	//TODO do I need to check the quality of the query? is it only going to be used in uri
 	
 	// void URIParser::parse_queries(URIData &uri){
 	// 	std::vector<std::string> query;
