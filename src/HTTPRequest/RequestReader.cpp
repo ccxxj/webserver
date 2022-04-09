@@ -4,9 +4,8 @@
 
 namespace HTTPRequest {
 
-    size_t RequestReader::_length_counter = 0;
 
-    RequestReader::RequestReader() : _accumulator("") {}
+    RequestReader::RequestReader() : _accumulator(""), _length_counter(0) {}
 
     RequestReader::~RequestReader() {}
 

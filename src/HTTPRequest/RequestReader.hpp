@@ -12,7 +12,7 @@ namespace HTTPRequest {
 	{
 	private:
 		std::string _accumulator;
-		static size_t _length_counter;
+		size_t _length_counter;
 
 		bool _is_end_of_line(char character);
 		bool _is_end_of_chunk(char *buffer, size_t bytes_accumulated);
