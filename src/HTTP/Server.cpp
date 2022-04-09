@@ -57,7 +57,7 @@ namespace HTTP {
 				Utility::logger("Failed to bind to port " +  Utility::to_string(_listen_ports[i]) + " errno: " +  Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
-			if (listen(_listening_sockfds[i], 100) < 0) { // defines the maximum length to which the queue of pending connections for sockfd may grow.
+			if (listen(_listening_sockfds[i], 300) < 0) { // defines the maximum length to which the queue of pending connections for sockfd may grow.
 				Utility::logger("Failed to listen on socket. errno: " +  Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
@@ -102,7 +102,7 @@ namespace HTTP {
 				_delete_events(sock_kqueue, temp_iter->first);
 #endif
 				iter = _destroy_connection(iter);
-				std::cout << "Connection destroyed by timer" << std::endl;
+				// std::cout << "Connection destroyed by timer" << std::endl;
 			} else {
 				++iter;
 			}
@@ -136,7 +136,7 @@ namespace HTTP {
 	}
 
 	std::map<int, Connection*>::iterator Server::_destroy_connection(std::map<int, Connection*>::iterator iterator) {
-		std::cout << "Connection " << iterator->first << "destroyed\n";
+		// std::cout << "Connection " << iterator->first << " destroyed\n";
 		delete iterator->second;
 		return _connections.erase(iterator);
 	}
