@@ -296,7 +296,6 @@ namespace HTTPResponse {
 		std::string msg_body = _http_response_message->get_message_body();
 
 		// set any remaining headers
-		_http_response_message->set_header_element("Connection", "closed");
 		if(_http_request_message->get_method() != "HEAD")
 			_http_response_message->set_header_element("Content-Length", Utility::to_string(msg_body.length()));
 		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
