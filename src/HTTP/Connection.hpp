@@ -5,8 +5,9 @@
 
 #include "RequestHandler.hpp"
 #include "RequestHandlerDelegate.hpp"
-#include "../Utility/SmartPointer.hpp"
 #include "ServerStructs.hpp"
+#include "../Utility/SmartPointer.hpp"
+#include "../Utility/LogTimeCounter.hpp"
 
 namespace HTTP {
 	class Connection : public RequestHandlerDelegate
@@ -15,7 +16,8 @@ namespace HTTP {
 		int _socket_fd;
 		ListenInfo& _listen_info;
 		bool _is_open;
-		Utility::SmartPointer<RequestHandler> request_handler; // should be the last attr because of connection constructor
+		Utility::LogTimeCounter logtime_counter;
+		Utility::SmartPointer<RequestHandler> request_handler;
 
 	public:
 		Connection(int connection_socket_fd, Config::ConfigData *config_data, ListenInfo& _listen_info, sockaddr_in connection_addr);
@@ -26,6 +28,8 @@ namespace HTTP {
 		void send_response();
 		virtual int get_fd();
 		bool is_connection_open() const;
+		bool is_hanging_connection();
+		void set_last_activity_time();
 		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(std::string& buffer, size_t buffer_size);
 		virtual void close();

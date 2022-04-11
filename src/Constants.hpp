@@ -15,8 +15,9 @@
 #define RESET "\033[0m"
 
 namespace Constants {
-
 	const int PAYLOAD_MAX_LENGTH = 2097152; // 2MB
 	const int SEND_BUFFER_SIZE = 32768; // 32kB
 	const int DEFAULT_MAX_SIZE_BODY = 8000000;
+	const double CONNECTIONS_CHECKER_INTERVAL = 10;
+	const double NO_ACTIVITY_TIMEOUT = 30;
 }

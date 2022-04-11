@@ -2,13 +2,9 @@
 #include "./Utility/Utility.hpp"
 #include "Constants.hpp"
 
-Webserver::Webserver(std::string file_path): _file_path(file_path)
-{
-}
+Webserver::Webserver(std::string file_path): _file_path(file_path) {}
 
-Webserver::~Webserver()
-{
-}
+Webserver::~Webserver() {}
 
 void Webserver::start()
 {

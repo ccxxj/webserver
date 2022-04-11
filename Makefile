@@ -16,8 +16,6 @@ HEADERS = Webserver.hpp \
 	HTTP/RequestHandler.hpp \
 	HTTP/RequestHandlerDelegate.hpp \
 	HTTP/Server.hpp \
-	HTTP/Exceptions/ClientErrorException.hpp \
-	HTTP/Exceptions/ServerErrorException.hpp \
 	HTTP/Exceptions/RequestException.hpp \
 	HTTPResponse/StatusCodes.hpp \
 	HTTPResponse/ResponseHandler.hpp \
@@ -27,7 +25,8 @@ HEADERS = Webserver.hpp \
 	Utility/Utility.hpp \
 	Utility/SmartPointer.hpp \
 	Utility/File.hpp \
-	Utility/MimeTypes.hpp
+	Utility/MimeTypes.hpp \
+	Utility/LogTimeCounter.hpp
 
 SRC = Webserver.cpp \
 	HTTPRequest/RequestReader.cpp \
@@ -54,7 +53,8 @@ SRC = Webserver.cpp \
 	CGI/CGIHandler.cpp\
 	Utility/Utility.cpp \
 	Utility/File.cpp \
-	Utility/MimeTypes.cpp
+	Utility/MimeTypes.cpp \
+	Utility/LogTimeCounter.cpp
 
 CXXFLAGS = -Wall -Wextra -Werror -Wno-unused-value -Wno-unused-parameter\
 		-std=c++98 -pedantic \

@@ -1,6 +1,5 @@
 #include "Connection.hpp"
 #include "../config/ConfigData.hpp"
-#include "../Constants.hpp"
 #include "../Utility/Utility.hpp"
 
 #include <string>
@@ -14,6 +13,7 @@ namespace HTTP {
 		: _socket_fd(connection_socket_fd)
 		, _listen_info(listen_info)
 		, _is_open(true)
+		, logtime_counter()
 		, request_handler(new RequestHandler(*this, config_data, _listen_info))
 		, my_connection_addr(connection_addr)
 		{}
@@ -33,6 +33,10 @@ namespace HTTP {
 		return _is_open;
 	}
 
+	bool Connection::is_hanging_connection() {
+		return logtime_counter.is_bigger_than_time_limit(Constants::NO_ACTIVITY_TIMEOUT);
+	}
+
 	void Connection::send(std::string& buffer, size_t buffer_size) {
 		size_t current_buffer_size;
 		if (buffer_size < Constants::SEND_BUFFER_SIZE) {
@@ -46,6 +50,7 @@ namespace HTTP {
 			Utility::logger("Send failed. errno: " + Utility::to_string(errno), RED);
 			this->close();
 		}
+		logtime_counter.update_last_activity_logtime();
 		if (buffer_size > (size_t)bytes_sent) { // erasing the part that has been sent if the buffer is bigger than we can handle
 			buffer.erase(0, (size_t)bytes_sent);
 		}
@@ -65,6 +70,7 @@ namespace HTTP {
 	}
 
 	size_t Connection::receive(char* buffer, size_t buffer_size) {
+		logtime_counter.update_last_activity_logtime();
 		return ::recv(_socket_fd, buffer, buffer_size, 0);
 	}
 
