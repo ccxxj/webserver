@@ -43,7 +43,7 @@ namespace HTTPResponse {
 			return(handle_error(InternalServerError));
 		}
 
-// checks before moving on with methods
+		// checks before moving on with methods
 		if(!_verify_method(_config.get_limit_except()))
 			return(handle_error(MethodNotAllowed));
 		if (!_check_client_body_size())
