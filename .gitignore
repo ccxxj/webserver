@@ -15,3 +15,4 @@ tests/unit_tests/unit_tests
 tester
 __pycache__
 file*
+.gch

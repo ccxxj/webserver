@@ -1,12 +1,12 @@
 #include "RequestReader.hpp"
 
 #include "../HTTP/Exceptions/RequestException.hpp"
+#include "../Constants.hpp"
 
 namespace HTTPRequest {
 
-    size_t RequestReader::_length_counter = 0;
 
-    RequestReader::RequestReader() : _accumulator("") {}
+    RequestReader::RequestReader() : _accumulator(""), _length_counter(0) {}
 
     RequestReader::~RequestReader() {}
 
@@ -22,7 +22,7 @@ namespace HTTPRequest {
     std::string RequestReader::read_line(char* buffer, size_t bytes_read, size_t* bytes_accumulated, bool* can_be_parsed) { // pointer to the buffer as we need to keep track of it
         while (*bytes_accumulated != bytes_read)
         {
-            if (RequestReader::_length_counter > MAX_SIZE_BODY) {
+            if (RequestReader::_length_counter > Constants::DEFAULT_MAX_SIZE_BODY) {
                 throw Exception::RequestException(HTTPResponse::ContentTooLarge);
             }
             char current_character = buffer[*bytes_accumulated];
@@ -42,7 +42,7 @@ namespace HTTPRequest {
     std::string RequestReader::read_chunk(ssize_t chunk_size, char* buffer, size_t bytes_read, size_t* bytes_accumulated, bool* can_be_parsed) { // pointer to the buffer as we need to keep track of it
         while (*bytes_accumulated != bytes_read)
         {
-            if (RequestReader::_length_counter > MAX_SIZE_BODY) {
+            if (RequestReader::_length_counter > Constants::DEFAULT_MAX_SIZE_BODY) {
                 throw Exception::RequestException(HTTPResponse::ContentTooLarge);
             }
             char current_character = buffer[*bytes_accumulated];
@@ -68,7 +68,7 @@ namespace HTTPRequest {
     std::string RequestReader::read_payload(char* buffer, size_t bytes_read, size_t* bytes_accumulated, bool* can_be_parsed) {
         while (*bytes_accumulated != bytes_read)
         {
-            if (RequestReader::_length_counter > MAX_SIZE_BODY) {
+            if (RequestReader::_length_counter > Constants::DEFAULT_MAX_SIZE_BODY) {
                 throw Exception::RequestException(HTTPResponse::ContentTooLarge);
             }
             char current_character = buffer[*bytes_accumulated];

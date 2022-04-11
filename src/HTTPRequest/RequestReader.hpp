@@ -4,15 +4,12 @@
 #include <iostream> // TODO: remove
 #include <sys/types.h>// for ssize_t
 
-// TODO: get this macro from config
-#define MAX_SIZE_BODY 8000000
-
 namespace HTTPRequest {
 	class RequestReader
 	{
 	private:
 		std::string _accumulator;
-		static size_t _length_counter;
+		size_t _length_counter;
 
 		bool _is_end_of_line(char character);
 		bool _is_end_of_chunk(char *buffer, size_t bytes_accumulated);
