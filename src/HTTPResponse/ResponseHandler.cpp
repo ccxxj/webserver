@@ -171,7 +171,10 @@ namespace HTTPResponse {
 			return (handle_error(Forbidden));
 
 		//set necessary headers
-		_http_response_message->set_header_element("Content-Type", _file.get_mime_type(str));
+		if (_file.get_mime_type(str) == "text/html")
+			_http_response_message->set_header_element("Content-Type",  "text/html; charset=utf-8");
+		else
+			_http_response_message->set_header_element("Content-Type", _file.get_mime_type(str));
 		_http_response_message->set_header_element("Last-Modified", _file.last_modified_info(str));
 		_http_response_message->set_status_code("200");
 		_http_response_message->set_reason_phrase("OK");
