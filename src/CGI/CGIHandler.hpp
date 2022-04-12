@@ -35,6 +35,7 @@ public:
 	void set_argument(std::string cgi_name);
 	void set_response_message_body(std::string str);
 	std::string get_response_message_body();
+	bool get_search_cgi_extention();
 	int get_read_fd() const;
 	int get_write_fd() const;
 	void execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int kq);

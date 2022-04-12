@@ -31,6 +31,7 @@ namespace HTTP {
 		bool is_hanging_connection();
 		void set_last_activity_time();
 		HTTPResponse::ResponseMessage &get_response_message();
+		Utility::SmartPointer<RequestHandler> get_request_handler();
 		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(std::string& buffer, size_t buffer_size);
 		virtual void close();

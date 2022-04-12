@@ -38,7 +38,8 @@ namespace HTTPResponse {
 		try{
 			cgi_handler.execute_cgi(_http_request_message, _config, kq);
 			//TODO update for excluding
-			return;
+			if(cgi_handler.get_search_cgi_extention())//if the cgi extention was found in the list, execute cgi and skip the further process
+				return;
 			// std::string cgi_response = cgi_handler.get_response_message_body();
 			// std::cout << "inbetween cgi_response: " << cgi_response << std::endl;
 			// if(!cgi_response.empty()){
@@ -409,10 +410,10 @@ namespace HTTPResponse {
 		return tmp;
 	}
 
-	char* ResponseHandler::handle_cgi(int fd, int kq)
-	std::string ResponseHandler::handle_cgi(int fd, int kq)
-	{
-		// return _cgi_handler.execute_cgi(_http_request_message, _config, fd);
-		return _cgi_handler.execute_cgi(_http_request_message, _config, fd, kq);
-	}
+	// char* ResponseHandler::handle_cgi(int fd, int kq)
+	// std::string ResponseHandler::handle_cgi(int fd, int kq)
+	// {
+	// 	// return _cgi_handler.execute_cgi(_http_request_message, _config, fd);
+	// 	return _cgi_handler.execute_cgi(_http_request_message, _config, fd, kq);
+	// }
 }

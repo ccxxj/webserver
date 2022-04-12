@@ -206,3 +206,8 @@ std::string CGIHandler::get_response_message_body(){
 	return _response;
 }
 
+bool CGIHandler::get_search_cgi_extention(){
+	return _search_cgi_extension;
+}
+
+
