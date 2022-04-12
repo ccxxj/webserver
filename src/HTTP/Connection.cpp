@@ -21,10 +21,10 @@ namespace HTTP {
 	Connection::~Connection(){
 	}
 
-	void Connection::handle_http_request(int kq) {
-		request_handler->handle_http_request(kq);
+	void Connection::handle_http_request(int kq, CGIHandler &cgi_handler) {
+		request_handler->handle_http_request(kq, cgi_handler);
 	}
-
+ 
 	void Connection::send_response() {
 		request_handler->send_response();
 	}
@@ -76,5 +76,13 @@ namespace HTTP {
 
 	int Connection::get_fd(){
 		return _socket_fd;
+	}
+
+	HTTPResponse::ResponseMessage &Connection::get_response_message(){
+		return request_handler->get_http_response_message();
+	}
+
+	Utility::SmartPointer<RequestHandler> Connection::get_request_handler(){
+		return request_handler;
 	}
 }

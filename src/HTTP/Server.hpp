@@ -8,6 +8,7 @@
 #include "Connection.hpp"
 #include "../config/ConfigData.hpp"
 #include "ServerStructs.hpp"
+#include "../CGI/CGIHandler.hpp"
 
 namespace HTTP {
 
@@ -16,6 +17,7 @@ namespace HTTP {
 	private:
 		Config::ConfigData* config_data;
 		Utility::LogTimeCounter _logtime_checker;
+		// CGIHandler	_cgi_handler;
 
 		void _handle_events();
 		void _setup_listening_sockets();

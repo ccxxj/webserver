@@ -6,6 +6,8 @@
 #include <fstream>  // for ofstream
 #include <string.h> //for strerror
 
+#include <sys/event.h>//kqueue
+
 size_t redirection_loop = 0; //FIXME is it okay here?
 
 namespace HTTPResponse {
@@ -29,15 +31,19 @@ namespace HTTPResponse {
 
 	ResponseHandler::~ResponseHandler(){}
 
-	void ResponseHandler::create_http_response(int kq) {
+	void ResponseHandler::create_http_response(int kq, CGIHandler &cgi_handler) {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
 		//log request info
 		Utility::logger(request_info(), YELLOW);
 		try{
-			std::string cgi_response = handle_cgi(0, kq);
-			if(!cgi_response.empty()){
-				return _build_final_cgi_response(cgi_response);
-			}
+			cgi_handler.execute_cgi(_http_request_message, _config, kq);
+			//TODO update for excluding
+			return;
+			// std::string cgi_response = cgi_handler.get_response_message_body();
+			// std::cout << "inbetween cgi_response: " << cgi_response << std::endl;
+			// if(!cgi_response.empty()){
+			// 	return _build_final_cgi_response(cgi_response);
+			// }
 		}
 		catch(std::exception){
 			return(handle_error(InternalServerError));
@@ -119,6 +125,7 @@ namespace HTTPResponse {
 		// std::cout << response << std::endl;
 		//final step
 		_http_response_message->append_complete_response(response);
+		std::cout << "complete response: " << response << std::endl;
 	}
 
 	void ResponseHandler::_handle_methods(void) {
@@ -402,7 +409,7 @@ namespace HTTPResponse {
 		return tmp;
 	}
 
-	// char* ResponseHandler::handle_cgi(int fd, int kq)
+	char* ResponseHandler::handle_cgi(int fd, int kq)
 	std::string ResponseHandler::handle_cgi(int fd, int kq)
 	{
 		// return _cgi_handler.execute_cgi(_http_request_message, _config, fd);

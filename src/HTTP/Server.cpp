@@ -11,6 +11,7 @@
 #include <cstdio> // for perror
 #include <fcntl.h> // for fcntl
 #include <sys/time.h> // for timeout
+#include <sys/stat.h> // for fstat
 #ifdef _LINUX
 	#include "/usr/include/kqueue/sys/event.h" //linux kqueue
 #else
@@ -19,6 +20,7 @@
 
 #include "RequestHandler.hpp"
 #include "../Utility/Utility.hpp"
+
 
 namespace HTTP {
 
@@ -136,9 +138,37 @@ namespace HTTP {
 	}
 
 	std::map<int, Connection*>::iterator Server::_destroy_connection(std::map<int, Connection*>::iterator iterator) {
-		// std::cout << "Connection " << iterator->first << " destroyed\n";
+		std::cout << "Connection " << iterator->first << " destroyed\n";//TODO xiaojing the connection is closed before the message from child is processed and send back
 		delete iterator->second;
 		return _connections.erase(iterator);
+	}
+
+	void update_response_message(HTTPResponse::ResponseMessage &_http_response_message, std::string &response){
+		std::string final_response;
+		//set any remaining headers
+		_http_response_message.set_header_element("Server", "HungerWeb/1.0");
+		_http_response_message.set_header_element("Date", Utility::get_formatted_date());
+		_http_response_message.set_header_element("Content-Length", Utility::to_string(response.length())); //TODO header is also included
+
+		// build status line
+		final_response += _http_response_message.get_HTTP_version() + " ";
+		final_response += "200 ";
+		final_response += "OK\r\n";
+
+		// add all the headers to response. Format is {Header}: {Header value} \r\n
+		for (std::map<std::string, std::string>::const_iterator it = _http_response_message.get_response_headers().begin(); it != _http_response_message.get_response_headers().end(); it++) {
+			if (!it->first.empty())
+				final_response += it->first + ": " + it->second;
+			final_response += "\r\n";
+		}
+
+		// if body is not empty add it to  response. Format: \r\n {body}
+		// response += "\r\n";
+		final_response += response;
+		std::cout << "final response" << final_response << std::endl;
+		//final step
+		_http_response_message.append_complete_response(final_response);
+		// set the flag to true
 	}
 
 	void Server::_handle_events() {
@@ -210,9 +240,29 @@ namespace HTTP {
 					}
 				}
 				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
+					//steps for CGI handler to do after child returns the message body
+					CGIHandler cgi_handler;
+					int CGIReadFd = cgi_handler.get_read_fd();
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
-						(connection_iter->second)->handle_http_request(sock_kqueue);
+					if(event_fds.ident == (uintptr_t)CGIReadFd){
+						struct stat sb;
+						std::string response;
+						std::string final_response;
+						fstat(CGIReadFd, &sb);
+						response.resize(sb.st_size);
+						read(CGIReadFd, (char*)(response.data()), sb.st_size);
+						std::cout << "response message: " << response << std::endl;
+						cgi_handler.set_response_message_body(response);
+						close(CGIReadFd);
+						// continue;
+						std::cout << "check1\n";
+						update_response_message(connection_iter->second->get_response_message(), response);
+						std::cout << "check2\n";
+						connection_iter->second->get_request_handler()->set_response_true();
+						break;
+					}
+					else if (connection_iter != _connections.end()) { // handling request by the corresponding connection
+						(connection_iter->second)->handle_http_request(sock_kqueue, cgi_handler);
 						// Register write events for the client
 						EV_SET(&kev, connection_iter->first, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
 						if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
@@ -231,6 +281,7 @@ namespace HTTP {
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
 						connection_iter->second->send_response();
 						if (!(connection_iter->second->is_connection_open())) {
+							std::cout << "this is causing the segfault as the connection is desctoyed before the cgi output can be processed\n";//TODO discuss with @Olga this is causing the connection destroyed therefore segfault
 							_destroy_connection(connection_iter);
 						}
 						break;
