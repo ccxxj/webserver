@@ -16,17 +16,33 @@ namespace HTTP {
 		, logtime_counter()
 		, request_handler(new RequestHandler(*this, config_data, _listen_info))
 		, my_connection_addr(connection_addr)
-		{}
+		{
+			_cgi_write_read_fd[0] = -1;
+			_cgi_write_read_fd[1] = -1;
+		}
 
 	Connection::~Connection(){
 	}
 
-	void Connection::handle_http_request(int kq, CGIHandler &cgi_handler) {
-		request_handler->handle_http_request(kq, cgi_handler, _socket_fd);
+	// void Connection::handle_http_request(int kq, CGIHandler &cgi_handler) {
+	void Connection::handle_http_request(int kq) {
+		request_handler->handle_http_request(kq, _socket_fd);
+		if(request_handler->get_search_cgi_extention_result()){
+			set_cgi_write_fd(request_handler->get_cgi_write_fd());
+			set_cgi_read_fd(request_handler->get_cgi_read_fd());
+		}
 	}
  
 	void Connection::send_response() {
 		request_handler->send_response();
+	}
+
+	void Connection::set_cgi_write_fd(int i){
+		_cgi_write_read_fd[0] = i;
+	}
+
+	void Connection::set_cgi_read_fd(int i){
+		_cgi_write_read_fd[1] = i;
 	}
 
 	bool Connection::is_connection_open() const {
@@ -36,6 +52,14 @@ namespace HTTP {
 	bool Connection::is_hanging_connection() {
 		return logtime_counter.is_bigger_than_time_limit(Constants::NO_ACTIVITY_TIMEOUT);
 	}
+
+	int Connection::get_cgi_write_fd() const{
+		return _cgi_write_read_fd[0];
+	}
+
+	int Connection::get_cgi_read_fd() const{
+		return _cgi_write_read_fd[1];
+	}	
 
 	void Connection::send(std::string& buffer, size_t buffer_size) {
 		size_t current_buffer_size;

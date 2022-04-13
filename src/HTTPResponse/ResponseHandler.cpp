@@ -31,15 +31,17 @@ namespace HTTPResponse {
 
 	ResponseHandler::~ResponseHandler(){}
 
-	void ResponseHandler::create_http_response(int kq, CGIHandler &cgi_handler, int socket_fd) {
+//TODO remove kq as input parameter
+	bool ResponseHandler::create_http_response(int kq, CGIHandler &cgi_handler, int socket_fd) {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
 		//log request info
 		Utility::logger(request_info(), YELLOW);
 		try{
-			cgi_handler.execute_cgi(_http_request_message, _config, kq, socket_fd);
+			cgi_handler.prepare_cgi_data(_http_request_message, _config, socket_fd);
+			// cgi_handler.execute_cgi(_http_request_message, _config, kq, socket_fd);
 			//TODO update for excluding
-			if(cgi_handler.get_search_cgi_extention())//if the cgi extention was found in the list, execute cgi and skip the further process
-				return;
+			if(cgi_handler.get_search_cgi_extention_result())//if the cgi extention was found in the list, execute cgi and skip the further process
+				return false;
 			// std::string cgi_response = cgi_handler.get_response_message_body();
 			// std::cout << "inbetween cgi_response: " << cgi_response << std::endl;
 			// if(!cgi_response.empty()){
@@ -47,18 +49,27 @@ namespace HTTPResponse {
 			// }
 		}
 		catch(std::exception){
-			return(handle_error(InternalServerError));
+			handle_error(InternalServerError);
+			return true;
 		}
 
 		// checks before moving on with methods
-		if(!_verify_method(_config.get_limit_except()))
-			return(handle_error(MethodNotAllowed));
-		if (!_check_client_body_size())
-			return(handle_error(ContentTooLarge));
+		if(!_verify_method(_config.get_limit_except())){
+			handle_error(MethodNotAllowed);
+			return true;
+		}
+			// return(handle_error(MethodNotAllowed));
+		if (!_check_client_body_size()){
+			handle_error(ContentTooLarge);
+			return true;
+		}
+			// return(handle_error(ContentTooLarge));
 
 		//redirection: server stops processing, responds with redirected location
 		if (!_config.get_return().empty() && redirection_loop < 10) {
-			return (_handle_redirection());
+			_handle_redirection();
+			return true;
+			// return (_handle_redirection());
 		}
 		if (redirection_loop == 10) { //redirection is limited to 10 times
 			redirection_loop = 0;
@@ -66,6 +77,7 @@ namespace HTTPResponse {
 
 		//HTTP method handling
 		_handle_methods();
+		return true;
 	}
 
 	void ResponseHandler::_handle_redirection()

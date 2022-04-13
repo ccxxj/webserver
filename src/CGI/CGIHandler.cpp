@@ -29,6 +29,11 @@ CGIHandler::CGIHandler(){
 	_meta_variables["SERVER_PROTOCOL"];
 	_meta_variables["SERVER_SOFTWARE"];
 
+	_input_pipe[0] = -1;
+	_input_pipe[1] = -1;
+	_output_pipe[0] = -1;
+	_output_pipe[1] = -1;
+
 	_response = "";
 
 //TODO initialize the 2 pipes fd??
@@ -126,16 +131,14 @@ void CGIHandler::search_cgi(std::vector<std::string> &path){
 
 }
 
-// int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
-void CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int kq, int socket_fd)
-{
+void CGIHandler::prepare_cgi_data(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int socket_fd){
 	_cgi_extention = _config.get_extention_list();
 	_socket_fd = socket_fd;
 	std::vector<std::string> path = _http_request_message->get_uri().get_path();
 	search_cgi(path);
 	if(_search_cgi_extension == false)
 		return;	
-	std::string requestMessageBody = _http_request_message->get_message_body();
+	_request_message_body = _http_request_message->get_message_body();
 	// int inputPipe[2], outputPipe[2];
 	if(pipe(_input_pipe) == -1){
 		std::perror("pipe");
@@ -148,14 +151,19 @@ void CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message,
 	set_argument(_cgi_name);//TODO replace by the actual path, currently I am only use the predefined path
 	parse_meta_variables(_http_request_message, _config);//TODO replace by input from http request get_message_body
 	set_envp();
-	write(_input_pipe[1], requestMessageBody.c_str(), requestMessageBody.size());
-	//handle kqueue
+}
+
+// int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
+// void CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int kq, int socket_fd)
+void CGIHandler::execute_cgi(int kq)
+{
 	struct kevent kev;
 	EV_SET(&kev, _output_pipe[0], EVFILT_READ, EV_ADD, 0, 0, NULL);
 	if (kevent(kq, &kev, 1, NULL, 0, NULL)<0){
         fprintf(stderr,"kevent failed.");
     	return;
 	}
+	std::cout << "before forking\n";
 	pid_t pid = fork();
 	if(pid < 0){
 		perror("fork failure");//TODO create exception later??
@@ -178,7 +186,7 @@ void CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message,
 		}
 	}
 	else{
-		wait(0);//TODO should be more if conditions? waitpid?
+		// wait(0);//TODO should be more if conditions? waitpid?
 		//TODO do I need to close the write end? I think kqueue will take care of it
 		//TODO if the process hang due to the execution was hanging, currently it is blocking. implement kqueue would solve the problem? => so it is needed to watch on the child process in this case
 		//TODO handle different error case: 1. execution problem[check with Olga about long hanging] 2. the requested cgi does not exist 3 [done]
@@ -208,11 +216,16 @@ std::string CGIHandler::get_response_message_body(){
 	return _response;
 }
 
-bool CGIHandler::get_search_cgi_extention(){
+std::string CGIHandler::get_request_message_body(){
+	return _request_message_body;
+}
+
+bool CGIHandler::get_search_cgi_extention_result() const{
 	return _search_cgi_extension;
 }
 
 int CGIHandler::get_socket_fd() const{
 	return _socket_fd;
 }
+
 

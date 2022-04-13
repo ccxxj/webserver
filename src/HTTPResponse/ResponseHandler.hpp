@@ -21,7 +21,7 @@ namespace HTTPResponse
 		ResponseMessage *_http_response_message;
 		SpecifiedConfig _config;
 		Utility::File _file;
-		CGIHandler _cgi_handler;
+		// CGIHandler _cgi_handler;
 		size_t _redirection_loop;
 
 		bool _verify_method(const std::vector<std::string> methods);
@@ -46,7 +46,8 @@ namespace HTTPResponse
 		const ResponseHandler &operator=(const ResponseHandler &other);
 		~ResponseHandler();
 
-		void create_http_response(int kq, CGIHandler &cgi_handler, int socket_fd);
+		bool create_http_response(int kq, CGIHandler &cgi_handler, int socket_fd);
+		// void create_http_response(int kq, CGIHandler &cgi_handler, int socket_fd);
 		void handle_error(HTTPResponse::StatusCode code);
 		// char* handle_cgi(int fd, int kq);
 		std::string handle_cgi(int fd, int kq);

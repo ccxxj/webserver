@@ -3,6 +3,8 @@
 #include <sstream> // for converting int to string
 #include <stdio.h> // for perror
 #include <stdlib.h> //for atoi
+#include <sys/event.h>//for kqueue
+#include <unistd.h>
 
 #include "Exceptions/RequestException.hpp"
 #include "../Utility/Utility.hpp"
@@ -17,13 +19,15 @@ namespace HTTP {
 	, _config_data(config_data)
 	, _connection_listen_info(listen_info)
 	, response_handler(&_http_request_message, &_http_response_message)
+	, _cgi_handler()
 	, response_ready(false)
 	{
 	}
 
 	RequestHandler::~RequestHandler(){}
 
-	void RequestHandler::handle_http_request(int kq, CGIHandler &cgi_handler, int socket_fd) {
+	// void RequestHandler::handle_http_request(int kq, CGIHandler &cgi_handler, int socket_fd) {
+	void RequestHandler::handle_http_request(int kq, int socket_fd) {
 		char buf[4096];
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
@@ -47,8 +51,24 @@ namespace HTTP {
 			}
 			// if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
 			if (!response_ready) { // checking if the response with the error code has been filled
-				_process_http_request(kq, cgi_handler, socket_fd);
-				response_ready = true;
+				// _process_http_request(kq, cgi_handler, socket_fd);
+				if(!_process_http_request(kq, socket_fd))//this means the cgi is encounted and data prepared
+				{
+					//add writing event
+					struct kevent kev;
+					int write_fd = _cgi_handler.get_write_fd();
+					EV_SET(&kev, write_fd, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+					if (kevent(kq, &kev, 1, NULL, 0, NULL)<0){
+						fprintf(stderr,"kevent failed.");
+						return;
+					}
+					// set_cgi_handler(_cgi_handler);
+					// std::string request_message_body = cgi_handler.get_request_message_body();
+					// write(write_fd, request_message_body.c_str(), request_message_body.size());
+					//
+				}
+				else
+					response_ready = true;
 			}
 		}
 	}
@@ -73,11 +93,14 @@ namespace HTTP {
 		return stringified_code;
 	}
 
-	void RequestHandler::RequestHandler::_process_http_request(int kq, CGIHandler &cgi_handler, int socket_fd) { //TODO Logger to say which server & block is matched with the port info
+	// void RequestHandler::RequestHandler::_process_http_request(int kq, CGIHandler &cgi_handler, int socket_fd) { //TODO Logger to say which server & block is matched with the port info
+	bool RequestHandler::RequestHandler::_process_http_request(int kq, int socket_fd) { //TODO Logger to say which server & block is matched with the port info
+	// bool RequestHandler::RequestHandler::_process_http_request(int kq, CGIHandler &cgi_handler, int socket_fd) { //TODO Logger to say which server & block is matched with the port info
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
 		response_handler.set_config_rules(virtual_server, location);
-		response_handler.create_http_response(kq, cgi_handler, socket_fd); //FROM here, it's moving to ResponseHandler
+		
+		return response_handler.create_http_response(kq, _cgi_handler, socket_fd); //FROM here, it's moving to ResponseHandler
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
@@ -146,4 +169,33 @@ namespace HTTP {
 	void RequestHandler::set_response_true(){
 		response_ready = true;
 	}
+	
+	void RequestHandler::set_cgi_handler(CGIHandler cgi_handler){
+		_cgi_handler = cgi_handler;
+	}
+
+    // CGIHandler RequestHandler::get_cgi_handler(){
+	// 	return _cgi_handler;
+	// }
+
+	void RequestHandler::execute_cgi(int kq){
+		_cgi_handler.execute_cgi(kq);
+	}
+
+	int RequestHandler::get_cgi_write_fd() const{
+		return _cgi_handler.get_write_fd();
+	}
+
+	int RequestHandler::get_cgi_read_fd() const{
+		return _cgi_handler.get_read_fd();
+	}
+
+	const std::string RequestHandler::get_request_message_body() const{
+		return _http_request_message.get_message_body();
+	}
+
+	bool RequestHandler::get_search_cgi_extention_result() const{
+		return _cgi_handler.get_search_cgi_extention_result();
+	}
+
 }

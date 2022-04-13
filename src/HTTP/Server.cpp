@@ -243,34 +243,66 @@ namespace HTTP {
 				}
 				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
 					//steps for CGI handler to do after child returns the message body
-					CGIHandler cgi_handler;
-					int CGIReadFd = cgi_handler.get_read_fd();
+					// CGIHandler *cgi_handler;
+					// cgi_handler = new CGIHandler;
+					// CGIHandler cgi_handler;
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-					if(event_fds.ident == (uintptr_t)CGIReadFd){
+					if(connection_iter == _connections.end()){
 						struct stat sb;
 						std::string response;
 						std::string final_response;
-						fstat(CGIReadFd, &sb);
-						response.resize(sb.st_size);
-						//TODO check read return
-						int rt = read(CGIReadFd, (char*)(response.data()), sb.st_size);
-						if(rt < 0){
-							std::perror("read");
-							//internal server error
+						std::map<int, Connection*>::iterator it;
+						Connection *temp;
+						for(it = _connections.begin(); it != _connections.end(); it++){
+							int read_fd = it->second->get_cgi_read_fd();
+							if(read_fd != -1){
+								// int client_socket_fd = it->first;
+								temp = it->second;
+								fstat(read_fd, &sb);
+								response.resize(sb.st_size);
+								//TODO check read return
+								int rt = read(read_fd, (char*)(response.data()), sb.st_size);
+								if(rt < 0){
+									std::perror("read");
+									//internal server error
+								}
+								std::cout << "response message: " << response << std::endl;
+								// cgi_handler.set_response_message_body(response);
+								// close(CGIReadFd);//close later
+								// continue;
+								std::cout << "check1\n";
+								update_response_message(temp->get_response_message(), response);
+								std::cout << "check2\n";
+								temp->get_request_handler()->set_response_true();
+								break;
+							}
 						}
-						std::cout << "response message: " << response << std::endl;
-						// cgi_handler.set_response_message_body(response);
-						// close(CGIReadFd);//close later
-						// continue;
-						std::cout << "check1\n";
-						connection_iter = _connections.find(cgi_handler.get_socket_fd());
-						update_response_message(connection_iter->second->get_response_message(), response);
-						std::cout << "check2\n";
-						connection_iter->second->get_request_handler()->set_response_true();
-						break;
+
+
+
+
+						// fstat(CGIReadFd, &sb);
+						// response.resize(sb.st_size);
+						// //TODO check read return
+						// int rt = read(CGIReadFd, (char*)(response.data()), sb.st_size);
+						// if(rt < 0){
+						// 	std::perror("read");
+						// 	//internal server error
+						// }
+						// std::cout << "response message: " << response << std::endl;
+						// // cgi_handler.set_response_message_body(response);
+						// // close(CGIReadFd);//close later
+						// // continue;
+						// std::cout << "check1\n";
+						// connection_iter = _connections.find(cgi_handler.get_socket_fd());
+						// update_response_message(connection_iter->second->get_response_message(), response);
+						// std::cout << "check2\n";
+						// connection_iter->second->get_request_handler()->set_response_true();
+						// break;
 					}
-					else if (connection_iter != _connections.end()) { // handling request by the corresponding connection
-						(connection_iter->second)->handle_http_request(sock_kqueue, cgi_handler);
+					else{
+						// (connection_iter->second)->handle_http_request(sock_kqueue, cgi_handler);
+						(connection_iter->second)->handle_http_request(sock_kqueue);
 						// Register write events for the client
 						EV_SET(&kev, connection_iter->first, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
 						if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
@@ -281,8 +313,53 @@ namespace HTTP {
 							std::perror("kevent");
 							std::exit(1);
 						}
-						break;
 					}
+					break;
+					
+
+
+
+
+					// int CGIReadFd = cgi_handler.get_read_fd();
+					// std::map<int, Connection*>::iterator connection_iter;
+					// if(event_fds.ident == (uintptr_t)CGIReadFd){
+					// 	struct stat sb;
+					// 	std::string response;
+					// 	std::string final_response;
+					// 	fstat(CGIReadFd, &sb);
+					// 	response.resize(sb.st_size);
+					// 	//TODO check read return
+					// 	int rt = read(CGIReadFd, (char*)(response.data()), sb.st_size);
+					// 	if(rt < 0){
+					// 		std::perror("read");
+					// 		//internal server error
+					// 	}
+					// 	std::cout << "response message: " << response << std::endl;
+					// 	// cgi_handler.set_response_message_body(response);
+					// 	// close(CGIReadFd);//close later
+					// 	// continue;
+					// 	std::cout << "check1\n";
+					// 	connection_iter = _connections.find(cgi_handler.get_socket_fd());
+					// 	update_response_message(connection_iter->second->get_response_message(), response);
+					// 	std::cout << "check2\n";
+					// 	connection_iter->second->get_request_handler()->set_response_true();
+					// 	break;
+					// }
+					// if((connection_iter = _connections.find(current_event_fd)) != _connections.end()){
+					// // else if (connection_iter != _connections.end()) { // handling request by the corresponding connection
+					// 	(connection_iter->second)->handle_http_request(sock_kqueue, cgi_handler);
+					// 	// Register write events for the client
+					// 	EV_SET(&kev, connection_iter->first, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
+					// 	if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
+					// 		std::perror("kevent error - write");
+					// 	}
+					// 	new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, NULL);
+					// 	if(new_events == -1) {
+					// 		std::perror("kevent");
+					// 		std::exit(1);
+					// 	}
+					// 	break;
+					// }
 				}
 				else if (event_fds.filter == EVFILT_WRITE) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
@@ -293,6 +370,21 @@ namespace HTTP {
 							_destroy_connection(connection_iter);
 						}
 						break;
+					}
+					else
+					{
+						std::map<int, Connection*>::iterator it = _connections.begin();
+						Connection *temp;
+						for(it = _connections.begin(); it != _connections.end(); it++){
+							int write_fd = it->second->get_cgi_write_fd();
+							if(write_fd != -1){
+								temp = it->second;
+								std::string request_message_body = temp->get_request_handler()->get_request_message_body();
+								//TODO check write value
+								write(write_fd, request_message_body.c_str(), request_message_body.size());
+								temp->get_request_handler()->execute_cgi(sock_kqueue);
+							}
+						}
 					}
 				}
 			}
