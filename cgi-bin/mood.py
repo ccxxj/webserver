@@ -36,10 +36,7 @@ if mood == "happy":
 	print '<img src="/img/happy.jpeg" alt="My Sample Image" width="400">'
 	print '</a>'	
 if mood == "sad":
-	print "<h2> Sorry to hear that, would you want to tell me why?</h2>"
-	print '<div><label>Message</label><br/>'
-	print '<textarea name="message"></textarea></div>'
-	print '<br>'
+	print "<h2> Sorry to hear that.</h2>"
 	print '<br>'
 	print '<a href="bird.jpeg">'
 	print '<img src="/img/bird.jpeg" alt="My Sample Image" width="400">'
