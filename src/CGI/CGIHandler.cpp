@@ -11,23 +11,23 @@
 
 CGIHandler::CGIHandler(){
 //initialize the meta_variable map
-	_meta_variables["AUTH_TYPE"];
-	_meta_variables["CONTENT_LENGTH"];
-	_meta_variables["CONTENT_TYPE"];
+	_meta_variables["AUTH_TYPE"] = "";
+	_meta_variables["CONTENT_LENGTH"] = "";
+	_meta_variables["CONTENT_TYPE"] = "";
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1";
-	_meta_variables["PATH_INFO"];
-	_meta_variables["PATH_TRANSLATED"]; 
-	_meta_variables["QUERY_STRING"];
-	_meta_variables["REMOTE_ADDR"];
-	_meta_variables["REMOTE_HOST"]; 
-	_meta_variables["REMOTE_IDENT"];
-	_meta_variables["REMOTE_USER"];
-	_meta_variables["REQUEST_METHOD"];
-	_meta_variables["SCRIPT_NAME"];
-	_meta_variables["SERVER_NAME"];
-	_meta_variables["SERVER_PORT"];
-	_meta_variables["SERVER_PROTOCOL"];
-	_meta_variables["SERVER_SOFTWARE"];
+	_meta_variables["PATH_INFO"] = "";
+	_meta_variables["PATH_TRANSLATED"] = ""; 
+	_meta_variables["QUERY_STRING"] = "";
+	_meta_variables["REMOTE_ADDR"] = "";
+	_meta_variables["REMOTE_HOST"] = ""; 
+	_meta_variables["REMOTE_IDENT"] = "";
+	_meta_variables["REMOTE_USER"] = "";
+	_meta_variables["REQUEST_METHOD"] = "";
+	_meta_variables["SCRIPT_NAME"] = "";
+	_meta_variables["SERVER_NAME"] = "";
+	_meta_variables["SERVER_PORT"] = "";
+	_meta_variables["SERVER_PROTOCOL"] = "";
+	_meta_variables["SERVER_SOFTWARE"] = "";
 
 	_input_pipe[0] = -1;
 	_input_pipe[1] = -1;
@@ -56,13 +56,16 @@ void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 
 //actual data
 	std::string authorization = _http_request_message->get_header_value("AUTHORIZATION");
-	if(authorization.size() > 0){
-		int start = authorization.find_first_not_of(" ");
-		int end = authorization.find_first_of(" ", start + 1);
-		_meta_variables["AUTH_TYPE"] = authorization.substr(start, end - start + 1);
-		start = authorization.find_first_not_of(" ", end + 1);
-		_meta_variables["REMOTE_USER"] = authorization.substr(start);
-	}
+	//TODO update the get_header_value (Olga has made edition, need to merge the change)
+	// if(authorization.size() > 0){
+	// 	int first_part_end = authorization.find_first_of(" ");
+	// 	if((const unsigned long)first_part_end != std::string::npos){
+	// 		_meta_variables["AUTH_TYPE"] = authorization.substr(0, first_part_end + 1);
+	// 		int second_part_begin = authorization.find_first_not_of(" ", first_part_end + 1);
+	// 		if((const unsigned long)second_part_begin != std::string::npos)
+	// 			_meta_variables["REMOTE_USER"] = authorization.substr(second_part_begin);
+	// 	}
+	// }
 	_meta_variables["AUTH_TYPE"] = _http_request_message->get_header_value("AUTHORIZATION");
 	_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
 	_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
@@ -105,10 +108,13 @@ void CGIHandler::set_argument(std::string cgi_name)
 	long size = pathconf(".", _PC_PATH_MAX);
 	if((buf = (char *)malloc((size_t)size)) != NULL)
 		ptr = getcwd(buf, (size_t)size);
+	else
+		throw(CGIexception());
 	std::string executable_path(buf);//get the current executable location
 	std::string full_path = executable_path + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
 	_argument[0] = strdup(full_path.c_str());
 	_argument[1] = NULL;
+	free(buf);
 }
 
 //input parameter will be uriData->get_path()
@@ -159,17 +165,16 @@ void CGIHandler::execute_cgi(int kq)
 {
 	struct kevent kev;
 	EV_SET(&kev, _output_pipe[0], EVFILT_READ, EV_ADD, 0, 0, NULL);
-	if (kevent(kq, &kev, 1, NULL, 0, NULL)<0){
+	if (kevent(kq, &kev, 1, NULL, 0, NULL)<0){//TODO kevent fail here? @debug
         fprintf(stderr,"kevent failed.");
+		std::cout << "this internal error caused by kevent fail\n";
     	return;
 	}
-	std::cout << "before forking\n";
 	pid_t pid = fork();
 	if(pid < 0){
 		perror("fork failure");//TODO create exception later??
 	}
 	else if(pid == 0){
-		std::cout << "this is child process\n";
 		if(dup2(_input_pipe[0], 0) < 0){
 			throw(CGIexception());
 			perror("dup failure");

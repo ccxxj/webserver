@@ -61,6 +61,10 @@ namespace HTTP {
 		return _cgi_write_read_fd[1];
 	}	
 
+	std::string Connection::get_request_message_body(){
+		return request_handler->get_request_message_body();
+	}
+
 	void Connection::send(std::string& buffer, size_t buffer_size) {
 		size_t current_buffer_size;
 		if (buffer_size < Constants::SEND_BUFFER_SIZE) {
@@ -106,7 +110,15 @@ namespace HTTP {
 		return request_handler->get_http_response_message();
 	}
 
-	Utility::SmartPointer<RequestHandler> Connection::get_request_handler(){
-		return request_handler;
+	void Connection::set_response_true(){
+		request_handler->set_response_true();
 	}
+
+	void Connection::execute_cgi(int kq){
+		request_handler->execute_cgi(kq);
+	}
+
+	// Utility::SmartPointer<RequestHandler> Connection::get_request_handler(){
+	// 	return request_handler;
+	// }
 }

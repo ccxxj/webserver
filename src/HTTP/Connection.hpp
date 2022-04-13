@@ -35,10 +35,13 @@ namespace HTTP {
 		void set_last_activity_time();
 		int get_cgi_write_fd() const;
 		int get_cgi_read_fd() const;
+		std::string get_request_message_body();
 		HTTPResponse::ResponseMessage &get_response_message();
-		Utility::SmartPointer<RequestHandler> get_request_handler();
+		// Utility::SmartPointer<RequestHandler> get_request_handler();
 		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(std::string& buffer, size_t buffer_size);
 		virtual void close();
+		void set_response_true();
+		void execute_cgi(int kq);
 	};
 }

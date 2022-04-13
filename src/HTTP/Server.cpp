@@ -273,7 +273,8 @@ namespace HTTP {
 								std::cout << "check1\n";
 								update_response_message(temp->get_response_message(), response);
 								std::cout << "check2\n";
-								temp->get_request_handler()->set_response_true();
+								// temp->get_request_handler()->set_response_true();
+								temp->set_response_true();
 								break;
 							}
 						}
@@ -373,16 +374,17 @@ namespace HTTP {
 					}
 					else
 					{
-						std::map<int, Connection*>::iterator it = _connections.begin();
+						std::map<int, Connection*>::iterator it;
 						Connection *temp;
-						for(it = _connections.begin(); it != _connections.end(); it++){
+						for(it = _connections.begin(); it != _connections.end(); it++){//for loop is not run?
 							int write_fd = it->second->get_cgi_write_fd();
 							if(write_fd != -1){
 								temp = it->second;
-								std::string request_message_body = temp->get_request_handler()->get_request_message_body();
+								// std::string request_message_body = temp->get_request_handler()->get_request_message_body();//TODO why this step is deleting the smart pointer
+								std::string request_message_body = temp->get_request_message_body();//TODO why this step is deleting the smart pointer
 								//TODO check write value
 								write(write_fd, request_message_body.c_str(), request_message_body.size());
-								temp->get_request_handler()->execute_cgi(sock_kqueue);
+								temp->execute_cgi(sock_kqueue);
 							}
 						}
 					}
