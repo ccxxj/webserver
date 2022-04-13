@@ -9,6 +9,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "../Utility/Utility.hpp"
+
+
 CGIHandler::CGIHandler(){
 //initialize the meta_variable map
 	_meta_variables["AUTH_TYPE"] = "";
@@ -49,13 +52,13 @@ void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 	std::string authorization = "";
 	if (_http_request_message->has_header_field("AUTHORIZATION")) {
 		authorization= _http_request_message->get_header_value("AUTHORIZATION");
-	}
-	if(authorization.size() > 0){
-		int start = authorization.find_first_not_of(" ");
-		int end = authorization.find_first_of(" ", start + 1);
-		_meta_variables["AUTH_TYPE"] = authorization.substr(start, end - start + 1);
-		start = authorization.find_first_not_of(" ", end + 1);
-		_meta_variables["REMOTE_USER"] = authorization.substr(start);
+		std::vector<std::string> authorisation_parts = Utility::_split_line_in_two(authorization, ' ');
+		if (authorisation_parts.size() > 0) {
+			_meta_variables["AUTH_TYPE"] = authorisation_parts[0];
+			if (authorisation_parts.size() > 1) {
+				_meta_variables["REMOTE_USER"] = authorisation_parts[1];
+			}
+		}
 	}
 	if (_http_request_message->has_header_field("CONTENT_LENGTH")) {
 		_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
