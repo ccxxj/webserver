@@ -46,7 +46,7 @@ namespace HTTPResponse
 		const ResponseHandler &operator=(const ResponseHandler &other);
 		~ResponseHandler();
 
-		void create_http_response(int kq, CGIHandler &cgi_handler);
+		void create_http_response(int kq, CGIHandler &cgi_handler, int socket_fd);
 		void handle_error(HTTPResponse::StatusCode code);
 		// char* handle_cgi(int fd, int kq);
 		std::string handle_cgi(int fd, int kq);

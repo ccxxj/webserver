@@ -31,12 +31,12 @@ namespace HTTPResponse {
 
 	ResponseHandler::~ResponseHandler(){}
 
-	void ResponseHandler::create_http_response(int kq, CGIHandler &cgi_handler) {
+	void ResponseHandler::create_http_response(int kq, CGIHandler &cgi_handler, int socket_fd) {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
 		//log request info
 		Utility::logger(request_info(), YELLOW);
 		try{
-			cgi_handler.execute_cgi(_http_request_message, _config, kq);
+			cgi_handler.execute_cgi(_http_request_message, _config, kq, socket_fd);
 			//TODO update for excluding
 			if(cgi_handler.get_search_cgi_extention())//if the cgi extention was found in the list, execute cgi and skip the further process
 				return;

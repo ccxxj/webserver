@@ -21,6 +21,7 @@ private:
 	void update_path_translated(void);
 	int _input_pipe[2];
 	int _output_pipe[2];
+	int _socket_fd;
 	std::string _response;
 	class CGIexception: public std::exception{
 		const char* what() const _NOEXCEPT { return "internal server error"; }
@@ -38,5 +39,6 @@ public:
 	bool get_search_cgi_extention();
 	int get_read_fd() const;
 	int get_write_fd() const;
-	void execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int kq);
+	int get_socket_fd() const;
+	void execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int kq, int socket_fd);
 };

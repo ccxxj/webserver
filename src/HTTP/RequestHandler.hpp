@@ -26,7 +26,7 @@ namespace HTTP {
 
         void _handle_request_exception(HTTPResponse::StatusCode code);
         const std::string _convert_status_code_to_string(const int code);
-        void _process_http_request(int kq, CGIHandler &cgi_handler);
+        void _process_http_request(int kq, CGIHandler &cgi_handler, int socket_fd);
 		const Config::ServerBlock* _find_virtual_server();
 		const Config::ServerBlock* _match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers);
 		const Config::LocationBlock* _match_most_specific_location(const Config::ServerBlock *server);
@@ -34,7 +34,7 @@ namespace HTTP {
     public:
         RequestHandler(RequestHandlerDelegate& delegate, Config::ConfigData *config_data, ListenInfo& listen_info);
         ~RequestHandler();
-        void handle_http_request(int kq, CGIHandler &cgi_handler);
+        void handle_http_request(int kq, CGIHandler &cgi_handler, int socket_fd);
         void send_response();
         void set_response_true();
         HTTPResponse::ResponseMessage &get_http_response_message();

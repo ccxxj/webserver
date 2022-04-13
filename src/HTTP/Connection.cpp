@@ -22,7 +22,7 @@ namespace HTTP {
 	}
 
 	void Connection::handle_http_request(int kq, CGIHandler &cgi_handler) {
-		request_handler->handle_http_request(kq, cgi_handler);
+		request_handler->handle_http_request(kq, cgi_handler, _socket_fd);
 	}
  
 	void Connection::send_response() {

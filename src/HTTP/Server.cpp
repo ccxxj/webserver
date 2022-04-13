@@ -130,6 +130,7 @@ namespace HTTP {
 		std::map<int, Connection*>::iterator iter = _connections.begin();
 		while (iter != _connections.end()) {
 			if (iter->first == fd) {
+				std::cout << "check4\n";
 				_destroy_connection(iter);
 				break;
 			}
@@ -226,6 +227,7 @@ namespace HTTP {
 
 					std::map<int, Connection *>::iterator it = _connections.find(connection_socket_fd);
 					if (it != _connections.end()) {
+						std::cout << "check3\n";
 						_destroy_connection(it);
 					}
 
@@ -250,12 +252,18 @@ namespace HTTP {
 						std::string final_response;
 						fstat(CGIReadFd, &sb);
 						response.resize(sb.st_size);
-						read(CGIReadFd, (char*)(response.data()), sb.st_size);
+						//TODO check read return
+						int rt = read(CGIReadFd, (char*)(response.data()), sb.st_size);
+						if(rt < 0){
+							std::perror("read");
+							//internal server error
+						}
 						std::cout << "response message: " << response << std::endl;
-						cgi_handler.set_response_message_body(response);
-						close(CGIReadFd);
+						// cgi_handler.set_response_message_body(response);
+						// close(CGIReadFd);//close later
 						// continue;
 						std::cout << "check1\n";
+						connection_iter = _connections.find(cgi_handler.get_socket_fd());
 						update_response_message(connection_iter->second->get_response_message(), response);
 						std::cout << "check2\n";
 						connection_iter->second->get_request_handler()->set_response_true();

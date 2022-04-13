@@ -123,12 +123,14 @@ void CGIHandler::search_cgi(std::vector<std::string> &path){
 		}
 	}
 	_search_cgi_extension = false;
+
 }
 
 // int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
-void CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int kq)
+void CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int kq, int socket_fd)
 {
 	_cgi_extention = _config.get_extention_list();
+	_socket_fd = socket_fd;
 	std::vector<std::string> path = _http_request_message->get_uri().get_path();
 	search_cgi(path);
 	if(_search_cgi_extension == false)
@@ -210,4 +212,7 @@ bool CGIHandler::get_search_cgi_extention(){
 	return _search_cgi_extension;
 }
 
+int CGIHandler::get_socket_fd() const{
+	return _socket_fd;
+}
 

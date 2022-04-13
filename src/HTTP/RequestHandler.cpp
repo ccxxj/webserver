@@ -23,7 +23,7 @@ namespace HTTP {
 
 	RequestHandler::~RequestHandler(){}
 
-	void RequestHandler::handle_http_request(int kq, CGIHandler &cgi_handler) {
+	void RequestHandler::handle_http_request(int kq, CGIHandler &cgi_handler, int socket_fd) {
 		char buf[4096];
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
@@ -47,7 +47,7 @@ namespace HTTP {
 			}
 			// if (_http_response_message.get_status_code().empty()) //if we have a bad request, we don't have to go further
 			if (!response_ready) { // checking if the response with the error code has been filled
-				_process_http_request(kq, cgi_handler);
+				_process_http_request(kq, cgi_handler, socket_fd);
 				response_ready = true;
 			}
 		}
@@ -73,11 +73,11 @@ namespace HTTP {
 		return stringified_code;
 	}
 
-	void RequestHandler::RequestHandler::_process_http_request(int kq, CGIHandler &cgi_handler) { //TODO Logger to say which server & block is matched with the port info
+	void RequestHandler::RequestHandler::_process_http_request(int kq, CGIHandler &cgi_handler, int socket_fd) { //TODO Logger to say which server & block is matched with the port info
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
 		response_handler.set_config_rules(virtual_server, location);
-		response_handler.create_http_response(kq, cgi_handler); //FROM here, it's moving to ResponseHandler
+		response_handler.create_http_response(kq, cgi_handler, socket_fd); //FROM here, it's moving to ResponseHandler
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
