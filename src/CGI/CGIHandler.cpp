@@ -135,7 +135,6 @@ void CGIHandler::search_cgi(std::vector<std::string> &path){
 		}
 	}
 	_search_cgi_extension = false;
-
 }
 
 void CGIHandler::prepare_cgi_data(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int socket_fd){
@@ -146,7 +145,6 @@ void CGIHandler::prepare_cgi_data(HTTPRequest::RequestMessage *_http_request_mes
 	if(_search_cgi_extension == false)
 		return;	
 	_request_message_body = _http_request_message->get_message_body();
-	// int inputPipe[2], outputPipe[2];
 	if(pipe(_input_pipe) == -1){
 		std::perror("pipe");
 		throw(CGIexception());
@@ -172,16 +170,18 @@ void CGIHandler::execute_cgi(int kq)
     	return;
 	}
 	pid_t pid = fork();
+	// std::cout << "input pipe 0 fd: " << _input_pipe[0] << std::endl;
 	if(pid < 0){
 		perror("fork failure");//TODO create exception later??
 	}
 	else if(pid == 0){
 		if(dup2(_input_pipe[0], 0) < 0){
-			perror("dup failure");
+			std::cout << "check 2\n";
+			perror("dup 1 failure");
 			throw(CGIexception());
 		}
 		if(dup2(_output_pipe[1], 1) < 0){
-			perror("dup failure");
+			perror("dup 2 failure");
 			throw(CGIexception());
 		}
 		close(_output_pipe[0]);
@@ -192,7 +192,7 @@ void CGIHandler::execute_cgi(int kq)
 		}
 	}
 	else{
-		// wait(0);//TODO should be more if conditions? waitpid?
+		wait(0);//TODO should be more if conditions? waitpid?
 		//TODO do I need to close the write end? I think kqueue will take care of it
 		//TODO if the process hang due to the execution was hanging, currently it is blocking. implement kqueue would solve the problem? => so it is needed to watch on the child process in this case
 		//TODO handle different error case: 1. execution problem[check with Olga about long hanging] 2. the requested cgi does not exist 3 [done]
@@ -201,7 +201,8 @@ void CGIHandler::execute_cgi(int kq)
     	// response.resize(sb.st_size);
     	// read(outputPipe[0], (char*)(response.data()), sb.st_size);
     	// close(outputPipe[0]);
-		close(_input_pipe[0]);
+		close(_input_pipe[0]);//TODO close it somewhere else
+		std::cout << "check 1\n";
 	}
 	// return _response;
 }

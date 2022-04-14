@@ -166,7 +166,7 @@ namespace HTTP {
 		// if body is not empty add it to  response. Format: \r\n {body}
 		final_response += "\r\n";
 		final_response += response;
-		std::cout << "final response" << final_response << std::endl;
+		// std::cout << "final response" << final_response << std::endl;
 		//final step
 		_http_response_message.append_complete_response(final_response);
 		// set the flag to true
@@ -227,7 +227,7 @@ namespace HTTP {
 
 					std::map<int, Connection *>::iterator it = _connections.find(connection_socket_fd);
 					if (it != _connections.end()) {
-						std::cout << "check3\n";
+						// std::cout << "check3\n";
 						_destroy_connection(it);
 					}
 
@@ -266,14 +266,14 @@ namespace HTTP {
 									std::perror("read");
 									//internal server error
 								}
-								std::cout << "response message: " << response << std::endl;
+								// std::cout << "response message: " << response << std::endl;
 								// cgi_handler.set_response_message_body(response);
 								// close(CGIReadFd);//close later
 								// continue;
-								std::cout << "check1\n";
+								// std::cout << "check1\n";
 								HTTPResponse::ResponseMessage& _http_response = it->second->get_response_message();
 								update_response_message(_http_response, response);
-								std::cout << "check2\n";
+								// std::cout << "check2\n";
 								// temp->get_request_handler()->set_response_true();
 								it->second->set_response_true();
 								break;
@@ -364,7 +364,6 @@ namespace HTTP {
 					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
 						connection_iter->second->send_response();
 						if (!(connection_iter->second->is_connection_open())) {
-							std::cout << "this is causing the segfault as the connection is desctoyed before the cgi output can be processed\n";//TODO discuss with @Olga this is causing the connection destroyed therefore segfault
 							_destroy_connection(connection_iter);
 						}
 						break;
