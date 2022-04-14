@@ -199,13 +199,13 @@ namespace HTTPResponse {
 		std::string path_and_name;
 		if(_http_request_message->has_header_field("CONTENT_DISPOSITION"))
 			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" + _file.extract_file_name(_http_request_message->get_header_value("CONTENT_DISPOSITION"));
-		else {
+		else if (_http_request_message->has_header_field("CONTENT_TYPE")) {
 			path_and_name = _file.get_path() + "/"  + _config.get_upload_dir() + "/" +
 			_file.random_name_creator(_file.get_path() + "/"  + _config.get_upload_dir()) +
 			 "." + _file.get_extension(_http_request_message->get_header_value("CONTENT_TYPE"));
 		}
 
-		if(_file.get_extension(_http_request_message->get_header_value("CONTENT_TYPE")) == "NotSupported")
+		if(_http_request_message->has_header_field("CONTENT_TYPE") && _file.get_extension(_http_request_message->get_header_value("CONTENT_TYPE")) == "NotSupported")
 			return handle_error(UnsupportedMediaType);
 
 		//create the new resource with the path and put request body inside
