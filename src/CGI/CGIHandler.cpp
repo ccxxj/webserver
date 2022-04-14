@@ -35,8 +35,6 @@ CGIHandler::CGIHandler(){
 	_output_pipe[1] = -1;
 
 	_response = "";
-
-//TODO initialize the 2 pipes fd??
 }
 
 CGIHandler::~CGIHandler(){
@@ -154,12 +152,16 @@ void CGIHandler::prepare_cgi_data(HTTPRequest::RequestMessage *_http_request_mes
 		throw(CGIexception());
 	}
 	set_argument(_cgi_name);//TODO replace by the actual path, currently I am only use the predefined path
+	struct stat buffer;
+	std::string relative_path = "cgi-bin/" + _cgi_name;
+	if(stat(relative_path.c_str(), &buffer) != 0)
+		_search_cgi_extension = false;
+	if(!_search_cgi_extension)
+		return;
 	parse_meta_variables(_http_request_message, _config);//TODO replace by input from http request get_message_body
 	set_envp();
 }
 
-// int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
-// void CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int kq, int socket_fd)
 void CGIHandler::execute_cgi(int kq)
 {
 	struct kevent kev;
@@ -170,13 +172,12 @@ void CGIHandler::execute_cgi(int kq)
     	return;
 	}
 	pid_t pid = fork();
-	// std::cout << "input pipe 0 fd: " << _input_pipe[0] << std::endl;
 	if(pid < 0){
-		perror("fork failure");//TODO create exception later??
+		perror("fork failure");
+		throw(CGIexception());
 	}
 	else if(pid == 0){
 		if(dup2(_input_pipe[0], 0) < 0){
-			std::cout << "check 2\n";
 			perror("dup 1 failure");
 			throw(CGIexception());
 		}
@@ -187,24 +188,15 @@ void CGIHandler::execute_cgi(int kq)
 		close(_output_pipe[0]);
 		close(_input_pipe[1]);
 		if(execve(_argument[0], _argument, _envp) == -1){
-			perror("execution error");//TODO create exception later??
+			perror("execution error");//script is garanteed to be found
 			return;
 		}
 	}
 	else{
-		wait(0);//TODO should be more if conditions? waitpid?
-		//TODO do I need to close the write end? I think kqueue will take care of it
-		//TODO if the process hang due to the execution was hanging, currently it is blocking. implement kqueue would solve the problem? => so it is needed to watch on the child process in this case
-		//TODO handle different error case: 1. execution problem[check with Olga about long hanging] 2. the requested cgi does not exist 3 [done]
-		// struct stat sb;
-		// fstat(outputPipe[0], &sb);
-    	// response.resize(sb.st_size);
-    	// read(outputPipe[0], (char*)(response.data()), sb.st_size);
-    	// close(outputPipe[0]);
-		close(_input_pipe[0]);//TODO close it somewhere else
-		std::cout << "check 1\n";
+		pid_t status_var;
+		waitpid(pid, &status_var, WNOHANG);
+		close(_input_pipe[0]);
 	}
-	// return _response;
 }
 
 int CGIHandler::get_read_fd() const{

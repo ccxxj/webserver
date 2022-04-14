@@ -145,29 +145,31 @@ namespace HTTP {
 	}
 
 	void update_response_message(HTTPResponse::ResponseMessage& _http_response_message, std::string &response){
+		//to remove the content type from the message body when calculating the message body lenth
 		std::string final_response;
+		std::cout << "input response" << response << std::endl;
+		std::size_t position = response.find("\r\n\r\n");
+		std::string message_body =response;
+		if(position != std::string::npos){
+			message_body = response.substr(position + 4);
+		}
 		//set any remaining headers
 		_http_response_message.set_header_element("Server", "HungerWeb/1.0");
 		_http_response_message.set_header_element("Date", Utility::get_formatted_date());
-		_http_response_message.set_header_element("Content-Length", Utility::to_string(response.length())); //TODO header is also included
-
+		_http_response_message.set_header_element("Content-Length", Utility::to_string(message_body.length())); //TODO header is also included
 		// build status line
 		final_response += _http_response_message.get_HTTP_version() + " ";
 		final_response += "200 ";
 		final_response += "OK\r\n";
-
 		// add all the headers to response. Format is {Header}: {Header value} \r\n
 		for (std::map<std::string, std::string>::const_iterator it = _http_response_message.get_response_headers().begin(); it != _http_response_message.get_response_headers().end(); it++) {
 			if (!it->first.empty())
 				final_response += it->first + ": " + it->second;
 			final_response += "\r\n";
 		}
-
 		// if body is not empty add it to  response. Format: \r\n {body}
-		final_response += "\r\n";
+		// final_response += "\r\n";//comment out as it is contained in the cgi script
 		final_response += response;
-		// std::cout << "final response" << final_response << std::endl;
-		//final step
 		_http_response_message.append_complete_response(final_response);
 		// set the flag to true
 	}
@@ -227,7 +229,6 @@ namespace HTTP {
 
 					std::map<int, Connection *>::iterator it = _connections.find(connection_socket_fd);
 					if (it != _connections.end()) {
-						// std::cout << "check3\n";
 						_destroy_connection(it);
 					}
 
@@ -242,64 +243,29 @@ namespace HTTP {
 					}
 				}
 				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
-					//steps for CGI handler to do after child returns the message body
-					// CGIHandler *cgi_handler;
-					// cgi_handler = new CGIHandler;
-					// CGIHandler cgi_handler;
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
 					if(connection_iter == _connections.end()) {
 						struct stat sb;
 						std::string response;
 						std::string final_response;
 						std::map<int, Connection*>::iterator it;
-						// Connection *temp;
 						for(it = _connections.begin(); it != _connections.end(); it++){
 							int read_fd = it->second->get_cgi_read_fd();
 							if(read_fd != -1) {
-								// int client_socket_fd = it->first;
-								// temp = it->second;
 								fstat(read_fd, &sb);
 								response.resize(sb.st_size);
-								//TODO check read return
 								int rt = read(read_fd, (char*)(response.data()), sb.st_size);
 								if(rt < 0){
-									std::perror("read");
-									//internal server error
+									std::perror("read");//TODO handle exception
 								}
-								// std::cout << "response message: " << response << std::endl;
-								// cgi_handler.set_response_message_body(response);
-								// close(CGIReadFd);//close later
-								// continue;
-								// std::cout << "check1\n";
 								HTTPResponse::ResponseMessage& _http_response = it->second->get_response_message();
 								update_response_message(_http_response, response);
-								// std::cout << "check2\n";
-								// temp->get_request_handler()->set_response_true();
 								it->second->set_response_true();
 								break;
 							}
 						}
-						// fstat(CGIReadFd, &sb);
-						// response.resize(sb.st_size);
-						// //TODO check read return
-						// int rt = read(CGIReadFd, (char*)(response.data()), sb.st_size);
-						// if(rt < 0){
-						// 	std::perror("read");
-						// 	//internal server error
-						// }
-						// std::cout << "response message: " << response << std::endl;
-						// // cgi_handler.set_response_message_body(response);
-						// // close(CGIReadFd);//close later
-						// // continue;
-						// std::cout << "check1\n";
-						// connection_iter = _connections.find(cgi_handler.get_socket_fd());
-						// update_response_message(connection_iter->second->get_response_message(), response);
-						// std::cout << "check2\n";
-						// connection_iter->second->get_request_handler()->set_response_true();
-						// break;
 					}
 					else{
-						// (connection_iter->second)->handle_http_request(sock_kqueue, cgi_handler);
 						(connection_iter->second)->handle_http_request(sock_kqueue);
 						// Register write events for the client
 						EV_SET(&kev, connection_iter->first, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
@@ -313,51 +279,6 @@ namespace HTTP {
 						}
 					}
 					break;
-					
-
-
-
-
-					// int CGIReadFd = cgi_handler.get_read_fd();
-					// std::map<int, Connection*>::iterator connection_iter;
-					// if(event_fds.ident == (uintptr_t)CGIReadFd){
-					// 	struct stat sb;
-					// 	std::string response;
-					// 	std::string final_response;
-					// 	fstat(CGIReadFd, &sb);
-					// 	response.resize(sb.st_size);
-					// 	//TODO check read return
-					// 	int rt = read(CGIReadFd, (char*)(response.data()), sb.st_size);
-					// 	if(rt < 0){
-					// 		std::perror("read");
-					// 		//internal server error
-					// 	}
-					// 	std::cout << "response message: " << response << std::endl;
-					// 	// cgi_handler.set_response_message_body(response);
-					// 	// close(CGIReadFd);//close later
-					// 	// continue;
-					// 	std::cout << "check1\n";
-					// 	connection_iter = _connections.find(cgi_handler.get_socket_fd());
-					// 	update_response_message(connection_iter->second->get_response_message(), response);
-					// 	std::cout << "check2\n";
-					// 	connection_iter->second->get_request_handler()->set_response_true();
-					// 	break;
-					// }
-					// if((connection_iter = _connections.find(current_event_fd)) != _connections.end()){
-					// // else if (connection_iter != _connections.end()) { // handling request by the corresponding connection
-					// 	(connection_iter->second)->handle_http_request(sock_kqueue, cgi_handler);
-					// 	// Register write events for the client
-					// 	EV_SET(&kev, connection_iter->first, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
-					// 	if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
-					// 		std::perror("kevent error - write");
-					// 	}
-					// 	new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, NULL);
-					// 	if(new_events == -1) {
-					// 		std::perror("kevent");
-					// 		std::exit(1);
-					// 	}
-					// 	break;
-					// }
 				}
 				else if (event_fds.filter == EVFILT_WRITE) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
@@ -374,11 +295,15 @@ namespace HTTP {
 						for(it = _connections.begin(); it != _connections.end(); it++){//for loop is not run?
 							int write_fd = it->second->get_cgi_write_fd();
 							if(write_fd != -1){
-								// std::string request_message_body = temp->get_request_handler()->get_request_message_body();//TODO why this step is deleting the smart pointer
-								std::string request_message_body = it->second->get_request_message_body();//TODO why this step is deleting the smart pointer
+								std::string request_message_body = it->second->get_request_message_body();
 								//TODO check write value
-								write(write_fd, request_message_body.c_str(), request_message_body.size());
+								int rt = write(write_fd, request_message_body.c_str(), request_message_body.size());
+								if(rt < 0){
+									std::perror("write error");
+								}
 								it->second->execute_cgi(sock_kqueue);
+								close(write_fd);
+								it->second->set_cgi_write_fd(-1);
 							}
 						}
 					}
