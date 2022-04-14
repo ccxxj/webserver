@@ -101,13 +101,9 @@ void CGIHandler::set_envp(void)
 
 void CGIHandler::set_argument(std::string cgi_name)
 {
-	char *ptr;
-	char *buf;
-	long size = pathconf(".", _PC_PATH_MAX);
-	if((buf = (char *)malloc((size_t)size)) != NULL)
-		ptr = getcwd(buf, (size_t)size);
-	std::string executable_path(buf);//get the current executable location
-	std::string full_path = executable_path + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
+	char *cwd = getcwd(NULL, 0); // get the current executable location
+	std::string full_path = std::string(cwd) + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
+	free(cwd);					  
 	_argument[0] = strdup(full_path.c_str());
 	// _argument[1] = NULL;//TODO is it always NULL?
 	//TODO this need to change 
