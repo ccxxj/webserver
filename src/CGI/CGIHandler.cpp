@@ -108,8 +108,9 @@ void CGIHandler::set_argument(std::string cgi_name)
 	long size = pathconf(".", _PC_PATH_MAX);
 	if((buf = (char *)malloc((size_t)size)) != NULL)
 		ptr = getcwd(buf, (size_t)size);
-	else
+	else {
 		throw(CGIexception());
+	}
 	std::string executable_path(buf);//get the current executable location
 	std::string full_path = executable_path + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
 	_argument[0] = strdup(full_path.c_str());
@@ -176,12 +177,12 @@ void CGIHandler::execute_cgi(int kq)
 	}
 	else if(pid == 0){
 		if(dup2(_input_pipe[0], 0) < 0){
-			throw(CGIexception());
 			perror("dup failure");
+			throw(CGIexception());
 		}
 		if(dup2(_output_pipe[1], 1) < 0){
-			throw(CGIexception());
 			perror("dup failure");
+			throw(CGIexception());
 		}
 		close(_output_pipe[0]);
 		close(_input_pipe[1]);
