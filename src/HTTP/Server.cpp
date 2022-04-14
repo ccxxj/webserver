@@ -144,7 +144,7 @@ namespace HTTP {
 		return _connections.erase(iterator);
 	}
 
-	void update_response_message(HTTPResponse::ResponseMessage &_http_response_message, std::string &response){
+	void update_response_message(HTTPResponse::ResponseMessage& _http_response_message, std::string &response){
 		std::string final_response;
 		//set any remaining headers
 		_http_response_message.set_header_element("Server", "HungerWeb/1.0");
@@ -164,7 +164,7 @@ namespace HTTP {
 		}
 
 		// if body is not empty add it to  response. Format: \r\n {body}
-		// response += "\r\n";
+		final_response += "\r\n";
 		final_response += response;
 		std::cout << "final response" << final_response << std::endl;
 		//final step
@@ -247,17 +247,17 @@ namespace HTTP {
 					// cgi_handler = new CGIHandler;
 					// CGIHandler cgi_handler;
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-					if(connection_iter == _connections.end()){
+					if(connection_iter == _connections.end()) {
 						struct stat sb;
 						std::string response;
 						std::string final_response;
 						std::map<int, Connection*>::iterator it;
-						Connection *temp;
+						// Connection *temp;
 						for(it = _connections.begin(); it != _connections.end(); it++){
 							int read_fd = it->second->get_cgi_read_fd();
-							if(read_fd != -1){
+							if(read_fd != -1) {
 								// int client_socket_fd = it->first;
-								temp = it->second;
+								// temp = it->second;
 								fstat(read_fd, &sb);
 								response.resize(sb.st_size);
 								//TODO check read return
@@ -271,17 +271,14 @@ namespace HTTP {
 								// close(CGIReadFd);//close later
 								// continue;
 								std::cout << "check1\n";
-								update_response_message(temp->get_response_message(), response);
+								HTTPResponse::ResponseMessage& _http_response = it->second->get_response_message();
+								update_response_message(_http_response, response);
 								std::cout << "check2\n";
 								// temp->get_request_handler()->set_response_true();
-								temp->set_response_true();
+								it->second->set_response_true();
 								break;
 							}
 						}
-
-
-
-
 						// fstat(CGIReadFd, &sb);
 						// response.resize(sb.st_size);
 						// //TODO check read return
@@ -375,16 +372,14 @@ namespace HTTP {
 					else
 					{
 						std::map<int, Connection*>::iterator it;
-						Connection *temp;
 						for(it = _connections.begin(); it != _connections.end(); it++){//for loop is not run?
 							int write_fd = it->second->get_cgi_write_fd();
 							if(write_fd != -1){
-								temp = it->second;
 								// std::string request_message_body = temp->get_request_handler()->get_request_message_body();//TODO why this step is deleting the smart pointer
-								std::string request_message_body = temp->get_request_message_body();//TODO why this step is deleting the smart pointer
+								std::string request_message_body = it->second->get_request_message_body();//TODO why this step is deleting the smart pointer
 								//TODO check write value
 								write(write_fd, request_message_body.c_str(), request_message_body.size());
-								temp->execute_cgi(sock_kqueue);
+								it->second->execute_cgi(sock_kqueue);
 							}
 						}
 					}
