@@ -9,6 +9,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include "../Utility/Utility.hpp"
+
+
 CGIHandler::CGIHandler(){
 //initialize the meta_variable map
 	_meta_variables["AUTH_TYPE"] = "";
@@ -16,11 +19,11 @@ CGIHandler::CGIHandler(){
 	_meta_variables["CONTENT_TYPE"] = "";
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1";
 	_meta_variables["PATH_INFO"] = "";
-	_meta_variables["PATH_TRANSLATED"] = ""; 
+	_meta_variables["PATH_TRANSLATED"] = "";
 	_meta_variables["QUERY_STRING"] = "";
 	_meta_variables["REMOTE_ADDR"] = "";
-	_meta_variables["REMOTE_HOST"] = ""; 
-	_meta_variables["REMOTE_IDENT"] = "";
+	_meta_variables["REMOTE_HOST"] = "";
+	_meta_variables["REMOTE_IDENT"] = ""; // not applicable in our server (not necessary feature according to the RFC)
 	_meta_variables["REMOTE_USER"] = "";
 	_meta_variables["REQUEST_METHOD"] = "";
 	_meta_variables["SCRIPT_NAME"] = "";
@@ -53,20 +56,23 @@ void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 	_meta_variables["SERVER_PROTOCOL"] = "HTTP/1.1";
 
 //actual data
-	std::string authorization = _http_request_message->get_header_value("AUTHORIZATION");
-	//TODO update the get_header_value (Olga has made edition, need to merge the change)
-	// if(authorization.size() > 0){
-	// 	int first_part_end = authorization.find_first_of(" ");
-	// 	if((const unsigned long)first_part_end != std::string::npos){
-	// 		_meta_variables["AUTH_TYPE"] = authorization.substr(0, first_part_end + 1);
-	// 		int second_part_begin = authorization.find_first_not_of(" ", first_part_end + 1);
-	// 		if((const unsigned long)second_part_begin != std::string::npos)
-	// 			_meta_variables["REMOTE_USER"] = authorization.substr(second_part_begin);
-	// 	}
-	// }
-	_meta_variables["AUTH_TYPE"] = _http_request_message->get_header_value("AUTHORIZATION");
-	_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
-	_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
+	std::string authorization = "";
+	if (_http_request_message->has_header_field("AUTHORIZATION")) {
+		authorization= _http_request_message->get_header_value("AUTHORIZATION");
+		std::vector<std::string> authorisation_parts = Utility::_split_line_in_two(authorization, ' ');
+		if (authorisation_parts.size() > 0) {
+			_meta_variables["AUTH_TYPE"] = authorisation_parts[0];
+			if (authorisation_parts.size() > 1) {
+				_meta_variables["REMOTE_USER"] = authorisation_parts[1];
+			}
+		}
+	}
+	if (_http_request_message->has_header_field("CONTENT_LENGTH")) {
+		_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
+	}
+	if (_http_request_message->has_header_field("CONTENT_TYPE")) {
+		_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
+	}
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1"; //not sure TODO
 	// _meta_variables["PATH_INFO"] = "/cgi-bin/" + _cgi_name;//this is contradicting with the RFC
 	_meta_variables["PATH_INFO"] = "/directory/youpi.bla";
@@ -74,12 +80,13 @@ void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 	_meta_variables["PATH_TRANSLATED"] = _meta_variables["PATH_INFO"];//TODO REMOVE LATER THIS IS ONLY FOR CGI_TESTER
 	_meta_variables["QUERY_STRING"] = _http_request_message->get_uri().get_query();
 	_meta_variables["REMOTE_ADDR"] = "127.0.0.1";//TODO @Irem//set to the server network address. can be void
-	_meta_variables["REMOTE_HOST"] = _http_request_message->get_header_value("HOST"); //TODO @Irem//if not remote_host value provided (hostname), substitute with the remote_address value
-	_meta_variables["REMOTE_IDENT"] = "";//not applicable in our server (not necessary feature according to the RFC)
+	if (_http_request_message->has_header_field("REMOTE_HOST")) {
+		_meta_variables["REMOTE_HOST"] = _http_request_message->get_header_value("HOST"); //TODO @Irem//if not remote_host value provided (hostname), substitute with the remote_address value
+	}
+	_meta_variables["SERVER_NAME"] = _meta_variables["REMOTE_HOST"];							
 	_meta_variables["REQUEST_METHOD"] = _http_request_message->get_method();// from method
 	_meta_variables["SCRIPT_NAME"] = "/cgi-bin/" + _cgi_name; //path + script name
 	// _meta_variables["SCRIPT_NAME"] = "/directory/youpi.bla"; //TODO change back later
-	_meta_variables["SERVER_NAME"] = _http_request_message->get_header_value("HOST");//from config
 	// _meta_variables["SERVER_PORT"];//TODO @Irem
 	_meta_variables["SERVER_PROTOCOL"] = "HTTP/1.1";
 	_meta_variables["SERVER_SOFTWARE"] = "HungerWeb 1.0";//TODO @Irem
@@ -101,19 +108,11 @@ void CGIHandler::set_envp(void)
 
 void CGIHandler::set_argument(std::string cgi_name)
 {
-	char *ptr;
-	char *buf;
-	long size = pathconf(".", _PC_PATH_MAX);
-	if((buf = (char *)malloc((size_t)size)) != NULL)
-		ptr = getcwd(buf, (size_t)size);
-	else {
-		throw(CGIexception());
-	}
-	std::string executable_path(buf);//get the current executable location
-	std::string full_path = executable_path + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
+	char *cwd = getcwd(NULL, 0); // get the current executable location
+	std::string full_path = std::string(cwd) + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
+	free(cwd);					  
 	_argument[0] = strdup(full_path.c_str());
 	_argument[1] = NULL;
-	free(buf);
 }
 
 //input parameter will be uriData->get_path()
