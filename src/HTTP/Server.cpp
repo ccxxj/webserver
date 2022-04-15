@@ -11,6 +11,7 @@
 #include <cstdio> // for perror
 #include <fcntl.h> // for fcntl
 #include <sys/time.h> // for timeout
+#include <sys/stat.h> // for fstat
 #ifdef _LINUX
 	#include "/usr/include/kqueue/sys/event.h" //linux kqueue
 #else
@@ -19,6 +20,7 @@
 
 #include "RequestHandler.hpp"
 #include "../Utility/Utility.hpp"
+
 
 namespace HTTP {
 
@@ -128,6 +130,7 @@ namespace HTTP {
 		std::map<int, Connection*>::iterator iter = _connections.begin();
 		while (iter != _connections.end()) {
 			if (iter->first == fd) {
+				std::cout << "check4\n";
 				_destroy_connection(iter);
 				break;
 			}
@@ -136,9 +139,37 @@ namespace HTTP {
 	}
 
 	std::map<int, Connection*>::iterator Server::_destroy_connection(std::map<int, Connection*>::iterator iterator) {
-		// std::cout << "Connection " << iterator->first << " destroyed\n";
 		delete iterator->second;
 		return _connections.erase(iterator);
+	}
+
+	void update_response_message(HTTPResponse::ResponseMessage& _http_response_message, std::string &response){
+		//to remove the content type from the message body when calculating the message body lenth
+		std::string final_response;
+		std::size_t position = response.find("\r\n\r\n");
+		std::string message_body =response;
+		if(position != std::string::npos){
+			message_body = response.substr(position + 4);
+		}
+		//set any remaining headers
+		_http_response_message.set_header_element("Server", "HungerWeb/1.0");
+		_http_response_message.set_header_element("Date", Utility::get_formatted_date());
+		_http_response_message.set_header_element("Content-Length", Utility::to_string(message_body.length())); //TODO header is also included
+		// build status line
+		final_response += _http_response_message.get_HTTP_version() + " ";
+		final_response += "200 ";
+		final_response += "OK\r\n";
+		// add all the headers to response. Format is {Header}: {Header value} \r\n
+		for (std::map<std::string, std::string>::const_iterator it = _http_response_message.get_response_headers().begin(); it != _http_response_message.get_response_headers().end(); it++) {
+			if (!it->first.empty())
+				final_response += it->first + ": " + it->second;
+			final_response += "\r\n";
+		}
+		// if body is not empty add it to  response. Format: \r\n {body}
+		// final_response += "\r\n";//comment out as it is contained in the cgi script
+		final_response += response;
+		_http_response_message.append_complete_response(final_response);
+		// set the flag to true
 	}
 
 	void Server::_handle_events() {
@@ -211,7 +242,30 @@ namespace HTTP {
 				}
 				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
+					if(connection_iter == _connections.end()) {
+						struct stat sb;
+						std::string response;
+						std::string final_response;
+						std::map<int, Connection*>::iterator it;
+						for(it = _connections.begin(); it != _connections.end(); it++){
+							int read_fd = it->second->get_cgi_read_fd();
+							if(read_fd != -1) {
+								fstat(read_fd, &sb);
+								response.resize(sb.st_size);
+								int rt = read(read_fd, (char*)(response.data()), sb.st_size);
+								if(rt < 0){
+									std::perror("read");
+									it->second->handle_internal_server_error();
+									it->second->set_response_true();//set the response ready to be send to client (500 error page)
+								}
+								HTTPResponse::ResponseMessage& _http_response = it->second->get_response_message();
+								update_response_message(_http_response, response);
+								it->second->set_response_true();
+								break;
+							}
+						}
+					}
+					else{
 						(connection_iter->second)->handle_http_request(sock_kqueue);
 						// Register write events for the client
 						EV_SET(&kev, connection_iter->first, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
@@ -223,8 +277,8 @@ namespace HTTP {
 							std::perror("kevent");
 							std::exit(1);
 						}
-						break;
 					}
+					break;
 				}
 				else if (event_fds.filter == EVFILT_WRITE) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
@@ -234,6 +288,32 @@ namespace HTTP {
 							_destroy_connection(connection_iter);
 						}
 						break;
+					}
+					else
+					{
+						std::map<int, Connection*>::iterator it;
+						for(it = _connections.begin(); it != _connections.end(); it++){//for loop is not run?
+							int write_fd = it->second->get_cgi_write_fd();
+							if(write_fd != -1){
+								std::string request_message_body = it->second->get_request_message_body();
+								//TODO check write value
+								int rt = write(write_fd, request_message_body.c_str(), request_message_body.size());
+								if(rt < 0){
+									std::perror("write error");
+									it->second->handle_internal_server_error();
+									it->second->set_response_true();//set the response ready to be send to client (500 error page)
+								}
+								try{
+									it->second->execute_cgi(sock_kqueue);	
+								}
+								catch(std::exception &e){
+									it->second->handle_internal_server_error();
+									it->second->set_response_true();//set the response ready to be send to client (500 error page)
+								}
+								close(write_fd);
+								it->second->set_cgi_write_fd(-1);
+							}
+						}
 					}
 				}
 			}

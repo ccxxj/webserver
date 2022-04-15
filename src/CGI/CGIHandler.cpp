@@ -11,23 +11,30 @@
 
 CGIHandler::CGIHandler(){
 //initialize the meta_variable map
-	_meta_variables["AUTH_TYPE"];
-	_meta_variables["CONTENT_LENGTH"];
-	_meta_variables["CONTENT_TYPE"];
+	_meta_variables["AUTH_TYPE"] = "";
+	_meta_variables["CONTENT_LENGTH"] = "";
+	_meta_variables["CONTENT_TYPE"] = "";
 	_meta_variables["GATEWAY_INTERFACE"] = "CGI/1.1";
-	_meta_variables["PATH_INFO"];
-	_meta_variables["PATH_TRANSLATED"]; 
-	_meta_variables["QUERY_STRING"];
-	_meta_variables["REMOTE_ADDR"];
-	_meta_variables["REMOTE_HOST"]; 
-	_meta_variables["REMOTE_IDENT"];
-	_meta_variables["REMOTE_USER"];
-	_meta_variables["REQUEST_METHOD"];
-	_meta_variables["SCRIPT_NAME"];
-	_meta_variables["SERVER_NAME"];
-	_meta_variables["SERVER_PORT"];
-	_meta_variables["SERVER_PROTOCOL"];
-	_meta_variables["SERVER_SOFTWARE"];
+	_meta_variables["PATH_INFO"] = "";
+	_meta_variables["PATH_TRANSLATED"] = ""; 
+	_meta_variables["QUERY_STRING"] = "";
+	_meta_variables["REMOTE_ADDR"] = "";
+	_meta_variables["REMOTE_HOST"] = ""; 
+	_meta_variables["REMOTE_IDENT"] = "";
+	_meta_variables["REMOTE_USER"] = "";
+	_meta_variables["REQUEST_METHOD"] = "";
+	_meta_variables["SCRIPT_NAME"] = "";
+	_meta_variables["SERVER_NAME"] = "";
+	_meta_variables["SERVER_PORT"] = "";
+	_meta_variables["SERVER_PROTOCOL"] = "";
+	_meta_variables["SERVER_SOFTWARE"] = "";
+
+	_input_pipe[0] = -1;
+	_input_pipe[1] = -1;
+	_output_pipe[0] = -1;
+	_output_pipe[1] = -1;
+
+	_response = "";
 }
 
 CGIHandler::~CGIHandler(){
@@ -47,13 +54,16 @@ void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request
 
 //actual data
 	std::string authorization = _http_request_message->get_header_value("AUTHORIZATION");
-	if(authorization.size() > 0){
-		int start = authorization.find_first_not_of(" ");
-		int end = authorization.find_first_of(" ", start + 1);
-		_meta_variables["AUTH_TYPE"] = authorization.substr(start, end - start + 1);
-		start = authorization.find_first_not_of(" ", end + 1);
-		_meta_variables["REMOTE_USER"] = authorization.substr(start);
-	}
+	//TODO update the get_header_value (Olga has made edition, need to merge the change)
+	// if(authorization.size() > 0){
+	// 	int first_part_end = authorization.find_first_of(" ");
+	// 	if((const unsigned long)first_part_end != std::string::npos){
+	// 		_meta_variables["AUTH_TYPE"] = authorization.substr(0, first_part_end + 1);
+	// 		int second_part_begin = authorization.find_first_not_of(" ", first_part_end + 1);
+	// 		if((const unsigned long)second_part_begin != std::string::npos)
+	// 			_meta_variables["REMOTE_USER"] = authorization.substr(second_part_begin);
+	// 	}
+	// }
 	_meta_variables["AUTH_TYPE"] = _http_request_message->get_header_value("AUTHORIZATION");
 	_meta_variables["CONTENT_LENGTH"] = _http_request_message->get_header_value("CONTENT_LENGTH");
 	_meta_variables["CONTENT_TYPE"] = _http_request_message->get_header_value("CONTENT_TYPE");
@@ -96,15 +106,14 @@ void CGIHandler::set_argument(std::string cgi_name)
 	long size = pathconf(".", _PC_PATH_MAX);
 	if((buf = (char *)malloc((size_t)size)) != NULL)
 		ptr = getcwd(buf, (size_t)size);
+	else {
+		throw(CGIexception());
+	}
 	std::string executable_path(buf);//get the current executable location
 	std::string full_path = executable_path + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
 	_argument[0] = strdup(full_path.c_str());
-	// _argument[1] = NULL;//TODO is it always NULL?
-	//TODO this need to change 
-	// _argument[1] = strdup("/Volumes/Storage/goinfre/xxu/webserver/www");
-	// _argument[1] = strdup("/Volumes/Storage/goinfre/xxu/webserver");
 	_argument[1] = NULL;
-	_argument[2] = NULL;
+	free(buf);
 }
 
 //input parameter will be uriData->get_path()
@@ -126,83 +135,96 @@ void CGIHandler::search_cgi(std::vector<std::string> &path){
 	_search_cgi_extension = false;
 }
 
-/* can be moved to utility or deleted*/
-void print_array(char **envp){
-	std::cout << "envp is: ";
-	int i = 0;
-	while(envp[i]){
-		std::cout << envp[i] << std::endl;
-		i++;
-	}
-}
-
-// int CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
-std::string CGIHandler::execute_cgi(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int fd, int kq)
-{
+void CGIHandler::prepare_cgi_data(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int socket_fd){
 	_cgi_extention = _config.get_extention_list();
+	_socket_fd = socket_fd;
 	std::vector<std::string> path = _http_request_message->get_uri().get_path();
 	search_cgi(path);
 	if(_search_cgi_extension == false)
-		return "";	
-	// char *buf = (char *)malloc(4086 * sizeof(char));
-	std::string response;
-	// int inputFD = open("inputFile", O_WRONLY|O_CREAT|O_TRUNC, 755);
-	// if(inputFD == -1){
-	// 	std::perror("open");
-	// 	throw(CGIexception());
-	// }
-	std::string requestMessageBody = _http_request_message->get_message_body();
-	// int writeReturn = write(inputFD, requestMessageBody.c_str(), requestMessageBody.size());
-	// if(writeReturn == -1){
-	// 	std::perror("write");
-	// 	throw(CGIexception());
-	// }
-	int inputPipe[2], outputPipe[2];
-	// int outputPipe[2];
-	if(pipe(inputPipe) == -1){
+		return;	
+	_request_message_body = _http_request_message->get_message_body();
+	if(pipe(_input_pipe) == -1){
 		std::perror("pipe");
 		throw(CGIexception());
 	}
-	if(pipe(outputPipe) == -1){
+	if(pipe(_output_pipe) == -1){
 		std::perror("pipe");
 		throw(CGIexception());
 	}
 	set_argument(_cgi_name);//TODO replace by the actual path, currently I am only use the predefined path
+	struct stat buffer;
+	std::string relative_path = "cgi-bin/" + _cgi_name;
+	if(stat(relative_path.c_str(), &buffer) != 0)
+		_search_cgi_extension = false;
+	if(!_search_cgi_extension)
+		return;
 	parse_meta_variables(_http_request_message, _config);//TODO replace by input from http request get_message_body
 	set_envp();
-	write(inputPipe[1], requestMessageBody.c_str(), requestMessageBody.size());
+}
+
+void CGIHandler::execute_cgi(int kq)
+{
+	struct kevent kev;
+	EV_SET(&kev, _output_pipe[0], EVFILT_READ, EV_ADD, 0, 0, NULL);
+	if (kevent(kq, &kev, 1, NULL, 0, NULL)<0){//TODO kevent fail here? @debug
+        fprintf(stderr,"kevent failed.");
+		std::cout << "this internal error caused by kevent fail\n";
+    	return;
+	}
 	pid_t pid = fork();
 	if(pid < 0){
-		perror("fork failure");//TODO create exception later??
+		perror("fork failure");
+		throw(CGIexception());
 	}
 	else if(pid == 0){
-		if(dup2(inputPipe[0], 0) < 0){
+		if(dup2(_input_pipe[0], 0) < 0){
+			perror("dup 1 failure");
 			throw(CGIexception());
-			perror("dup failure");
 		}
-		if(dup2(outputPipe[1], 1) < 0){
+		if(dup2(_output_pipe[1], 1) < 0){
+			perror("dup 2 failure");
 			throw(CGIexception());
-			perror("dup failure");
 		}
-		close(outputPipe[0]);
-		//TODO fcntl() set non-blocking flag??
-
+		close(_output_pipe[0]);
+		close(_input_pipe[1]);
 		if(execve(_argument[0], _argument, _envp) == -1){
-			perror("execution error");//TODO create exception later??
-			return "";
+			perror("execution error");//script is garanteed to be found
+			return;
 		}
 	}
 	else{
-		wait(0);//TODO should be more if conditions? waitpid?
-		//TODO do I need to close the write end? I think kqueue will take care of it
-		//TODO if the process hang due to the execution was hanging, currently it is blocking. implement kqueue would solve the problem? => so it is needed to watch on the child process in this case
-		//TODO handle different error case: 1. execution problem[check with Olga about long hanging] 2. the requested cgi does not exist 3 [done]
-		struct stat sb;
-		fstat(outputPipe[0], &sb);
-    	response.resize(sb.st_size);
-    	read(outputPipe[0], (char*)(response.data()), sb.st_size);
-    	close(outputPipe[0]);
-		close(inputPipe[0]);
+		pid_t status_var;
+		waitpid(pid, &status_var, WNOHANG);
+		close(_input_pipe[0]);
 	}
-	return response;
 }
+
+int CGIHandler::get_read_fd() const{
+	return _output_pipe[0];
+}
+
+int CGIHandler::get_write_fd() const{
+	return _input_pipe[1];
+}
+
+void CGIHandler::set_response_message_body(std::string str){
+	_response = str;
+}
+
+std::string CGIHandler::get_response_message_body(){
+	return _response;
+}
+
+std::string CGIHandler::get_request_message_body(){
+	return _request_message_body;
+}
+
+bool CGIHandler::get_search_cgi_extention_result() const{
+	return _search_cgi_extension;
+}
+
+int CGIHandler::get_socket_fd() const{
+	return _socket_fd;
+}
+
+
