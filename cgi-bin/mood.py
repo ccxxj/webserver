@@ -27,27 +27,26 @@ if form.getvalue("name"):
 		print '<a href="Xiaojing.jpeg">'
 		print '<img src="/img/Xiaojing.jpeg" alt="My Sample Image" width="200">'
 		print '</a>'
-if form.getvalue("happy"):
+
+mood = form.getvalue("radio_mood")
+if mood == "happy":
 	print "<h2> Yay! I am happy too!</h2>"
 	print '<br>'
 	print '<br>'
 	print '<a href="happy.jpeg">'
 	print '<img src="/img/happy.jpeg" alt="My Sample Image" width="400">'
 	print '</a>'	
-if form.getvalue("sad"):
-	print "<h2> Sorry to hear that, would you want to tell me why?</h2>"
-	print '<div><label>Message</label><br/>'
-	print '<textarea name="message"></textarea></div>'
-	print '<br>'
+if mood == "sad":
+	print "<h2> Sorry to hear that.</h2>"
 	print '<br>'
 	print '<a href="bird.jpeg">'
 	print '<img src="/img/bird.jpeg" alt="My Sample Image" width="400">'
 	print '</a>'
 
 print '<form method="post" action="mood.py">'
-print '<p>Name: <input type="text" name="name" /></p>'
-print '<input type="checkbox" name="happy" /> Happy'
-print '<input type="checkbox" name="sad" /> Sad'
+print '<p>Name: <input type="text" name="name" required/></p>'
+print '<input type="radio" name="radio_mood" value="happy" required" /> Happy'
+print '<input type="radio" name="radio_mood" value="sad" required/> Sad'
 print '<input type="submit" value="Submit" />'
 print "</form>"
 print "</body><center>"
