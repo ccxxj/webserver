@@ -28,8 +28,6 @@ namespace HTTP {
 
         void _handle_request_exception(HTTPResponse::StatusCode code);
         const std::string _convert_status_code_to_string(const int code);
-        // void _process_http_request(int kq, CGIHandler &cgi_handler, int socket_fd);
-        // bool _process_http_request(int kq, CGIHandler &cgi_handler, int socket_fd);
         bool _process_http_request(int kq, int socket_fd);
 		const Config::ServerBlock* _find_virtual_server();
 		const Config::ServerBlock* _match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers);
@@ -38,14 +36,12 @@ namespace HTTP {
     public:
         RequestHandler(RequestHandlerDelegate& delegate, Config::ConfigData *config_data, ListenInfo& listen_info);
         ~RequestHandler();
-        // bool handle_http_request(int kq, CGIHandler &cgi_handler, int socket_fd);
-        // void handle_http_request(int kq, CGIHandler &cgi_handler, int socket_fd);
         void handle_http_request(int kq, int socket_fd);
         void send_response();
         void set_response_true();
         void set_cgi_handler(CGIHandler cgi_handler);
-        // CGIHandler get_cgi_handler();
         void execute_cgi(int kq);
+        void handle_internal_server_error();
         int get_cgi_write_fd() const;
         int get_cgi_read_fd() const;
         bool get_search_cgi_extention_result() const;

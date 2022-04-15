@@ -10,7 +10,6 @@ namespace Utility {
 	public:
 		SmartPointer(T* Value) : _data(Value) {}
 		~SmartPointer() {
-			std::cout << "delete the smart pointer\n";
 			delete _data;
 		}
 

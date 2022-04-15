@@ -29,6 +29,7 @@ namespace HTTP {
 		void send_response();
 		void set_cgi_write_fd(int i);
 		void set_cgi_read_fd(int i);
+		void handle_internal_server_error();
 		virtual int get_fd();
 		bool is_connection_open() const;
 		bool is_hanging_connection();

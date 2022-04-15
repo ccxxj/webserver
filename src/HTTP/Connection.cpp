@@ -44,6 +44,10 @@ namespace HTTP {
 	void Connection::set_cgi_read_fd(int i){
 		_cgi_write_read_fd[1] = i;
 	}
+	
+	void Connection::handle_internal_server_error(){
+		request_handler->handle_internal_server_error();
+	}
 
 	bool Connection::is_connection_open() const {
 		return _is_open;
@@ -117,8 +121,4 @@ namespace HTTP {
 	void Connection::execute_cgi(int kq){
 		request_handler->execute_cgi(kq);
 	}
-
-	// Utility::SmartPointer<RequestHandler> Connection::get_request_handler(){
-	// 	return request_handler;
-	// }
 }

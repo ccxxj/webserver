@@ -182,6 +182,10 @@ namespace HTTP {
 		_cgi_handler.execute_cgi(kq);
 	}
 
+	void RequestHandler::handle_internal_server_error(){
+		response_handler.handle_error(static_cast<HTTPResponse::StatusCode>(500));//500 is the code for internal server error
+	}
+
 	int RequestHandler::get_cgi_write_fd() const{
 		return _cgi_handler.get_write_fd();
 	}
@@ -197,5 +201,4 @@ namespace HTTP {
 	bool RequestHandler::get_search_cgi_extention_result() const{
 		return _cgi_handler.get_search_cgi_extention_result();
 	}
-
 }

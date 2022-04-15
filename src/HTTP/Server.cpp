@@ -139,7 +139,6 @@ namespace HTTP {
 	}
 
 	std::map<int, Connection*>::iterator Server::_destroy_connection(std::map<int, Connection*>::iterator iterator) {
-		std::cout << "Connection " << iterator->first << " destroyed\n";//TODO xiaojing the connection is closed before the message from child is processed and send back
 		delete iterator->second;
 		return _connections.erase(iterator);
 	}
@@ -147,7 +146,6 @@ namespace HTTP {
 	void update_response_message(HTTPResponse::ResponseMessage& _http_response_message, std::string &response){
 		//to remove the content type from the message body when calculating the message body lenth
 		std::string final_response;
-		std::cout << "input response" << response << std::endl;
 		std::size_t position = response.find("\r\n\r\n");
 		std::string message_body =response;
 		if(position != std::string::npos){
@@ -256,7 +254,9 @@ namespace HTTP {
 								response.resize(sb.st_size);
 								int rt = read(read_fd, (char*)(response.data()), sb.st_size);
 								if(rt < 0){
-									std::perror("read");//TODO handle exception
+									std::perror("read");
+									it->second->handle_internal_server_error();
+									it->second->set_response_true();//set the response ready to be send to client (500 error page)
 								}
 								HTTPResponse::ResponseMessage& _http_response = it->second->get_response_message();
 								update_response_message(_http_response, response);
@@ -300,8 +300,16 @@ namespace HTTP {
 								int rt = write(write_fd, request_message_body.c_str(), request_message_body.size());
 								if(rt < 0){
 									std::perror("write error");
+									it->second->handle_internal_server_error();
+									it->second->set_response_true();//set the response ready to be send to client (500 error page)
 								}
-								it->second->execute_cgi(sock_kqueue);
+								try{
+									it->second->execute_cgi(sock_kqueue);	
+								}
+								catch(std::exception &e){
+									it->second->handle_internal_server_error();
+									it->second->set_response_true();//set the response ready to be send to client (500 error page)
+								}
 								close(write_fd);
 								it->second->set_cgi_write_fd(-1);
 							}

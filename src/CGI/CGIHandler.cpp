@@ -194,8 +194,7 @@ void CGIHandler::execute_cgi(int kq)
 	}
 	else{
 		pid_t status_var;
-		pid_t wait_status = waitpid(pid, &status_var, WNOHANG);
-		
+		waitpid(pid, &status_var, WNOHANG);
 		close(_input_pipe[0]);
 	}
 }

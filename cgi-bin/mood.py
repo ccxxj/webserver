@@ -16,7 +16,7 @@ print '<h1> How do you feel today?</h1><br />'
 
 form = cgi.FieldStorage()
 if form.getvalue("name"):
-	time.sleep(50)
+	time.sleep(5)
 	name = form.getvalue("name")
 	print '<h1> Hello ' + name + '! Thanks for your input!</h1><br />'
 	if name == "Irem":	
