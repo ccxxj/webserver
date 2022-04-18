@@ -8,23 +8,27 @@
 
 #include "../HTTPRequest/RequestMessage.hpp"
 #include "../HTTPResponse/SpecifiedConfig.hpp"
+#include "../Constants.hpp"
 
 class CGIHandler
 {
 private:
-	char *_envp[21];				// TODO check if this is the right size, terminated with 0
-	char *_argument[2];
+	char *_envp[Constants::ENVP_SIZE];		// TODO check if this is the right size, terminated with 0
+	char *_argument[Constants::ARGUMENTS_SIZE];
 	std::map<std::string, std::string> _meta_variables;
 	std::string _cgi_name;
 	std::vector<std::string> _cgi_extention;
 	bool _search_cgi_extension;
-	void update_path_translated(void);
 	int _input_pipe[2];
 	int _output_pipe[2];
 	int _socket_fd;
 	std::string _response;
 	std::string _request_message_body;
-	class CGIexception: public std::exception{
+
+	void update_path_translated(void);
+	void initialize_cgi_arguments();
+	class CGIexception : public std::exception
+	{
 		const char* what() const _NOEXCEPT { return "internal server error"; }
 	};
 

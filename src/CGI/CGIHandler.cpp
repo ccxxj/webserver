@@ -39,10 +39,25 @@ CGIHandler::CGIHandler(){
 	_output_pipe[1] = -1;
 
 	_response = "";
+	initialize_cgi_arguments();
 }
 
 CGIHandler::~CGIHandler(){
-//TODO is there any memory to be freed?
+	for (int i = 0; i < Constants::ENVP_SIZE; i++) {
+		free(_envp[i]);
+	}
+	for (int i = 0; i < Constants::ARGUMENTS_SIZE; i++) {
+		free(_argument[i]);
+	}
+}
+
+void CGIHandler::initialize_cgi_arguments() {
+	for (int i = 0; i < Constants::ENVP_SIZE; i++) {
+		_envp[i] = NULL;
+	}
+	for (int i = 0; i < Constants::ARGUMENTS_SIZE; i++) {
+		_argument[i] = NULL;
+	}
 }
 
 /* append the cgi-bin location to the path after the script in the uri */
@@ -104,7 +119,6 @@ void CGIHandler::set_envp(void)
 		_envp[i] = strdup(temp.c_str());
 		i++;
 	}
-	_envp[i] = NULL;
 }
 
 void CGIHandler::set_argument(std::string cgi_name)
@@ -113,7 +127,6 @@ void CGIHandler::set_argument(std::string cgi_name)
 	std::string full_path = std::string(cwd) + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
 	free(cwd);					  
 	_argument[0] = strdup(full_path.c_str());
-	_argument[1] = NULL;
 }
 
 //input parameter will be uriData->get_path()
