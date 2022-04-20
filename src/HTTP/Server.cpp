@@ -98,7 +98,7 @@ namespace HTTP {
 			if (iter->second->is_hanging_connection()) {
 				if (iter->second->is_connection_open()) {
 					iter->second->close();
-					Utility::logger("Connection closed on timeout.", PURPLE); // for debug
+					Utility::logger("Connection " + Utility::to_string(iter->first) + " closed on timeout.", PURPLE); // for debug
 				}
 #ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
 				_delete_events(sock_kqueue, temp_iter->first);
@@ -189,7 +189,7 @@ namespace HTTP {
 
 		Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd], connection_addr);
 		_connections.insert(std::make_pair(connection_socket_fd, connection_ptr));
-		Utility::logger("New connection on port  : " + Utility::to_string(_running_servers[current_event_fd].port), MAGENTA);
+		Utility::logger("New connection " + Utility::to_string(connection_socket_fd) + " on port  : " + Utility::to_string(_running_servers[current_event_fd].port), MAGENTA);
 
 		// Register a read events for the client:
 		struct kevent kev;
