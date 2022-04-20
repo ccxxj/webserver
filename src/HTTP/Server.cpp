@@ -215,6 +215,19 @@ namespace HTTP {
 		}
 	}
 
+	void Server::_handle_write_event(int current_event_fd, int sock_kqueue) {
+		std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
+		if (connection_iter != _connections.end()) { // handling request by the corresponding connection
+			connection_iter->second->send_response();
+			if (!(connection_iter->second->is_connection_open())) {
+				_destroy_connection(connection_iter);
+			}
+		}
+		else {
+			_handle_write_end_of_pipe(sock_kqueue);
+		}
+	}
+
 	void Server::_handle_read_end_of_pipe() {
 		struct stat sb;
 		std::string response;
@@ -315,17 +328,7 @@ namespace HTTP {
 					_handle_read_event(current_event_fd, sock_kqueue);
 				}
 				else if (event_fds.filter == EVFILT_WRITE) {
-					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-					if (connection_iter != _connections.end()) { // handling request by the corresponding connection
-						connection_iter->second->send_response();
-						if (!(connection_iter->second->is_connection_open())) {
-							_destroy_connection(connection_iter);
-						}
-						break;
-					}
-					else {
-						_handle_write_end_of_pipe(sock_kqueue);
-					}
+					_handle_write_event(current_event_fd, sock_kqueue);
 				}
 			}
 		}

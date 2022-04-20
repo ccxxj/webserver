@@ -29,6 +29,7 @@ namespace HTTP {
 		void _close_hanging_connections(int sock_kqueue);
 		void _accept_new_connection(int current_event_fd, int sock_kqueue);
 		void _handle_read_event(int current_event_fd, int sock_kqueue);
+		void _handle_write_event(int current_event_fd, int sock_kqueue);
 		void _handle_read_end_of_pipe();
 		void _handle_write_end_of_pipe(int sock_kqueue);
 		void _delete_events(int sock_kqueue, int identifier);
