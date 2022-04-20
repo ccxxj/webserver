@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 
 #include "../Utility/Utility.hpp"
+#include "../Constants.hpp"
 
 
 CGIHandler::CGIHandler(){
@@ -142,11 +143,11 @@ void CGIHandler::prepare_cgi_data(HTTPRequest::RequestMessage *_http_request_mes
 	if(_search_cgi_extension == false)
 		return;	
 	_request_message_body = _http_request_message->get_message_body();
-	if(pipe(_input_pipe) == -1){
+	if(pipe(_input_pipe) == Constants::ERROR){
 		std::perror("pipe");
 		throw(CGIexception());
 	}
-	if(pipe(_output_pipe) == -1){
+	if(pipe(_output_pipe) == Constants::ERROR){
 		std::perror("pipe");
 		throw(CGIexception());
 	}
@@ -186,7 +187,7 @@ void CGIHandler::execute_cgi(int kq)
 		}
 		close(_output_pipe[0]);
 		close(_input_pipe[1]);
-		if(execve(_argument[0], _argument, _envp) == -1){
+		if(execve(_argument[0], _argument, _envp) == Constants::ERROR){
 			perror("execution error");//script is garanteed to be found
 			return;
 		}

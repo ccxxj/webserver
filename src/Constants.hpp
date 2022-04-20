@@ -1,6 +1,5 @@
 #pragma once
 
-#define ERROR -1
 #define OFF 0
 #define ON 1
 
@@ -20,4 +19,5 @@ namespace Constants {
 	const int DEFAULT_MAX_SIZE_BODY = 8000000;
 	const double CONNECTIONS_CHECKER_INTERVAL = 10;
 	const double NO_ACTIVITY_TIMEOUT = 30;
+	const int ERROR = -1;
 }

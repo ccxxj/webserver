@@ -32,7 +32,7 @@ namespace HTTP {
 		ssize_t bytes_read = _delegate.receive(buf, sizeof(buf));
 		if (bytes_read == 0) {
 			_delegate.close();
-		} else if (bytes_read == ERROR) {
+		} else if (bytes_read == Constants::ERROR) {
 			perror("recv error");
 			_delegate.close();
 		} else {

@@ -88,7 +88,7 @@ namespace HTTP {
 				Utility::logger("Failed to listen on socket. errno: " +  Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
-			if (fcntl(_listening_sockfds[i], F_SETFL, O_NONBLOCK) == ERROR) {
+			if (fcntl(_listening_sockfds[i], F_SETFL, O_NONBLOCK) == Constants::ERROR) {
 				std::perror("fcntl error");
 			}
 			ListenInfo each_listen("0.0.0.0", _listen_ports[i]); //this struct will hold both ip and port info of running servers
@@ -120,7 +120,7 @@ namespace HTTP {
 			timeout.tv_nsec = 0;
 			// Receive events:
 			new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, &timeout); //look out for events and register to event list; one event per time
-			if(new_events == -1) {
+			if(new_events == Constants::ERROR) {
 				std::cerr << "it is caused by new events register failure \n";
 				std::perror("kevent");
 				exit(1);
@@ -259,10 +259,10 @@ namespace HTTP {
 		sockaddr_in connection_addr;
 		int connection_addr_len = sizeof(connection_addr);
 		int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
-		if (connection_socket_fd == -1) {
+		if (connection_socket_fd == Constants::ERROR) {
 			std::perror("accept socket error");
 		}
-		if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
+		if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == Constants::ERROR) {
 			std::perror("fcntl error");
 		}
 
