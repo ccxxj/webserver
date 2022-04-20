@@ -62,11 +62,12 @@ namespace HTTP {
 
 	void Server::_setup_listening_sockets() {
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
-			_listening_sockfds.push_back(socket(AF_INET, SOCK_STREAM, 0));
-			if (_listening_sockfds[i] < 0) {
+			int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+			if (socket_fd < 0) {
 				Utility::logger("Socket failed. errno: "  + Utility::to_string(errno), RED);
 				std::exit(EXIT_FAILURE);
 			}
+			_listening_sockfds.push_back(socket_fd);
 			// When retrieving a socket option, or setting it, you specify the option name as well as the level. When level = SOL_SOCKET, the item will be searched for in the socket itself.
 			int value = 1;
 			// SO_REUSEADDR Reports whether the rules used in validating addresses supplied to bind() should allow reuse of local addresses,
