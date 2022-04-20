@@ -188,20 +188,6 @@ namespace HTTP {
 		_logtime_checker.update_last_activity_logtime();
 	}
 
-		void Server::_remove_connection_closed_by_server(int sock_kqueue) {
-		std::map<int, Connection*>::iterator iter = _connections.begin();
-		while (iter != _connections.end()) {
-			if (!(iter->second->is_connection_open())) {
-#ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
-				_delete_events(sock_kqueue, temp_iter->first);
-#endif
-				iter = _destroy_connection(iter);
-			} else {
-				++iter;
-			}
-		}
-	}
-
 	void Server::_handle_disconnected_client(int current_event_fd) {
 		Utility::logger("The client has disconnected.", RED);
 		close(current_event_fd);

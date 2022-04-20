@@ -25,7 +25,6 @@ namespace HTTP {
 		void _setup_listening_ports();
 		void _handle_disconnected_client(int current_event_fd);
 		void _remove_disconnected_client(int fd);
-		void _remove_connection_closed_by_server(int sock_kqueue);
 		void _close_hanging_connections(int sock_kqueue);
 		void _accept_new_connection(int current_event_fd, int sock_kqueue);
 		void _handle_read_event(int current_event_fd, int sock_kqueue);
