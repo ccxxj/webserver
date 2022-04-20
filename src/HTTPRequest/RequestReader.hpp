@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <iostream> // TODO: remove
 #include <sys/types.h>// for ssize_t
 
 namespace HTTPRequest {
