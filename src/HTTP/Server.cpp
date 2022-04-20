@@ -7,7 +7,7 @@
 #include <string>
 #include <algorithm>
 #include <string.h> // strerror TODO: remove
-#include  <cstdlib> // for exit
+#include <cstdlib> // for exit
 #include <cstdio> // for perror
 #include <fcntl.h> // for fcntl
 #include <sys/time.h> // for timeout
@@ -262,10 +262,6 @@ namespace HTTP {
 		if (connection_socket_fd == Constants::ERROR) {
 			std::perror("accept socket error");
 		}
-		if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == Constants::ERROR) {
-			std::perror("fcntl error");
-		}
-
 		std::map<int, Connection *>::iterator it = _connections.find(connection_socket_fd);
 		if (it != _connections.end()) {
 			_destroy_connection(it);
