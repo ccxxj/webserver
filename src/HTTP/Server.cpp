@@ -36,6 +36,30 @@ namespace HTTP {
 		}
 	}
 
+	void Server::run() {
+		_setup_listening_ports();
+		_setup_listening_sockets();
+		_handle_events();
+	}
+
+	void Server::_setup_listening_ports() {
+		const std::vector<Config::ServerBlock> servers = config_data->get_servers();
+		for (size_t i = 0; i < servers.size(); i++)
+		{
+			std::set<std::string> listen_set = servers[i].get_listen();
+			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) {
+				int port;
+				size_t pos = (*i).find("[::]:");
+				if (pos != std::string::npos)
+					port = std::atoi((*i).substr(pos + 5).c_str()); //if ipv6 port, remove the [::]:
+				else
+					port = std::atoi((*i).c_str()); //if ipv4
+				if (std::find(_listen_ports.begin(), _listen_ports.end(), port) == _listen_ports.end()) //does not push duplicate ports
+					_listen_ports.push_back(port);
+			}
+		}
+	}
+
 	void Server::_setup_listening_sockets() {
 		for(size_t i = 0; i < _listen_ports.size(); i++) {
 			_listening_sockfds.push_back(socket(AF_INET, SOCK_STREAM, 0));
@@ -69,6 +93,58 @@ namespace HTTP {
 			ListenInfo each_listen("0.0.0.0", _listen_ports[i]); //this struct will hold both ip and port info of running servers
 			_running_servers[_listening_sockfds[i]] = each_listen;
 			Utility::logger("Server listening on port: " + Utility::to_string(_listen_ports[i]), MAGENTA);
+		}
+	}
+
+	void Server::_handle_events() {
+		int new_events = 0;
+		int sock_kqueue = kqueue(); //creates a new kernel event queue and returns a descriptor.
+		if (sock_kqueue < 0) {
+			Utility::logger("Error creating kqueue. errno: "  +  Utility::to_string(errno), RED);
+			std::exit(EXIT_FAILURE);
+		}
+		struct kevent kev, event_fds; // First - kernel events we want to monitor, second - events triggered
+		for(size_t i = 0; i < _listen_ports.size(); i++) {
+			// Prepare a read event:
+			EV_SET(&kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
+			// Register an event:
+			if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
+				std::perror("kevent");
+				std::exit(1);
+			}
+		}
+		while (true) {
+			struct timespec timeout;
+			timeout.tv_sec = 30;
+			timeout.tv_nsec = 0;
+			// Receive events:
+			new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, &timeout); //look out for events and register to event list; one event per time
+			if(new_events == -1) {
+				std::cerr << "it is caused by new events register failure \n";
+				std::perror("kevent");
+				exit(1);
+			}
+			_close_hanging_connections(sock_kqueue);
+			for (int i = 0; i < new_events; i++)
+			{
+				int current_event_fd = event_fds.ident;
+				if (event_fds.flags & EV_ERROR) {
+					std::cout << "Event error: %s", strerror(event_fds.data);
+					std::exit(EXIT_FAILURE);
+				}
+				else if (event_fds.flags & EV_EOF) {
+					_handle_disconnected_client(current_event_fd);
+				}
+				else if(_is_in_listen_sockfd_list(current_event_fd)) { // if a new client is establishing a connection
+					_accept_new_connection(current_event_fd, sock_kqueue);
+				}
+				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
+					_handle_read_event(current_event_fd, sock_kqueue);
+				}
+				else if (event_fds.filter == EVFILT_WRITE) {
+					_handle_write_event(current_event_fd, sock_kqueue);
+				}
+			}
 		}
 	}
 
@@ -123,6 +199,13 @@ namespace HTTP {
 				++iter;
 			}
 		}
+	}
+
+	void Server::_handle_disconnected_client(int current_event_fd) {
+		Utility::logger("The client has disconnected.", RED);
+		close(current_event_fd);
+		_remove_disconnected_client(current_event_fd);
+		Utility::logger("FD " + Utility::to_string(current_event_fd) + " is closed and removed from _connections." , RED);
 	}
 
 	void Server::_remove_disconnected_client(int fd) {
@@ -278,83 +361,4 @@ namespace HTTP {
 		}
 	}
 
-
-	void Server::_handle_events() {
-		int new_events = 0;
-		int sock_kqueue = kqueue(); //creates a new kernel event queue and returns a descriptor.
-		if (sock_kqueue < 0) {
-			Utility::logger("Error creating kqueue. errno: "  +  Utility::to_string(errno), RED);
-			std::exit(EXIT_FAILURE);
-		}
-		struct kevent kev, event_fds; // First - kernel events we want to monitor, second - events triggered
-		for(size_t i = 0; i < _listen_ports.size(); i++) {
-			// Prepare a read event:
-			EV_SET(&kev, _listening_sockfds[i], EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0); // is a macro which is provided for ease of initializing a kevent structure.
-			// Register an event:
-			if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
-				std::perror("kevent");
-				std::exit(1);
-			}
-		}
-		while (true) {
-			struct timespec timeout;
-			timeout.tv_sec = 30;
-			timeout.tv_nsec = 0;
-			// Receive events:
-			new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, &timeout); //look out for events and register to event list; one event per time
-			if(new_events == -1) {
-				std::cerr << "it is caused by new events register failure \n";
-				std::perror("kevent");
-				exit(1);
-			}
-			_close_hanging_connections(sock_kqueue);
-			for (int i = 0; i < new_events; i++)
-			{
-				int current_event_fd = event_fds.ident;
-				if (event_fds.flags & EV_ERROR) {
-					std::cout << "Event error: %s", strerror(event_fds.data);
-					std::exit(EXIT_FAILURE);
-				}
-				else if (event_fds.flags & EV_EOF) {
-					Utility::logger("The client has disconnected.", RED);
-					close(current_event_fd);
-					_remove_disconnected_client(current_event_fd);
-					Utility::logger("FD " + Utility::to_string(current_event_fd) + " is closed and removed from _connections." , RED);
-				}
-				else if(_is_in_listen_sockfd_list(current_event_fd)) { // if a new client is establishing a connection
-					_accept_new_connection(current_event_fd, sock_kqueue);
-				}
-				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
-					_handle_read_event(current_event_fd, sock_kqueue);
-				}
-				else if (event_fds.filter == EVFILT_WRITE) {
-					_handle_write_event(current_event_fd, sock_kqueue);
-				}
-			}
-		}
-	}
-
-	void Server::_setup_listening_ports() {
-		const std::vector<Config::ServerBlock> servers = config_data->get_servers();
-		for (size_t i = 0; i < servers.size(); i++)
-		{
-			std::set<std::string> listen_set = servers[i].get_listen();
-			for (std::set<std::string>::iterator i = listen_set.begin(); i != listen_set.end(); i++) {
-				int port;
-				size_t pos = (*i).find("[::]:");
-				if (pos != std::string::npos)
-					port = std::atoi((*i).substr(pos + 5).c_str()); //if ipv6 port, remove the [::]:
-				else
-					port = std::atoi((*i).c_str()); //if ipv4
-				if (std::find(_listen_ports.begin(), _listen_ports.end(), port) == _listen_ports.end()) //does not push duplicate ports
-					_listen_ports.push_back(port);
-			}
-		}
-	}
-
-	void Server::run() {
-		_setup_listening_ports();
-		_setup_listening_sockets();
-		_handle_events();
-	}
 }
