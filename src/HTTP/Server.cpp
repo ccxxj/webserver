@@ -199,6 +199,22 @@ namespace HTTP {
 		}
 	}
 
+	void Server::_handle_read_event(int current_event_fd, int sock_kqueue) {
+		std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
+		if(connection_iter == _connections.end()) { // if the current fd is not the connection socket fd
+			_handle_read_end_of_pipe();
+		}
+		else {
+			(connection_iter->second)->handle_http_request(sock_kqueue);
+			// Register write events for the client
+			struct kevent kev;
+			EV_SET(&kev, connection_iter->first, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
+			if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
+				std::perror("kevent error - write");
+			}
+		}
+	}
+
 	void Server::_handle_read_end_of_pipe() {
 		struct stat sb;
 		std::string response;
@@ -294,71 +310,9 @@ namespace HTTP {
 				}
 				else if(_is_in_listen_sockfd_list(current_event_fd)) { // if a new client is establishing a connection
 					_accept_new_connection(current_event_fd, sock_kqueue);
-// 					sockaddr_in connection_addr;
-// 					int connection_addr_len = sizeof(connection_addr);
-// 					int connection_socket_fd = accept(current_event_fd, (struct sockaddr *)&connection_addr, (socklen_t *)&connection_addr_len);
-// 					if (connection_socket_fd == -1) {
-// 						std::perror("accept socket error");
-// 					}
-// 					if (fcntl(connection_socket_fd, F_SETFL, O_NONBLOCK) == ERROR) {
-// 						std::perror("fcntl error");
-// 					}
-// 
-// 					std::map<int, Connection *>::iterator it = _connections.find(connection_socket_fd);
-// 					if (it != _connections.end()) {
-// 						_destroy_connection(it);
-// 					}
-// 
-// 					Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd], connection_addr);
-// 					_connections.insert(std::make_pair(connection_socket_fd, connection_ptr));
-// 					Utility::logger("New connection on port  : " + Utility::to_string(_running_servers[current_event_fd].port), MAGENTA);
-// 
-// 					// Register a read events for the client:
-// 					EV_SET(&kev, connection_socket_fd, EVFILT_READ, EV_ADD, 0, 0, NULL); //put socket connection into the filter
-// 					if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
-// 						std::perror("kevent error - read");
-// 					}
 				}
 				else if (event_fds.filter == EVFILT_READ) { // if a read event is coming
-					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
-					if(connection_iter == _connections.end()) { // if the current fd is not the connection socket fd
-						_handle_read_end_of_pipe();
-						// struct stat sb;
-						// std::string response;
-						// std::string final_response;
-						// std::map<int, Connection*>::iterator it;
-						// for(it = _connections.begin(); it != _connections.end(); it++){
-						// 	int read_fd = it->second->get_cgi_read_fd();
-						// 	if(read_fd != -1) {
-						// 		fstat(read_fd, &sb);
-						// 		response.resize(sb.st_size);
-						// 		int rt = read(read_fd, (char*)(response.data()), sb.st_size);
-						// 		if(rt < 0){
-						// 			std::perror("read");
-						// 			it->second->handle_internal_server_error();
-						// 			it->second->set_response_true();//set the response ready to be send to client (500 error page)
-						// 		}
-						// 		HTTPResponse::ResponseMessage& _http_response = it->second->get_response_message();
-						// 		update_response_message(_http_response, response);
-						// 		it->second->set_response_true();
-						// 		break;
-						// 	}
-						// }
-					}
-					else {
-						(connection_iter->second)->handle_http_request(sock_kqueue);
-						// Register write events for the client
-						EV_SET(&kev, connection_iter->first, EVFILT_WRITE, EV_ADD, 0, 0, NULL); // is a macro which is provided for ease of initializing a kevent structure.
-						if (kevent(sock_kqueue, &kev, 1, NULL, 0, NULL) < 0) {
-							std::perror("kevent error - write");
-						}
-						new_events = kevent(sock_kqueue, NULL, 0, &event_fds, 1, NULL);
-						if(new_events == -1) {
-							std::perror("kevent");
-							std::exit(1);
-						}
-					}
-					break;
+					_handle_read_event(current_event_fd, sock_kqueue);
 				}
 				else if (event_fds.filter == EVFILT_WRITE) {
 					std::map<int, Connection*>::iterator connection_iter = _connections.find(current_event_fd);
@@ -371,29 +325,6 @@ namespace HTTP {
 					}
 					else {
 						_handle_write_end_of_pipe(sock_kqueue);
-						// std::map<int, Connection *>::iterator it;
-						// for(it = _connections.begin(); it != _connections.end(); it++){//for loop is not run?
-						// 	int write_fd = it->second->get_cgi_write_fd();
-						// 	if(write_fd != -1){
-						// 		std::string request_message_body = it->second->get_request_message_body();
-						// 		//TODO check write value
-						// 		int rt = write(write_fd, request_message_body.c_str(), request_message_body.size());
-						// 		if(rt < 0){
-						// 			std::perror("write error");
-						// 			it->second->handle_internal_server_error();
-						// 			it->second->set_response_true();//set the response ready to be send to client (500 error page)
-						// 		}
-						// 		try{
-						// 			it->second->execute_cgi(sock_kqueue);	
-						// 		}
-						// 		catch(std::exception &e){
-						// 			it->second->handle_internal_server_error();
-						// 			it->second->set_response_true();//set the response ready to be send to client (500 error page)
-						// 		}
-						// 		close(write_fd);
-						// 		it->second->set_cgi_write_fd(-1);
-						// 	}
-						// }
 					}
 				}
 			}
