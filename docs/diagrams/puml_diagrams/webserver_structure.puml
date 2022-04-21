@@ -12,30 +12,31 @@ component Server {
 				   [HTTPRequestMessage] #Gray
 				   [HTTPResponseMessage] #Gray
 				   [RequestParser] #LightGray
-				   [validator,analyzer] #Azure
+				   [ResponseHandler] #LightGray
 			}
 		}
-		component "kqueue_loop" {
+		package "kernel queue" {
 			[new event] #Linen
 		}
 }
 
 () config_file #Gray
-[Client] #Linen
+[Client] #LightGreen
 
 
 [Client] ..> [new event] #Black : HTTPRequest
-[Config] --> [new event]
+[HTTPResponseMessage] ..> [new event]  #Black : HTTPResponse
+ [new event] ..> [Client] #Black : HTTPResponse
+' [Config] --> [new event]
 [new event] ..> [buffer] #Black : data
 () config_file --> [ConfigParser] #Black
 [ConfigParser] --> [Config] #Black
-[Config] --> [validator,analyzer] #Black
+[Config] --> [ResponseHandler] #Black
 [buffer] ..> [RequestParser] #Black
 [RequestParser] --> [HTTPRequestMessage] #Black
-[HTTPRequestMessage] --> [validator,analyzer] #Black
-[validator,analyzer] --> [HTTPResponseMessage] #Black
-[HTTPResponseMessage] ..> [Client] #Black : HTTPResponse
-' HTTPRequestHandlerFactory <<>> --> HTTPRequestHandler <<>> : create
+[HTTPRequestMessage] --> [ResponseHandler] #Black
+[ResponseHandler] --> [HTTPResponseMessage] #Black
+
 
 
 @enduml
