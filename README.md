@@ -22,3 +22,10 @@ The general structure of the project is the following:
 ![](https://github.com/Mollie-S/webserver/blob/main/docs/diagrams/webserver_structure.png)
 
 ***Kqueue*** system call is used for I/O Multiplexing. 
+
+# How to run the program
+Go to the root of the project and type:
+
+`make && ./webserver`
+
+This will start the webserver with the default configuration.
