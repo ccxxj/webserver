@@ -1,8 +1,6 @@
 #pragma once
 
 #include <ctime>
-#include <iostream> // TODO remove
-
 #include "../Constants.hpp"
 
 namespace Utility {

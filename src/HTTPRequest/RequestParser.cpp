@@ -46,7 +46,6 @@ namespace HTTPRequest {
                 _payload_bytes_left_to_parse -= line_size;
                 can_be_parsed = true;
                 if (_payload_bytes_left_to_parse < 0) {
-                    std::cout << "ERROR REASON: PAYLOAD LENGTH IS LARGER THAN THE CONTENT_LENGTH HEADER VALUE\n";  // TODO: remove
                     _throw_request_exception(HTTPResponse::BadRequest);
                 }
             }
@@ -59,7 +58,6 @@ namespace HTTPRequest {
                     line.erase(line.size() - 2, 2);
                 }
             }
-            // std::cout << line << std::endl; // TODO: remove debug info
             if (can_be_parsed == true) {
                 _handle_request_message_part(line);
                 if (_current_parsing_state == PAYLOAD && _boundary == "" && _http_request_message->get_message_body().size() == 0) { // validating headers only once, right after we've finished parsing them
@@ -96,12 +94,10 @@ namespace HTTPRequest {
 
     void RequestParser::_parse_request_line(std::string& line) {
         if (line.empty()) {
-            std::cout << "ERROR REASON: Request line is empty\n";  // TODO: remove
             _throw_request_exception(HTTPResponse::BadRequest);
         }
         std::vector<std::string> segments = Utility::_split_line(line, ' ');
         if (segments.size() != 3) {
-            std::cout << "ERROR REASON: The number of Request line elements either smaller or greater than 3\n";  // TODO: remove
             _throw_request_exception(HTTPResponse::BadRequest);
         }
         if (_is_method_supported(segments[0])) {
@@ -128,7 +124,6 @@ namespace HTTPRequest {
             _throw_request_exception(HTTPResponse::NotImplemented);
         }
         if (HTTPRequestMethods.find(method) == HTTPRequestMethods.end()) {
-            std::cout << "ERROR REASON: MEthod is not supported\n";  // TODO: remove
             _throw_request_exception(HTTPResponse::BadRequest);
         }
         return true;
@@ -152,11 +147,9 @@ namespace HTTPRequest {
         }
         std::vector<std::string> segments = Utility::_split_line(line, ':');
         if (segments.size() < 2) {
-            std::cout << "ERROR REASON: INVALID HEADER FIELD SYNTax\n";  // TODO: remove
             _throw_request_exception(HTTPResponse::BadRequest);
         }
         if (Utility::contains_whitespace(segments[0])) {
-            std::cout << "ERROR REASON: HEADER NAME CANNOT CONTAIN WHITESPACE\n";  // TODO: remove
             _throw_request_exception(HTTPResponse::BadRequest);
         }
         std::string uppercased_header_name = _convert_header_name_touppercase(segments[0]);
@@ -213,7 +206,6 @@ namespace HTTPRequest {
             std::string first_value = Utility::_trim(values[0]);
             for (size_t i = 1; i < values.size(); ++i) {
                 if (first_value != Utility::_trim(values[i])) { // checking that the all the values are the same
-                    std::cout << "ERROR REASON: CONTENT_LENGTH has different values\n"; // TODO: remove
                     _throw_request_exception(HTTPResponse::BadRequest);
                 }
             }
@@ -222,7 +214,6 @@ namespace HTTPRequest {
         }
         for (std::string::iterator it = content_length_value.begin(); it != content_length_value.end(); ++it) {
             if (!isdigit(*it)) {
-                std::cout << "ERROR REASON: CONTENT_LENGTH contains non-digits\n";  // TODO: remove
                 _throw_request_exception(HTTPResponse::BadRequest); // should throw for negative values as well
             }
         }
@@ -265,14 +256,13 @@ namespace HTTPRequest {
         ssize_t encodings_num = encodings.size();
         ssize_t chunked_position = _find_chunked_encoding_position(encodings, encodings_num);
         if (chunked_position == - 1) {
-            std::cout << "Chunked not found\n"; //TODO:: what to do in this case?
+            std::cout << "Chunked not found\n";
             _payload_length_type = NOT_FOUND;
         }
         else if (chunked_position == encodings_num - 1) {
             _payload_length_type = CHUNKED;
         }
         else {
-            std::cout << "ERROR REASON:  POSITION IS NOT THE LAST\n";  // TODO: remove
             _throw_request_exception(HTTPResponse::BadRequest);
         }
     }
@@ -329,7 +319,6 @@ namespace HTTPRequest {
                 _parse_payload(_decoded_body);
                 _remove_chunked_from_transfer_encoding(); // this is what rfc demands
             }
-            // TODO: should also read chunk extension or not?
         }
     }
 
@@ -352,7 +341,6 @@ namespace HTTPRequest {
     void RequestParser::_set_chunk_size(std::string& line) {
         std::string extracted_number = Utility::get_number_in_string(line);
         if (extracted_number == "") {
-            std::cout << "ERROR REASON:  CHUNK STRING CONTAINING NUMBER is empty\n";  // TODO: remove
             _throw_request_exception(HTTPResponse::BadRequest);
         }
         else {
@@ -360,7 +348,6 @@ namespace HTTPRequest {
             ss << std::hex << extracted_number;
             ss >> _chunk_size;
             if (_chunk_size > Constants::PAYLOAD_MAX_LENGTH) {
-                std::cout << "ERROR REASON:  EXCEEDS PAYLOAD MAX LENGTH\n";  // TODO: remove
                 _throw_request_exception(HTTPResponse::BadRequest);
             }
         }
@@ -391,7 +378,6 @@ namespace HTTPRequest {
             || Utility::is_found(trailer_value, "Content-Type")
             || Utility::is_found(trailer_value, "Content-Range")
             || Utility::is_found(trailer_value, "Trailer")) {
-            std::cout << "ERROR REASON:  NON_ALLOWED TRAILER\n";  // TODO: remove
                 _throw_request_exception(HTTPResponse::BadRequest);
         }
     }
@@ -403,7 +389,6 @@ namespace HTTPRequest {
         }
         std::vector<std::string> segments = Utility::_split_line_in_two(line, ':');
         if (Utility::contains_whitespace(segments[0])) {
-            std::cout << "ERROR REASON: TRAILER HEADER NAME CONTAINS WHITESPACE\n";  // TODO: remove
             _throw_request_exception(HTTPResponse::BadRequest);
         }
         const std::string& trailer_value = _http_request_message->get_header_value("TRAILER");
