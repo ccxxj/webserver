@@ -16,3 +16,9 @@ It requires understanding some basic networking stuff (socket management, bindin
 - You need at least GET, POST, and DELETE methods.
 - Your server must be able to listen to multiple ports.
 
+# Structure
+The general structure of the project is the following:
+
+![](https://github.com/Mollie-S/webserver/blob/main/docs/diagrams/webserver_structure.png)
+
+***Kqueue*** system call is used for I/O Multiplexing. 
