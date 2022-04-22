@@ -129,6 +129,9 @@ namespace Config
         std::vector<std::string> args = Utility::split_string_by_white_space(str);
 		if (args.size() != 2)
 		    throw std::logic_error("invalid number of arguments in index directive");
+        std::string extension = str.substr(str.find_last_of(".") + 1);
+        if(extension != "html")
+            throw std::logic_error("index page can only be an html");
         _index_page = args[1];
     }
 
