@@ -67,7 +67,7 @@ namespace Utility
 
 		dir_p = opendir(_path.c_str());
 		if (!dir_p) {
-			Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
+			// Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
 			return _dir;
 		}
 		_dir += "<html>\r\n<h2> Index of " + _target + "</h2>";
@@ -91,7 +91,7 @@ namespace Utility
 
 		dir_p = opendir(_path.c_str());
 		if (!dir_p) {
-			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
+			// Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 			return false;
 		}
 		while ((entry = readdir(dir_p))) {
@@ -112,12 +112,12 @@ namespace Utility
 
 		int fd = open(str.c_str(), O_RDONLY);
 		if (fd == Constants::ERROR) {
-			Utility::logger("DEBUG open : " + std::string(strerror(errno)) , RED);
+			// Utility::logger("DEBUG open : " + std::string(strerror(errno)) , RED);
 			return "Forbidden";
 		}
 		while ((ret = read(fd, buf, 4096)) != 0) {
 			if (ret == Constants::ERROR) {
-				Utility::logger("DEBUG read : " + std::string(strerror(errno)), RED);
+				// Utility::logger("DEBUG read : " + std::string(strerror(errno)), RED);
 				close(fd);
 				return "Forbidden";
 			}
@@ -130,7 +130,7 @@ namespace Utility
 
 	bool File::un_link(const std::string &str) {
 		if (unlink(str.c_str()) == Constants::ERROR) {
-			Utility::logger("DEBUG unlink : " + std::string(strerror(errno)), RED);
+			// Utility::logger("DEBUG unlink : " + std::string(strerror(errno)), RED);
 			return false;
 		}
 		return true;
@@ -141,7 +141,7 @@ namespace Utility
 		if (stat(_path.c_str(), &buffer) == 0) //if exists
 			return true;
 		if (mkdir(_path.c_str(), 0755) == Constants::ERROR) {
-			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
+			// Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 			return false;
 		}
 		return true;
@@ -152,7 +152,7 @@ namespace Utility
 		if (stat(str.c_str(), &buffer) == 0) //if exists
 			return true;
 		if (mkdir(str.c_str(), 0755) == Constants::ERROR) {
-			Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
+			// Utility::logger("DEBUG mkdir : " + std::string(strerror(errno)), RED);
 			return false;
 		}
 		return true;
@@ -211,7 +211,7 @@ namespace Utility
 		int i = 0;
 		DIR *dir_p = opendir(str.c_str());
 		if (!dir_p) {
-			Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
+			// Utility::logger("DEBUG opendir : " + std::string(strerror(errno)), RED);
 			return "";
 		}
 		while ((entry = readdir(dir_p))) {

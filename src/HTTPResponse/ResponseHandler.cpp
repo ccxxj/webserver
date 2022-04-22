@@ -229,8 +229,8 @@ namespace HTTPResponse {
 		//create the new resource with the path and put request body inside
 		std::ofstream file_stream(path_and_name.c_str());
 		if (!file_stream.is_open()) {
-			Utility::logger("DEBUG file_path: " + path_and_name, RED);
-			Utility::logger("DEBUG is_open: " + std::string(strerror(errno)), RED);
+			// Utility::logger("DEBUG file_path: " + path_and_name, RED);
+			// Utility::logger("DEBUG is_open: " + std::string(strerror(errno)), RED);
 			return handle_error(InternalServerError);
 		}
 
@@ -344,7 +344,7 @@ namespace HTTPResponse {
 		_http_response_message->append_complete_response(response);
 
 		//log
-		Utility::logger(response_status(), YELLOW);
+		Utility::logger(response_status(), PURPLE);
 	}
 
 	bool ResponseHandler::_verify_method(const std::vector<std::string> methods) {

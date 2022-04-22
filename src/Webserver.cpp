@@ -19,7 +19,7 @@ void Webserver::start()
 		parser.parse();
 		// config.print_servers_info();
 		config.check_parsed_data();
-		Utility::logger("Server configured with  : " + _file_path, YELLOW);
+		Utility::logger("Server configured with  : " + _file_path, B_RED);
 		HTTP::Server server(&config);
 		server.run();
 	}
