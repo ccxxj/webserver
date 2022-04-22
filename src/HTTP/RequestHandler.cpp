@@ -86,7 +86,7 @@ namespace HTTP {
 		return stringified_code;
 	}
 
-	bool RequestHandler::RequestHandler::_process_http_request(int kq, int socket_fd) { //TODO Logger to say which server & block is matched with the port info
+	bool RequestHandler::RequestHandler::_process_http_request(int kq, int socket_fd) {
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
 		response_handler.set_config_rules(virtual_server, location);
