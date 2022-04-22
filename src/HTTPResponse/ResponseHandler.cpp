@@ -8,7 +8,7 @@
 
 #include <sys/event.h>//kqueue
 
-size_t redirection_loop = 0; //FIXME is it okay here?
+size_t loop_redirection = 0;
 
 namespace HTTPResponse {
 	ResponseHandler::ResponseHandler(HTTPRequest::RequestMessage* request_message, ResponseMessage* response_message)
@@ -58,21 +58,20 @@ namespace HTTPResponse {
 			handle_error(MethodNotAllowed);
 			return true;
 		}
-			// return(handle_error(MethodNotAllowed));
+
 		if (!_check_client_body_size()){
 			handle_error(ContentTooLarge);
 			return true;
 		}
-			// return(handle_error(ContentTooLarge));
 
 		//redirection: server stops processing, responds with redirected location
-		if (!_config.get_return().empty() && redirection_loop < 10) {
+		if (!_config.get_return().empty() && loop_redirection < 10) {
 			_handle_redirection();
 			return true;
-			// return (_handle_redirection());
 		}
-		if (redirection_loop == 10) { //redirection is limited to 10 times
-			redirection_loop = 0;
+
+		if (loop_redirection == 10) { //redirection is limited to 10 times
+			loop_redirection = 0;
 		}
 
 		//HTTP method handling
@@ -82,7 +81,7 @@ namespace HTTPResponse {
 
 	void ResponseHandler::_handle_redirection()
 	{
-		redirection_loop++;
+		loop_redirection++;
 
 		//get the redirection information
 			//the return directive applies only inside the topmost context it’s defined in
@@ -151,7 +150,6 @@ namespace HTTPResponse {
 	}
 
 	void ResponseHandler::_serve_file(void) { //GET will retrieve a resource
-		//TODO CGI check? where? what if the index page of a directory is a cgi file? You won't be able to catch this from the URI
 		if (!_file.exists())
 			return handle_error(NotFound);
 
