@@ -96,7 +96,7 @@ namespace HTTP {
 		if (::close(_socket_fd) < 0) {
 			Utility::logger("Socket closing failed. errno: "  + Utility::to_string(errno), RED);
 		} else {
-			Utility::logger("Socket " +  Utility::to_string(_socket_fd) + " is closed.", PURPLE); // for debug
+			// Utility::logger("Socket " +  Utility::to_string(_socket_fd) + " is closed.", PURPLE); // for debug
 			_is_open = false;
 		}
 	}
