@@ -29,3 +29,9 @@ Go to the root of the project and type:
 `make && ./webserver`
 
 This will start the webserver with the default configuration.
+You can open localhost in your browser (tested with Chrome and Safari) or start sending http requests through Postman.
+
+The project is created in successful collaboration between:
+- [Xiaojing](https://github.com/ccxxj)
+- [Irem](https://github.com/ergunirem)
+- [Olga](https://github.com/Mollie-S)
