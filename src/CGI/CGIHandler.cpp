@@ -68,10 +68,7 @@ void CGIHandler::update_path_translated(void){
 
 void CGIHandler::parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config)
 {
-	//TODO this need to be updated to the actual env variable, for now I am setting up myself for the basic to run cgi
 	_meta_variables["SERVER_PROTOCOL"] = "HTTP/1.1";
-
-//actual data
 	std::string authorization = "";
 	if (_http_request_message->has_header_field("AUTHORIZATION")) {
 		authorization= _http_request_message->get_header_value("AUTHORIZATION");
@@ -119,6 +116,7 @@ void CGIHandler::set_envp(void)
 		_envp[i] = strdup(temp.c_str());
 		i++;
 	}
+	_envp[Constants::ENVP_SIZE - 1] = NULL;
 }
 
 void CGIHandler::set_argument(std::string cgi_name)
@@ -127,6 +125,10 @@ void CGIHandler::set_argument(std::string cgi_name)
 	std::string full_path = std::string(cwd) + "/cgi-bin/" + cgi_name; //define the default cgi-bin (should be in the same location with the executable)
 	free(cwd);					  
 	_argument[0] = strdup(full_path.c_str());
+}
+
+void CGIHandler::set_response_message_body(std::string str){
+	_response = str;
 }
 
 //input parameter will be uriData->get_path()
@@ -164,24 +166,48 @@ void CGIHandler::prepare_cgi_data(HTTPRequest::RequestMessage *_http_request_mes
 		std::perror("pipe");
 		throw(CGIexception());
 	}
-	set_argument(_cgi_name);//TODO replace by the actual path, currently I am only use the predefined path
+	set_argument(_cgi_name);
 	struct stat buffer;
 	std::string relative_path = "cgi-bin/" + _cgi_name;
 	if(stat(relative_path.c_str(), &buffer) != 0)
 		_search_cgi_extension = false;
 	if(!_search_cgi_extension)
 		return;
-	parse_meta_variables(_http_request_message, _config);//TODO replace by input from http request get_message_body
+	parse_meta_variables(_http_request_message, _config);
 	set_envp();
+}
+
+int CGIHandler::get_read_fd() const{
+	return _output_pipe[0];
+}
+
+int CGIHandler::get_write_fd() const{
+	return _input_pipe[1];
+}
+
+std::string CGIHandler::get_response_message_body(){
+	return _response;
+}
+
+std::string CGIHandler::get_request_message_body(){
+	return _request_message_body;
+}
+
+bool CGIHandler::get_search_cgi_extention_result() const{
+	return _search_cgi_extension;
+}
+
+int CGIHandler::get_socket_fd() const{
+	return _socket_fd;
 }
 
 void CGIHandler::execute_cgi(int kq)
 {
 	struct kevent kev;
 	EV_SET(&kev, _output_pipe[0], EVFILT_READ, EV_ADD, 0, 0, NULL);
-	if (kevent(kq, &kev, 1, NULL, 0, NULL)<0){//TODO kevent fail here? @debug
-        fprintf(stderr,"kevent failed.");
-		std::cout << "this internal error caused by kevent fail\n";
+	if (kevent(kq, &kev, 1, NULL, 0, NULL)<0){
+        perror("kevent failure");
+		throw(CGIexception());
     	return;
 	}
 	pid_t pid = fork();
@@ -211,33 +237,3 @@ void CGIHandler::execute_cgi(int kq)
 		close(_input_pipe[0]);
 	}
 }
-
-int CGIHandler::get_read_fd() const{
-	return _output_pipe[0];
-}
-
-int CGIHandler::get_write_fd() const{
-	return _input_pipe[1];
-}
-
-void CGIHandler::set_response_message_body(std::string str){
-	_response = str;
-}
-
-std::string CGIHandler::get_response_message_body(){
-	return _response;
-}
-
-std::string CGIHandler::get_request_message_body(){
-	return _request_message_body;
-}
-
-bool CGIHandler::get_search_cgi_extention_result() const{
-	return _search_cgi_extension;
-}
-
-int CGIHandler::get_socket_fd() const{
-	return _socket_fd;
-}
-
-

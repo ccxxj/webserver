@@ -38,15 +38,8 @@ namespace HTTPResponse {
 		Utility::logger(request_info(), YELLOW);
 		try{
 			cgi_handler.prepare_cgi_data(_http_request_message, _config, socket_fd);
-			// cgi_handler.execute_cgi(_http_request_message, _config, kq, socket_fd);
-			//TODO update for excluding
 			if(cgi_handler.get_search_cgi_extention_result())//if the cgi extention was found in the list, execute cgi and skip the further process
 				return false;
-			// std::string cgi_response = cgi_handler.get_response_message_body();
-			// std::cout << "inbetween cgi_response: " << cgi_response << std::endl;
-			// if(!cgi_response.empty()){
-			// 	return _build_final_cgi_response(cgi_response);
-			// }
 		}
 		catch(std::exception){
 			handle_error(InternalServerError);
