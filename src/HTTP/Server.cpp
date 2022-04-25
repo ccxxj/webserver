@@ -30,18 +30,28 @@ namespace HTTP {
 	, _logtime_checker()
 	{}
 
-	Server::~Server(){
+	Server::~Server() {
 		std::vector<int>::iterator it = _listening_sockfds.begin();
 		for (; it != _listening_sockfds.end(); ++it) {
 			close(*it); //closing listening sockets
 		}
+		std::map<int, Connection*>::iterator connection_iter = _connections.begin();
+		for (; connection_iter != _connections.end(); ++connection_iter) {
+			if (connection_iter->second->is_connection_open()) {
+				connection_iter->second->close();
+				// Utility::logger("Connection " + Utility::to_string(connection_iter->first) + " closed.", PURPLE); // for debug
+			}
+			connection_iter = _destroy_connection(connection_iter);
+		}
+		_connections.clear();
+		std::cout << "server gracefully stopped\n";
 	}
 
-	// for leaks debug purposes
+	// // for leaks debug purposes
 	// void signalHandler(int signum ) {
 	// 	system("leaks webserver");
 	// 	std::cout << "Interrupt signal (" << signum << ") received.\n";
-	// 	exit(signum);  
+	// 	exit(signum);
 	// }
 
 	void Server::run() {
@@ -182,13 +192,13 @@ namespace HTTP {
 		std::map<int, Connection*>::iterator iter = _connections.begin();
 		while (iter != _connections.end()) {
 			if (iter->second->is_hanging_connection()) {
+#ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
+				_delete_events(sock_kqueue, iter->first);
+#endif
 				if (iter->second->is_connection_open()) {
 					iter->second->close();
 					Utility::logger("Connection " + Utility::to_string(iter->first) + " closed on timeout.", PURPLE); // for debug
 				}
-#ifdef _LINUX // manually removing an event from the kqueue as linux is not deleting it when a socket is closed
-				_delete_events(sock_kqueue, temp_iter->first);
-#endif
 				iter = _destroy_connection(iter);
 			} else {
 				++iter;
