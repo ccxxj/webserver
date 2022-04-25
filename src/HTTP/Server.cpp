@@ -292,13 +292,18 @@ namespace HTTP {
 		for(it = _connections.begin(); it != _connections.end(); it++){
 			int read_fd = it->second->get_cgi_read_fd();
 			if(read_fd != -1) {
-				fstat(read_fd, &sb);
+				if(fstat(read_fd, &sb) < 0){
+					std::perror("fstat");
+					it->second->handle_internal_server_error();
+					it->second->set_response_true();//set the response ready to be send to client (500 error page)
+				}
 				response.resize(sb.st_size);
 				int rt = read(read_fd, (char*)(response.data()), sb.st_size);
 				if(rt < 0){
 					std::perror("read");
-					it->second->handle_internal_server_error();
+					it->second->handle_internal_server_error();	
 					it->second->set_response_true();//set the response ready to be send to client (500 error page)
+					close(read_fd);
 				}
 				HTTPResponse::ResponseMessage& _http_response = it->second->get_response_message();
 				update_response_message(_http_response, response);
@@ -320,17 +325,23 @@ namespace HTTP {
 					it->second->handle_internal_server_error();
 					it->second->set_response_true();//set the response ready to be send to client (500 error page)
 				}
-				try{
-					it->second->execute_cgi(sock_kqueue);	
-				}
-				catch(std::exception &e){
+				else if(rt == 0 && request_message_body.size() != 0){//when the request message body size is zero write will return 0
+					std::perror("write fd undefined");
 					it->second->handle_internal_server_error();
 					it->second->set_response_true();//set the response ready to be send to client (500 error page)
+				}
+				else{
+					try{
+						it->second->execute_cgi(sock_kqueue);	
+					}
+					catch(std::exception &e){
+						it->second->handle_internal_server_error();
+						it->second->set_response_true();//set the response ready to be send to client (500 error page)
+					}
 				}
 				close(write_fd);
 				it->second->set_cgi_write_fd(-1);
 			}
 		}
 	}
-
 }
