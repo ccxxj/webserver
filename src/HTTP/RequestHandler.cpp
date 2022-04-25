@@ -19,7 +19,7 @@ namespace HTTP {
 	, _config_data(config_data)
 	, _connection_listen_info(listen_info)
 	, response_handler(&_http_request_message, &_http_response_message)
-	, _cgi_handler()
+	, _cgi_handler(_connection_listen_info.port)
 	, response_ready(false)
 	{
 	}
@@ -49,7 +49,7 @@ namespace HTTP {
 				return;
 			}
 			if (!response_ready) { // checking if the response with the error code has been filled
-				if(!_process_http_request(kq, socket_fd)) //this means the cgi is encounted and data prepared
+				if(!_process_http_request(socket_fd)) //this means the cgi is encounted and data prepared
 				{
 					//add writing event
 					struct kevent kev;
@@ -86,12 +86,11 @@ namespace HTTP {
 		return stringified_code;
 	}
 
-	bool RequestHandler::RequestHandler::_process_http_request(int kq, int socket_fd) {
+	bool RequestHandler::RequestHandler::_process_http_request(int socket_fd) {
 		const Config::ServerBlock *virtual_server = _find_virtual_server();
 		const Config::LocationBlock *location = _match_most_specific_location(virtual_server);
 		response_handler.set_config_rules(virtual_server, location);
-		
-		return response_handler.create_http_response(kq, _cgi_handler, socket_fd); //FROM here, it's moving to ResponseHandler
+		return response_handler.create_http_response(_cgi_handler, socket_fd); //FROM here, it's moving to ResponseHandler
 	}
 
 	const Config::ServerBlock* RequestHandler::_find_virtual_server() {
@@ -166,10 +165,6 @@ namespace HTTP {
 	void RequestHandler::set_cgi_handler(CGIHandler cgi_handler){
 		_cgi_handler = cgi_handler;
 	}
-
-    // CGIHandler RequestHandler::get_cgi_handler(){
-	// 	return _cgi_handler;
-	// }
 
 	void RequestHandler::execute_cgi(int kq){
 		_cgi_handler.execute_cgi(kq);

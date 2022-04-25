@@ -28,7 +28,7 @@ namespace HTTP {
 
         void _handle_request_exception(HTTPResponse::StatusCode code);
         const std::string _convert_status_code_to_string(const int code);
-        bool _process_http_request(int kq, int socket_fd);
+        bool _process_http_request(int socket_fd);
 		const Config::ServerBlock* _find_virtual_server();
 		const Config::ServerBlock* _match_server_based_on_server_name(std::vector<const Config::ServerBlock*> matching_servers);
 		const Config::LocationBlock* _match_most_specific_location(const Config::ServerBlock *server);

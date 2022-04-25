@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-#include <string.h> // strerror TODO: remove
+#include <string.h> // strerror
 #include <cstdlib> // for exit
 #include <cstdio> // for perror
 #include <fcntl.h> // for fcntl
@@ -223,7 +223,7 @@ namespace HTTP {
 		//set any remaining headers
 		_http_response_message.set_header_element("Server", "HungerWeb/1.0");
 		_http_response_message.set_header_element("Date", Utility::get_formatted_date());
-		_http_response_message.set_header_element("Content-Length", Utility::to_string(message_body.length())); //TODO header is also included
+		_http_response_message.set_header_element("Content-Length", Utility::to_string(message_body.length()));
 		// build status line
 		final_response += _http_response_message.get_HTTP_version() + " ";
 		final_response += "200 ";
@@ -324,7 +324,6 @@ namespace HTTP {
 			int write_fd = it->second->get_cgi_write_fd();
 			if(write_fd != -1){
 				std::string request_message_body = it->second->get_request_message_body();
-				//TODO check write value
 				int rt = write(write_fd, request_message_body.c_str(), request_message_body.size());
 				if(rt < 0){
 					std::perror("write error");

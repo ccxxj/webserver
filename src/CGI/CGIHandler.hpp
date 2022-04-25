@@ -13,7 +13,7 @@
 class CGIHandler
 {
 private:
-	char *_envp[Constants::ENVP_SIZE];		// TODO check if this is the right size, terminated with 0
+	char *_envp[Constants::ENVP_SIZE];
 	char *_argument[Constants::ARGUMENTS_SIZE];
 	std::map<std::string, std::string> _meta_variables;
 	std::string _cgi_name;
@@ -30,9 +30,10 @@ private:
 	class CGIexception : public std::exception{
 		const char* what() const _NOEXCEPT { return "internal server error"; }
 	};
+	CGIHandler();
 
 public:		
-	CGIHandler();
+	CGIHandler(int port_number);
 	~CGIHandler();
 	void parse_meta_variables(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config);
 	void prepare_cgi_data(HTTPRequest::RequestMessage *_http_request_message, HTTPResponse::SpecifiedConfig &_config, int socket_fd);

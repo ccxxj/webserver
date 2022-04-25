@@ -31,8 +31,7 @@ namespace HTTPResponse {
 
 	ResponseHandler::~ResponseHandler(){}
 
-//TODO remove kq as input parameter
-	bool ResponseHandler::create_http_response(int kq, CGIHandler &cgi_handler, int socket_fd) {
+	bool ResponseHandler::create_http_response(CGIHandler &cgi_handler, int socket_fd) {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
 		//log request info
 		Utility::logger(request_info(), YELLOW);
@@ -109,7 +108,7 @@ namespace HTTPResponse {
 		// set any remaining headers
 		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
 		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
-		_http_response_message->set_header_element("Content-Length", Utility::to_string(message_body.length())); //TODO header is also included
+		_http_response_message->set_header_element("Content-Length", Utility::to_string(message_body.length()));
 		//get the last-modified info from the File utility and add it to headers
 
 		// build status line
@@ -412,11 +411,4 @@ namespace HTTPResponse {
 
 		return tmp;
 	}
-
-	// char* ResponseHandler::handle_cgi(int fd, int kq)
-	// std::string ResponseHandler::handle_cgi(int fd, int kq)
-	// {
-	// 	// return _cgi_handler.execute_cgi(_http_request_message, _config, fd);
-	// 	return _cgi_handler.execute_cgi(_http_request_message, _config, fd, kq);
-	// }
 }

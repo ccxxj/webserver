@@ -72,13 +72,5 @@ namespace tests {
             HTTPRequest::URIData uri_data;
             CHECK_THROWS_AS(uri.parse(uri_data), Exception::RequestException);
         }
-
-        //TODO check if this test is still valid
-        // SECTION("test exception handling when missing euqal sign"){
-        //     uri_string = "google/doc/?query%31=%6ebc&query%32=%6Ecd&a%65";
-        //     HTTPRequest::URIParser uri(uri_string);
-        //     HTTPRequest::URIData uri_data;
-        //     CHECK_THROWS_AS(uri.parse(uri_data), Exception::RequestException);
-        // }
     }
 }
