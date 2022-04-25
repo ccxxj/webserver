@@ -80,8 +80,12 @@ namespace HTTP {
 		if (bytes_sent < 0) {
 			Utility::logger("Send failed. errno: " + Utility::to_string(errno), RED);
 			this->close();
+			return;
 		}
 		logtime_counter.update_last_activity_logtime();
+		if (bytes_sent == 0) {
+			usleep(1000);
+		}
 		if (buffer_size > (size_t)bytes_sent) { // erasing the part that has been sent if the buffer is bigger than we can handle
 			buffer.erase(0, (size_t)bytes_sent);
 		}
