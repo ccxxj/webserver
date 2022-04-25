@@ -12,6 +12,7 @@
 #include <fcntl.h> // for fcntl
 #include <sys/time.h> // for timeout
 #include <sys/stat.h> // for fstat
+#include <csignal>
 #ifdef _LINUX
 	#include "/usr/include/kqueue/sys/event.h" //linux kqueue
 #else
@@ -36,7 +37,15 @@ namespace HTTP {
 		}
 	}
 
+	// for leaks debug purposes
+	// void signalHandler(int signum ) {
+	// 	system("leaks webserver");
+	// 	std::cout << "Interrupt signal (" << signum << ") received.\n";
+	// 	exit(signum);  
+	// }
+
 	void Server::run() {
+		// signal(SIGINT, signalHandler); // for leaks debug
 		_setup_listening_ports();
 		_setup_listening_sockets();
 		_handle_events();
@@ -344,4 +353,5 @@ namespace HTTP {
 			}
 		}
 	}
+
 }
