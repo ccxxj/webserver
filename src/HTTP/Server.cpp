@@ -189,22 +189,15 @@ namespace HTTP {
 	}
 
 	void Server::_handle_disconnected_client(int current_event_fd) {
-		Utility::logger("The client has disconnected.", RED);
+		Utility::logger("The client " + Utility::to_string(current_event_fd) + " has disconnected.", BLUE);
 		close(current_event_fd);
 		_remove_disconnected_client(current_event_fd);
-		Utility::logger("FD " + Utility::to_string(current_event_fd) + " is closed and removed from _connections." , RED);
+		Utility::logger("FD " + Utility::to_string(current_event_fd) + " is closed and removed from _connections." , BLUE);
 	}
 
 	void Server::_remove_disconnected_client(int fd) {
-		std::map<int, Connection*>::iterator iter = _connections.begin();
-		while (iter != _connections.end()) {
-			if (iter->first == fd) {
-				std::cout << "check4\n";
-				_destroy_connection(iter);
-				break;
-			}
-			iter++;
-		}
+		std::map<int, Connection*>::iterator disconnected_client = _connections.find(fd);
+		_destroy_connection(disconnected_client);
 	}
 
 	std::map<int, Connection*>::iterator Server::_destroy_connection(std::map<int, Connection*>::iterator iterator) {
@@ -252,7 +245,7 @@ namespace HTTP {
 
 		Connection* connection_ptr = new Connection(connection_socket_fd, config_data, _running_servers[current_event_fd], connection_addr);
 		_connections.insert(std::make_pair(connection_socket_fd, connection_ptr));
-		Utility::logger("New connection " + Utility::to_string(connection_socket_fd) + " on port  : " + Utility::to_string(_running_servers[current_event_fd].port), MAGENTA);
+		Utility::logger("New connection " + Utility::to_string(connection_socket_fd) + " on port: " + Utility::to_string(_running_servers[current_event_fd].port), MAGENTA);
 
 		// Register a read events for the client:
 		struct kevent kev;
