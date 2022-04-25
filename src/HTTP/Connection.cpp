@@ -24,7 +24,6 @@ namespace HTTP {
 	Connection::~Connection(){
 	}
 
-	// void Connection::handle_http_request(int kq, CGIHandler &cgi_handler) {
 	void Connection::handle_http_request(int kq) {
 		request_handler->handle_http_request(kq, _socket_fd);
 		if(request_handler->get_search_cgi_extention_result()){

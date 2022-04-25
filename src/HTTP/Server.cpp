@@ -234,11 +234,8 @@ namespace HTTP {
 				final_response += it->first + ": " + it->second;
 			final_response += "\r\n";
 		}
-		// if body is not empty add it to  response. Format: \r\n {body}
-		// final_response += "\r\n";//comment out as it is contained in the cgi script
 		final_response += response;
 		_http_response_message.append_complete_response(final_response);
-		// set the flag to true
 	}
 
 	void Server::_accept_new_connection(int current_event_fd, int sock_kqueue) {
@@ -312,7 +309,7 @@ namespace HTTP {
 				}
 				HTTPResponse::ResponseMessage& _http_response = it->second->get_response_message();
 				update_response_message(_http_response, response);
-				it->second->set_response_true();
+				it->second->set_response_true();// set the flag to true
 				break;
 			}
 		}
@@ -320,7 +317,7 @@ namespace HTTP {
 
 	void Server::_handle_write_end_of_pipe(int sock_kqueue) {
 		std::map<int, Connection *>::iterator it;
-		for(it = _connections.begin(); it != _connections.end(); it++){//for loop is not run?
+		for(it = _connections.begin(); it != _connections.end(); it++){
 			int write_fd = it->second->get_cgi_write_fd();
 			if(write_fd != -1){
 				std::string request_message_body = it->second->get_request_message_body();

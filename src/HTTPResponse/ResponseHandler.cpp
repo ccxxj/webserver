@@ -96,41 +96,6 @@ namespace HTTPResponse {
 
 		_build_final_response();
 	}
-		
-	void ResponseHandler::_build_final_cgi_response(std::string &cgi_response)
-	{
-		std::string response;
-		std::size_t position = cgi_response.find("\r\n\r\n");
-		std::string message_body = cgi_response;
-		if(position != std::string::npos){
-			message_body = cgi_response.substr(position + 4);
-		}
-		// set any remaining headers
-		_http_response_message->set_header_element("Server", "HungerWeb/1.0");
-		_http_response_message->set_header_element("Date", Utility::get_formatted_date());
-		_http_response_message->set_header_element("Content-Length", Utility::to_string(message_body.length()));
-		//get the last-modified info from the File utility and add it to headers
-
-		// build status line
-		response += _http_response_message->get_HTTP_version() + " ";
-		response += "200 ";
-		response += "OK\r\n";
-
-		// add all the headers to response. Format is {Header}: {Header value} \r\n
-		for (std::map<std::string, std::string>::const_iterator it = _http_response_message->get_response_headers().begin(); it != _http_response_message->get_response_headers().end(); it++) {
-			if (!it->first.empty())
-				response += it->first + ": " + it->second;
-			response += "\r\n";
-		}
-
-		// if body is not empty add it to  response. Format: \r\n {body}
-		// response += "\r\n";
-		response += cgi_response;
-		// std::cout << response << std::endl;
-		//final step
-		_http_response_message->append_complete_response(response);
-		std::cout << "complete response: " << response << std::endl;
-	}
 
 	void ResponseHandler::_handle_methods(void) {
 		if (_http_request_message->get_method() == "DELETE")

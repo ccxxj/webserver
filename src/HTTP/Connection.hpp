@@ -38,7 +38,6 @@ namespace HTTP {
 		int get_cgi_read_fd() const;
 		std::string get_request_message_body();
 		HTTPResponse::ResponseMessage &get_response_message();
-		// Utility::SmartPointer<RequestHandler> get_request_handler();
 		virtual size_t receive(char *buffer, size_t buffer_size);
 		virtual void send(std::string& buffer, size_t buffer_size);
 		virtual void close();
