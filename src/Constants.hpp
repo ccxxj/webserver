@@ -20,6 +20,6 @@ namespace Constants {
 	const int ENVP_SIZE = 18;
 	const int ARGUMENTS_SIZE = 2;
 	const double CONNECTIONS_CHECKER_INTERVAL = 10;
-	const double NO_ACTIVITY_TIMEOUT = 30;
+	const double NO_ACTIVITY_TIMEOUT = 60;
 	const int ERROR = -1;
 }
