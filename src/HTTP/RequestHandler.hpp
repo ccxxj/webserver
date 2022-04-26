@@ -23,7 +23,7 @@ namespace HTTP {
 		Config::ConfigData *_config_data;
 		ListenInfo& _connection_listen_info; //added for host port match
         HTTPResponse::ResponseHandler response_handler;
-        CGIHandler _cgi_handler;
+        CGI::CGIHandler _cgi_handler;
         bool response_ready;
 
         void _handle_request_exception(HTTPResponse::StatusCode code);
@@ -39,7 +39,7 @@ namespace HTTP {
         void handle_http_request(int kq, int socket_fd);
         void send_response();
         void set_response_true();
-        void set_cgi_handler(CGIHandler cgi_handler);
+        void set_cgi_handler(CGI::CGIHandler cgi_handler);
         void execute_cgi(int kq);
         void handle_internal_server_error();
         int get_cgi_write_fd() const;

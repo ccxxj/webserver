@@ -31,7 +31,7 @@ namespace HTTPResponse {
 
 	ResponseHandler::~ResponseHandler(){}
 
-	bool ResponseHandler::create_http_response(CGIHandler &cgi_handler, int socket_fd) {
+	bool ResponseHandler::create_http_response(CGI::CGIHandler &cgi_handler, int socket_fd) {
 		_file.set_path(_config.get_root(), _http_request_message->get_uri().get_path());
 		//log request info
 		Utility::logger(request_info(), YELLOW);

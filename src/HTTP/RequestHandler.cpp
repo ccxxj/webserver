@@ -162,7 +162,7 @@ namespace HTTP {
 		response_ready = true;
 	}
 	
-	void RequestHandler::set_cgi_handler(CGIHandler cgi_handler){
+	void RequestHandler::set_cgi_handler(CGI::CGIHandler cgi_handler){
 		_cgi_handler = cgi_handler;
 	}
 

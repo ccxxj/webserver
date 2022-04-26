@@ -44,7 +44,7 @@ namespace HTTPResponse
 		const ResponseHandler &operator=(const ResponseHandler &other);
 		~ResponseHandler();
 
-		bool create_http_response(CGIHandler &cgi_handler, int socket_fd);
+		bool create_http_response(CGI::CGIHandler &cgi_handler, int socket_fd);
 		void handle_error(HTTPResponse::StatusCode code);
 		std::string handle_cgi(int fd, int kq);
 		void set_config_rules(const Config::ServerBlock *virtual_server, const Config::LocationBlock *location);
